@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FED32C</color>
+    <color name="colorPrimaryDark">#6e09d6</color>
+    <color name="colorAccent">#6e09d6</color>
+    <color name="colorLaranjaOlx">#F78323</color>
+    <color name="colorRoxoOlx">#6e09d6</color>
+    <color name="colorDelete">#E12E2E</color>
+    <color name="colorFavorito">#E12E2E</color>
+    <color name="colorEdit">#346DEB</color>
+    <color name="colorDivisor">#EFEFEF</color>
+</resources>
