@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">OLX</string>
+
+    <string name="menu_inicio">Início</string>
+    <string name="menu_favoritos">Favoritos</string>
+    <string name="menu_perfil">Perfil</string>
+    <string name="menu_meus_anuncios">Meus Anúncios</string>
 </resources>
