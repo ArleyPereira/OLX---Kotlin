@@ -131,7 +131,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button"
+                app:layout_constraintTop_toBottomOf="@+id/btnCriarConta"
                 tools:visibility="visible" />
 
             <com.santalu.maskara.widget.MaskEditText
@@ -155,7 +155,7 @@
                 app:maskStyle="completable" />
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/btnCriarConta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

@@ -11,13 +11,15 @@
         android:theme="@style/Theme.OLX">
         <activity android:name=".autenticacao.RecuperarSenhaActivity"></activity>
         <activity android:name=".activity.SplashActivity">
+
+        </activity>
+        <activity android:name=".autenticacao.CriarContaActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".autenticacao.CriarContaActivity" />
         <activity android:name=".autenticacao.LoginActivity" />
         <activity android:name=".activity.MainActivity" />
     </application>
