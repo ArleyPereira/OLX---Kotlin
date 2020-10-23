@@ -23,7 +23,7 @@ class GetFirebase {
         fun getAutenticado() = getAuth().currentUser != null
 
         // Retorna o id do acesso autenticado
-        fun getIdFirebase() = getAuth().uid
+        fun getIdFirebase() = getAuth().uid.toString()
 
         // Valida erros de cadastro e login
         fun getMsg(erro: String?): String? {

@@ -3,25 +3,18 @@ package com.example.olx.autenticacao
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
 import com.example.olx.activity.MainActivity
 import com.example.olx.helper.GetFirebase
 import com.example.olx.model.Usuario
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_criar_conta.*
-import kotlinx.android.synthetic.main.activity_criar_conta.editEmail
-import kotlinx.android.synthetic.main.activity_criar_conta.editSenha
-import kotlinx.android.synthetic.main.activity_criar_conta.progressBar
-import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.toolbar_voltar.*
+import java.util.*
 
 class CriarContaActivity : AppCompatActivity() {
 
@@ -58,7 +51,14 @@ class CriarContaActivity : AppCompatActivity() {
                             progressBar.visibility = View.VISIBLE
 
                             // Criar a conta do Usuário no Firebase Autentication
-                            criarConta(Usuario(nome = nome, email = email, senha = senha, telefone = telefone))
+                            criarConta(
+                                Usuario(
+                                    nome = nome,
+                                    email = email,
+                                    senha = senha,
+                                    telefone = telefone
+                                )
+                            )
 
                         } else {
                             editSenha.requestFocus()
@@ -130,7 +130,7 @@ class CriarContaActivity : AppCompatActivity() {
 
     // Salva os dados do Usuário no Firebase Data Base
     private fun salvarCadastro(usuario: Usuario) {
-        val usuarioRef = GetFirebase.getDatabase()
+     val usuarioRef = GetFirebase.getDatabase()
             .child("usuarios")
             .child(usuario.id)
         usuarioRef.setValue(usuario)
