@@ -12,10 +12,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blackcat.currencyedittext.CurrencyEditText
 import com.example.olx.R
+import com.example.olx.Util.SPFiltro
 import com.example.olx.api.CEPService
 import com.example.olx.helper.GetFirebase
 import com.example.olx.model.Anuncio
 import com.example.olx.model.Local
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_form_anuncio.*
 import kotlinx.android.synthetic.main.activity_form_anuncio.btnSalvar
 import kotlinx.android.synthetic.main.activity_form_anuncio.editNome
@@ -54,8 +56,30 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        // Exibe as informações nos elementos
+        configDados()
+
+    }
+
+    // Exibe as informações nos elementos
+    private fun configDados() {
+
+        val filtro = SPFiltro.getFiltro(this)
+        categoria = filtro.categoria
+
+        if (categoria.isNotBlank()) {
+            btnCategoria.text = categoria
+        } else {
+            btnCategoria.text = "Selecione uma categoria"
+        }
+
+    }
+
     // Inicia Retrofit
-    private fun retrofitConfig(){
+    private fun retrofitConfig() {
         retrofit = Retrofit
             .Builder()
             .baseUrl("https://viacep.com.br/ws/")
@@ -64,7 +88,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     }
 
     // Configura o Cep para busca
-    private fun configCep(){
+    private fun configCep() {
 
         editCep.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -77,7 +101,7 @@ class FormAnuncioActivity : AppCompatActivity() {
                     .replace("-", "")
                     .replace("_".toRegex(), "")
 
-                if(cep.length == 8){
+                if (cep.length == 8) {
 
                     // Oculta o teclado do dispotivo
                     ocultaTeclado()
@@ -87,7 +111,7 @@ class FormAnuncioActivity : AppCompatActivity() {
                     buscarEndereco(cep)
 
 
-                }else {
+                } else {
 
                 }
 
@@ -109,7 +133,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         val cepService = retrofit.create(CEPService::class.java)
         val call = cepService.recuperarCEP(cep)
 
-        call.enqueue(object: Callback<Local?> {
+        call.enqueue(object : Callback<Local?> {
             override fun onResponse(call: Call<Local?>?, response: Response<Local?>?) {
 
                 response?.body()?.let {
@@ -156,33 +180,40 @@ class FormAnuncioActivity : AppCompatActivity() {
 
         if (titulo.isNotBlank()) {
             if (preco > 0) {
-                if (descricao.isNotBlank()) {
+                if (categoria.isNotBlank()) {
+                    if (descricao.isNotBlank()) {
 
-                    if(local != null){
+                        if(local != null){
 
-                        // Oculta o teclado do dispositivo
-                        ocultaTeclado()
+                            // Oculta o teclado do dispositivo
+                            ocultaTeclado()
 
-                        // Exibe a progressBar
-                        progressBar.visibility = View.VISIBLE
+                            // Exibe a progressBar
+                            progressBar.visibility = View.VISIBLE
 
-                        anuncio = Anuncio(
-                            titulo = titulo,
-                            preco =  preco.toDouble(),
-                            descricao =  descricao,
-                            local = local!!
-                        )
+                            anuncio = Anuncio(
+                                titulo = titulo,
+                                preco =  preco.toDouble(),
+                                categoria = categoria,
+                                descricao =  descricao,
+                                local = local!!
+                            )
 
-                        // Salva o Anúncio no Firebase
-                        salvaAnuncio()
-                    }else{
-                        editCep.error = "Informe o CEP."
-                        editCep.requestFocus()
+                            // Salva o Anúncio no Firebase
+                            salvaAnuncio()
+
+                        }else{
+                            editCep.error = "Informe o CEP."
+                            editCep.requestFocus()
+                        }
+
+                    } else {
+                        editDescricao.error = "Informe a descrição."
+                        editDescricao.requestFocus()
                     }
-
                 } else {
-                    editDescricao.error = "Informe a descrição."
-                    editDescricao.requestFocus()
+                    Snackbar.make(btnCategoria, "Selecione a categoria.", Snackbar.LENGTH_SHORT)
+                        .show()
                 }
             } else {
                 editPreco.error = "Informe o preço."
@@ -226,6 +257,11 @@ class FormAnuncioActivity : AppCompatActivity() {
     private fun configCliques() {
         ibVoltar.setOnClickListener { finish() }
         btnSalvar.setOnClickListener { validaDados() }
+        btnCategoria.setOnClickListener {
+            val intent = Intent(this, CategoriasActivity::class.java)
+            intent.putExtra("todasCategorias", false)
+            startActivity(intent)
+        }
     }
 
     // Oculta o teclado do dispositivo

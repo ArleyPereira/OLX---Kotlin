@@ -1,0 +1,54 @@
+package com.example.olx.activity
+
+import android.os.Bundle
+import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.olx.R
+import com.example.olx.Util.CategoriaList
+import com.example.olx.Util.SPFiltro
+import com.example.olx.adapter.AdapterCategoria
+import com.example.olx.model.Categoria
+import kotlinx.android.synthetic.main.activity_categorias.*
+
+class CategoriasActivity : AppCompatActivity(), AdapterCategoria.OnClickListener {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_categorias)
+
+        // Inicia componentes de tela
+        iniciaComponentes()
+
+        // Inicia RecyclerView
+        val todasCategorias = intent.getBooleanExtra("todasCategorias", true)
+        configRv(todasCategorias)
+
+    }
+
+    // Inicia RecyclerView
+    private fun configRv(todas: Boolean){
+        rvCategorias.layoutManager = LinearLayoutManager(this)
+        rvCategorias.adapter = AdapterCategoria(CategoriaList.getList(todas), this)
+    }
+
+    // Inicia componentes de tela
+    private fun iniciaComponentes(){
+        findViewById<View>(R.id.ibVoltar).setOnClickListener { finish() }
+
+        val textToolbar = findViewById<TextView>(R.id.textToolbar)
+        textToolbar.text = "Categorias"
+    }
+
+    override fun onItemClick(categoria: Categoria) {
+        if(categoria.nome != "Todas as Categorias"){
+            SPFiltro.setFiltro(this, "categoria", categoria.nome)
+        }else {
+            SPFiltro.setFiltro(this, "categoria", "")
+        }
+        finish()
+    }
+
+}
