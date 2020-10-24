@@ -7,7 +7,8 @@ class Anuncio(
     var titulo: String = "",
     var preco: Double = 0.0,
     var categoria: String = "",
-    var descricao: String = ""
+    var descricao: String = "",
+    var local: Local
 ) {
 
     init {

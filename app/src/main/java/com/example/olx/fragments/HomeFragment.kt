@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.olx.R
 import com.example.olx.activity.FormAnuncioActivity
+import com.example.olx.autenticacao.LoginActivity
+import com.example.olx.helper.GetFirebase
 import kotlinx.android.synthetic.main.fragment_home.view.*
 
 class HomeFragment : Fragment() {
@@ -28,7 +30,13 @@ class HomeFragment : Fragment() {
 
     // Ouvinte Cliques
     private fun configCliques(view: View){
-        view.btnInserir.setOnClickListener { startActivity(Intent(activity, FormAnuncioActivity::class.java)) }
+        view.btnInserir.setOnClickListener {
+            if(GetFirebase.getAutenticado()){
+                startActivity(Intent(activity, FormAnuncioActivity::class.java))
+            }else {
+                startActivity(Intent(activity, LoginActivity::class.java))
+            }
+        }
     }
 
 }
