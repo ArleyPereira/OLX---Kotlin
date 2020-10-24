@@ -117,7 +117,7 @@ class CriarContaActivity : AppCompatActivity() {
         builder.setTitle("Erro")
         builder.setMessage(msg)
 
-        builder.setPositiveButton(android.R.string.yes) { dialog, _ ->
+        builder.setPositiveButton("OK") { dialog, _ ->
             dialog.dismiss()
         }
 

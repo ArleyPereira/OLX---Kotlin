@@ -8,8 +8,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OLX">
-        <activity android:name=".activity.PerfilActivity"></activity>
+        android:theme="@style/AppTheme">
+        <activity android:name=".activity.FormAnuncioActivity"></activity>
+        <activity android:name=".activity.PerfilActivity" />
         <activity android:name=".autenticacao.RecuperarSenhaActivity" />
         <activity android:name=".activity.SplashActivity">
             <intent-filter>
@@ -18,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".autenticacao.CriarContaActivity"></activity>
+        <activity android:name=".autenticacao.CriarContaActivity" />
         <activity android:name=".autenticacao.LoginActivity" />
         <activity android:name=".activity.MainActivity" />
     </application>

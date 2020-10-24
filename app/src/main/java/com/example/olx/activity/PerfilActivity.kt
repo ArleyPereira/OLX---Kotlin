@@ -20,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_perfil.*
 
 class PerfilActivity : AppCompatActivity() {
@@ -48,7 +49,7 @@ class PerfilActivity : AppCompatActivity() {
     private fun recuperaDados() {
         val usuarioRef = GetFirebase.getDatabase()
             .child("usuarios")
-            .child(GetFirebase.getIdFirebase()!!)
+            .child(GetFirebase.getIdFirebase())
         usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -75,6 +76,12 @@ class PerfilActivity : AppCompatActivity() {
     // Configura as informações nos elementos
     private fun configDados() {
 
+        if (usuario.urlImagem.isNotBlank()) {
+            Picasso.get()
+                .load(usuario.urlImagem)
+                .placeholder(R.drawable.loading)
+                .into(imagemPerfil)
+        }
         editNome.setText(usuario.nome)
         editTelefone.setText(usuario.telefone)
         editEmail.setText(usuario.email)

@@ -53,4 +53,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.5.0'
     implementation 'com.google.firebase:firebase-auth:19.4.0'
 
+    // Picasso -> https://github.com/square/picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // Mascara valores -> https://github.com/BlacKCaT27/CurrencyEditText
+    implementation 'com.github.BlacKCaT27:CurrencyEditText:2.0.2'
+
 }
