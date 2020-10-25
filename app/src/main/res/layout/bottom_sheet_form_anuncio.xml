@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet">
+
+    <Button
+        android:id="@+id/btnTirarFoto"
+        android:layout_width="match_parent"
+        android:layout_height="62sp"
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/ic_camera_bottom_sheet"
+        android:text="Tirar foto"
+        android:textAllCaps="false"
+        android:textAlignment="textStart"
+        android:drawablePadding="16dp"
+        android:paddingStart="24dp"
+        android:textSize="16sp"
+        android:paddingEnd="0dp"/>
+
+    <Button
+        android:id="@+id/btnGaleria"
+        android:layout_width="match_parent"
+        android:layout_height="62sp"
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/ic_galeria_bottom_sheet"
+        android:text="Escolher existente..."
+        android:textAllCaps="false"
+        android:textAlignment="textStart"
+        android:drawablePadding="16dp"
+        android:paddingStart="24dp"
+        android:textSize="16sp"
+        android:paddingEnd="0dp"/>
+
+    <Button
+        android:id="@+id/btnCancelar"
+        android:layout_width="match_parent"
+        android:layout_height="62sp"
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/ic_cancelar_bottom_sheet"
+        android:text="Cancelar"
+        android:textAllCaps="false"
+        android:textAlignment="textStart"
+        android:drawablePadding="20dp"
+        android:paddingStart="30dp"
+        android:textSize="16sp"
+        android:paddingEnd="0dp"/>
+
+</LinearLayout>

@@ -8,7 +8,8 @@ class Anuncio(
     var preco: Double = 0.0,
     var categoria: String = "",
     var descricao: String = "",
-    var local: Local
+    var local: Local,
+    var urlFotos: MutableList<String> = mutableListOf()
 ) {
 
     init {
