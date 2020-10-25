@@ -1,5 +1,6 @@
 package com.example.olx.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -43,11 +44,9 @@ class CategoriasActivity : AppCompatActivity(), AdapterCategoria.OnClickListener
     }
 
     override fun onItemClick(categoria: Categoria) {
-        if(categoria.nome != "Todas as Categorias"){
-            SPFiltro.setFiltro(this, "categoria", categoria.nome)
-        }else {
-            SPFiltro.setFiltro(this, "categoria", "")
-        }
+        val intent = Intent()
+        intent.putExtra("categoriaSelecionada", categoria)
+        setResult(RESULT_OK, intent)
         finish()
     }
 

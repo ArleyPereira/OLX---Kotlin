@@ -5,4 +5,9 @@
     <string name="menu_favoritos">Favoritos</string>
     <string name="menu_perfil">Perfil</string>
     <string name="menu_meus_anuncios">Meus Anúncios</string>
+
+    <string name="valor_anuncio">R$ %1$s</string>
+    <string name="publicacao_anuncio">%1$s, %2$s</string>
+    <string name="publicacao_local">%1$s, %2$s, %3$s</string>
+
 </resources>

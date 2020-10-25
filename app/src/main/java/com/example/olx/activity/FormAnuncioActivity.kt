@@ -22,10 +22,12 @@ import com.example.olx.Util.SPFiltro
 import com.example.olx.api.CEPService
 import com.example.olx.helper.GetFirebase
 import com.example.olx.model.Anuncio
+import com.example.olx.model.Categoria
 import com.example.olx.model.Imagem
 import com.example.olx.model.Local
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_form_anuncio.*
 import kotlinx.android.synthetic.main.toolbar_voltar.*
 import retrofit2.Call
@@ -37,9 +39,11 @@ import java.util.*
 
 class FormAnuncioActivity : AppCompatActivity() {
 
-    private val novoAnuncio = true
+    private val REQUEST_CATEGORIA = 10
+
+    private var novoAnuncio = true
     private lateinit var anuncio: Anuncio
-    private var categoria: String = ""
+    private var categoriaSelecinada: String = ""
     private var local: Local? = null
     private val imagemList = mutableListOf<Imagem>()
     private lateinit var retrofit: Retrofit
@@ -54,6 +58,9 @@ class FormAnuncioActivity : AppCompatActivity() {
         // Inicia componentes de tela
         iniciaComponentes()
 
+        // Recupera informações via Intent
+        getInfoIntent()
+
         // Ouvinte Cliques
         configCliques()
 
@@ -62,12 +69,14 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        // Exibe as informações nos elementos
-        configDados()
-
+    // Recupera informações via Intent
+    private fun getInfoIntent() {
+        val bundle = intent.extras
+        if (bundle != null) {
+            anuncio = intent.getSerializableExtra("anuncio") as Anuncio
+            novoAnuncio = intent.getBooleanExtra("novoAnuncio", false)
+            configDados()
+        }
     }
 
     // Ouvinte Cliques
@@ -77,7 +86,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         btnCategoria.setOnClickListener {
             val intent = Intent(this, CategoriasActivity::class.java)
             intent.putExtra("todasCategorias", false)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CATEGORIA)
         }
 
         imagem0.setOnClickListener { showBottomSheet(0) }
@@ -117,14 +126,32 @@ class FormAnuncioActivity : AppCompatActivity() {
     // Exibe as informações nos elementos
     private fun configDados() {
 
-        val filtro = SPFiltro.getFiltro(this)
-        categoria = filtro.categoria
+        // TextView Toolbar
+        textToolbar.text = "Edição anúncio"
 
-        if (categoria.isNotBlank()) {
-            btnCategoria.text = categoria
-        } else {
-            btnCategoria.text = "Selecione uma categoria"
-        }
+        // Fotos
+        Picasso.get().load(anuncio.urlFotos[0]).into(imagem0)
+        Picasso.get().load(anuncio.urlFotos[1]).into(imagem1)
+        Picasso.get().load(anuncio.urlFotos[2]).into(imagem2)
+
+        // Titulo
+        editNome.setText(anuncio.titulo)
+
+        // Preço
+        editPreco.setText((anuncio.preco * 10).toString())
+
+        // Categoria
+        btnCategoria.text = anuncio.categoria
+        categoriaSelecinada = anuncio.categoria
+
+        //Descrição
+        editDescricao.setText(anuncio.descricao)
+
+        // CEP
+        editCep.setText(anuncio.local.cep)
+        local = anuncio.local
+        textLocal.text =
+            getString(R.string.publicacao_local, local?.bairro, local?.localidade, local?.uf)
 
     }
 
@@ -175,6 +202,8 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     }
 
+    // Realiza a busca do endereço
+    // com base no CEP digitado
     private fun buscarEndereco(cep: String) {
 
         // Exibe a progressBar
@@ -230,7 +259,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
         if (titulo.isNotBlank()) {
             if (preco > 0) {
-                if (categoria.isNotBlank()) {
+                if (categoriaSelecinada.isNotBlank()) {
                     if (descricao.isNotBlank()) {
 
                         if (local != null) {
@@ -241,15 +270,16 @@ class FormAnuncioActivity : AppCompatActivity() {
                             // Exibe a progressBar
                             progressBar.visibility = View.VISIBLE
 
-                            anuncio = Anuncio(
-                                titulo = titulo,
-                                preco = preco.toDouble(),
-                                categoria = categoria,
-                                descricao = descricao,
-                                local = local!!
-                            )
-
                             if (novoAnuncio) { // Novo Anúncio
+
+                                anuncio = Anuncio(
+                                    id = GetFirebase.getDatabase().push().key.toString(),
+                                    titulo = titulo,
+                                    preco = preco.toDouble(),
+                                    categoria = categoriaSelecinada,
+                                    descricao = descricao,
+                                    local = local!!
+                                )
 
                                 if (imagemList.size == 3) {
 
@@ -265,20 +295,35 @@ class FormAnuncioActivity : AppCompatActivity() {
                                     ).show()
                                 }
 
-                            }else { // Edita Anúncio
+                            } else { // Edita Anúncio
 
-                                if(imagemList.isNotEmpty()){
+                                val id = anuncio.id
+                                val dataCadastro = anuncio.dataCadastro
+
+                                anuncio = Anuncio(
+                                    id = id,
+                                    titulo = titulo,
+                                    preco = preco.toDouble(),
+                                    categoria = categoriaSelecinada,
+                                    descricao = descricao,
+                                    local = local!!,
+                                    dataCadastro = dataCadastro,
+                                    urlFotos = anuncio.urlFotos
+                                )
+
+                                if (imagemList.isNotEmpty()) {
 
                                     for (i in imagemList.indices) {
                                         salvaImagemFirebase(i)
                                     }
 
-                                }else { // Não teve edições de imagens
+                                } else { // Não teve edições de imagens
 
                                     // Salva o Anúncio no Firebase
                                     salvaAnuncio()
 
                                 }
+
 
                             }
 
@@ -308,15 +353,15 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Salva a Imagem no Firebase Storage e recupera a URL
     private fun salvaImagemFirebase(index: Int) {
-        val StorageReference = GetFirebase.getStorage()
+        val storageReference = GetFirebase.getStorage()
             .child("imagens")
             .child("anuncios")
             .child(anuncio.id)
             .child("imagem$index.jpeg")
 
-        val uploadTask = StorageReference.putFile(Uri.parse(imagemList[index].caminhoImagem))
+        val uploadTask = storageReference.putFile(Uri.parse(imagemList[index].caminhoImagem))
         uploadTask.addOnSuccessListener {
-            StorageReference.downloadUrl.addOnCompleteListener { task ->
+            storageReference.downloadUrl.addOnCompleteListener { task ->
 
                 if (novoAnuncio) {
                     anuncio.urlFotos.add(task.result.toString())
@@ -337,29 +382,20 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Salva o Anúncio no Firebase
     private fun salvaAnuncio() {
-        val anuncioRef = GetFirebase.getDatabase()
-            .child("anuncios")
-            .child(GetFirebase.getIdFirebase())
-            .child(anuncio.id)
-        anuncioRef.setValue(anuncio).addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
 
-                // Fecha a tela
-                finish()
+        // Salva o Anúncio no Firebase
+        anuncio.salvar(novoAnuncio)
 
-                // Leva o Usuário para tela de Meus Anúncio
-                val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("id", 2)
-                startActivity(intent)
+        // Fecha a tela
+        finish()
 
-            } else {
-                Toast.makeText(this, "Falha ao salvar o anúncio.", Toast.LENGTH_SHORT).show()
-            }
-
-            // Oculta a progressBar
-            progressBar.visibility = View.GONE
-
+        // Leva o Usuário para tela de Meus Anúncio
+        if (novoAnuncio) {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("id", 2)
+            startActivity(intent)
         }
+
     }
 
     // Oculta o teclado do dispositivo
@@ -416,7 +452,14 @@ class FormAnuncioActivity : AppCompatActivity() {
             val imagemSelecionada = data?.data
             val caminho: String
 
-            if (requestCode <= 2) { // Galeria
+            if (requestCode == REQUEST_CATEGORIA) {
+                val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Categoria?
+                if (categoria != null) {
+                    categoriaSelecinada = categoria.nome
+                    btnCategoria.text = categoriaSelecinada
+                }
+
+            } else if (requestCode <= 2) { // Galeria
 
                 try {
 
