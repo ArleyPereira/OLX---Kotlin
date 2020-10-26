@@ -270,16 +270,18 @@ class FormAnuncioActivity : AppCompatActivity() {
                             // Exibe a progressBar
                             progressBar.visibility = View.VISIBLE
 
+                            if (novoAnuncio) anuncio = Anuncio()
+
+                            anuncio.idUsuario = GetFirebase.getIdFirebase()
+                            anuncio.titulo = titulo
+                            anuncio.preco = preco.toDouble()
+                            anuncio.categoria = categoriaSelecinada
+                            anuncio.descricao = descricao
+                            anuncio.local = local!!
+
                             if (novoAnuncio) { // Novo Anúncio
 
-                                anuncio = Anuncio(
-                                    id = GetFirebase.getDatabase().push().key.toString(),
-                                    titulo = titulo,
-                                    preco = preco.toDouble(),
-                                    categoria = categoriaSelecinada,
-                                    descricao = descricao,
-                                    local = local!!
-                                )
+                                anuncio.id = GetFirebase.getDatabase().push().key.toString()
 
                                 if (imagemList.size == 3) {
 
@@ -297,20 +299,6 @@ class FormAnuncioActivity : AppCompatActivity() {
 
                             } else { // Edita Anúncio
 
-                                val id = anuncio.id
-                                val dataCadastro = anuncio.dataCadastro
-
-                                anuncio = Anuncio(
-                                    id = id,
-                                    titulo = titulo,
-                                    preco = preco.toDouble(),
-                                    categoria = categoriaSelecinada,
-                                    descricao = descricao,
-                                    local = local!!,
-                                    dataCadastro = dataCadastro,
-                                    urlFotos = anuncio.urlFotos
-                                )
-
                                 if (imagemList.isNotEmpty()) {
 
                                     for (i in imagemList.indices) {
@@ -319,8 +307,8 @@ class FormAnuncioActivity : AppCompatActivity() {
 
                                 } else { // Não teve edições de imagens
 
-                                    // Salva o Anúncio no Firebase
-                                    salvaAnuncio()
+                                    // Edita o Anúncio no Firebase
+                                    editaAnuncio()
 
                                 }
 
@@ -384,18 +372,29 @@ class FormAnuncioActivity : AppCompatActivity() {
     private fun salvaAnuncio() {
 
         // Salva o Anúncio no Firebase
-        anuncio.salvar(novoAnuncio)
+        anuncio.salvar()
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("id", 2)
+        startActivity(intent)
 
         // Fecha a tela
         finish()
 
-        // Leva o Usuário para tela de Meus Anúncio
-        if (novoAnuncio) {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("id", 2)
-            startActivity(intent)
-        }
+    }
 
+    // Edita o Anúncio no Firebase
+    private fun editaAnuncio(){
+
+        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.id)
+        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.dataCadastro)
+        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.urlFotos.size)
+
+        // Edita o Anúncio no Firebase
+        anuncio.editar()
+
+       // Fecha a tela
+        finish()
     }
 
     // Oculta o teclado do dispositivo

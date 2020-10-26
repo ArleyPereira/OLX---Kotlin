@@ -9,5 +9,6 @@
     <string name="valor_anuncio">R$ %1$s</string>
     <string name="publicacao_anuncio">%1$s, %2$s</string>
     <string name="publicacao_local">%1$s, %2$s, %3$s</string>
+    <string name="publicacao_detalhe">Publicado em %1$s</string>
 
 </resources>

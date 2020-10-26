@@ -7,6 +7,9 @@ class GetMask {
 
     companion object {
 
+        const val DIA_MES: Int = 1
+        const val DIA_MES_HORA: Int = 2
+
         fun getValor(valor: Double): String {
             val nf: NumberFormat = DecimalFormat(
                 "#,##0.00",
@@ -15,7 +18,10 @@ class GetMask {
             return nf.format(valor)
         }
 
-        fun getDate(time: Long): String {
+        fun getDate(time: Long, tipo: Int): String {
+
+            // 1 -> dia/mes (26 outubro)
+            // 2 -> dia/mes hora (26/10 às 07:45)
 
             val dateFormat = DateFormat.getDateTimeInstance()
             val netDate = Date(time)
@@ -24,30 +30,48 @@ class GetMask {
             val dia = SimpleDateFormat("dd").format(netDate)
             var mes = SimpleDateFormat("MM").format(netDate)
 
-            mes = when (mes) {
-                "01" -> "janeiro"
-                "02" -> "fevereiro"
-                "03" -> "março"
-                "04" -> "abril"
-                "05" -> "maio"
-                "06" -> "junho"
-                "07" -> "julho"
-                "08" -> "agosto"
-                "09" -> "setembro"
-                "10" -> "outubro"
-                "11" -> "novembro"
-                "12" -> "novembro"
-                else -> ""
+            val hora = SimpleDateFormat("HH").format(netDate)
+            val minuto = SimpleDateFormat("mm").format(netDate)
+
+            if(tipo == DIA_MES){
+                mes = when (mes) {
+                    "01" -> "janeiro"
+                    "02" -> "fevereiro"
+                    "03" -> "março"
+                    "04" -> "abril"
+                    "05" -> "maio"
+                    "06" -> "junho"
+                    "07" -> "julho"
+                    "08" -> "agosto"
+                    "09" -> "setembro"
+                    "10" -> "outubro"
+                    "11" -> "novembro"
+                    "12" -> "novembro"
+                    else -> ""
+                }
             }
 
-            val dataStr = StringBuilder()
-
-            dataStr
+            val diaMes = StringBuilder()
                 .append(dia)
                 .append(" ")
                 .append(mes)
 
-            return dataStr.toString()
+            val diaMesHora = StringBuilder()
+                .append(dia)
+                .append("/")
+                .append(mes)
+                .append(" às ")
+                .append(hora)
+                .append(":")
+                .append(minuto)
+
+            return when(tipo){
+                DIA_MES -> diaMes.toString()
+                DIA_MES_HORA -> diaMesHora.toString()
+                else -> {
+                    ""
+                }
+            }
 
         }
 

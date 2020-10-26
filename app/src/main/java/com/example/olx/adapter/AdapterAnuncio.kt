@@ -30,7 +30,9 @@ class AdapterAnuncio(
         holder.textTitulo.text = anuncio.titulo
         holder.textPreco.text = activity.getString(R.string.valor_anuncio, GetMask.getValor(anuncio.preco))
         holder.textData.text = activity.getString(R.string.publicacao_anuncio,
-            anuncio.local.bairro, GetMask.getDate(anuncio.dataCadastro))
+            anuncio.local.bairro, GetMask.getDate(anuncio.dataCadastro, GetMask.DIA_MES))
+
+        holder.itemView.setOnClickListener { clickListener.onItemClick(anuncio) }
 
     }
 
