@@ -21,14 +21,19 @@ import com.example.olx.R
 import com.example.olx.Util.SPFiltro
 import com.example.olx.api.CEPService
 import com.example.olx.helper.GetFirebase
-import com.example.olx.model.Anuncio
-import com.example.olx.model.Categoria
-import com.example.olx.model.Imagem
-import com.example.olx.model.Local
+import com.example.olx.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_form_anuncio.*
+import kotlinx.android.synthetic.main.activity_form_anuncio.btnSalvar
+import kotlinx.android.synthetic.main.activity_form_anuncio.editNome
+import kotlinx.android.synthetic.main.activity_form_anuncio.editTelefone
+import kotlinx.android.synthetic.main.activity_form_anuncio.progressBar
+import kotlinx.android.synthetic.main.activity_perfil.*
 import kotlinx.android.synthetic.main.toolbar_voltar.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,7 +44,7 @@ import java.util.*
 
 class FormAnuncioActivity : AppCompatActivity() {
 
-    private val REQUEST_CATEGORIA = 10
+    private val REQUESTCATEGORIA = 10
 
     private var novoAnuncio = true
     private lateinit var anuncio: Anuncio
@@ -47,6 +52,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     private var local: Local? = null
     private val imagemList = mutableListOf<Imagem>()
     private lateinit var retrofit: Retrofit
+    private lateinit var usuario: Usuario
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +73,30 @@ class FormAnuncioActivity : AppCompatActivity() {
         // Configura o Cep para busca
         configCep()
 
+        // Recupera Usuário
+        recuperaUsuario();
+
+    }
+
+    // Recupera Usuário
+    private fun recuperaUsuario(){
+        val usuarioRef = GetFirebase.getDatabase()
+            .child("usuarios")
+            .child(GetFirebase.getIdFirebase())
+        usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                usuario = snapshot.getValue(Usuario::class.java) as Usuario
+
+                usuario.telefone.let {
+                    editTelefone.setText(it)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
     // Recupera informações via Intent
@@ -86,7 +116,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         btnCategoria.setOnClickListener {
             val intent = Intent(this, CategoriasActivity::class.java)
             intent.putExtra("todasCategorias", false)
-            startActivityForResult(intent, REQUEST_CATEGORIA)
+            startActivityForResult(intent, REQUESTCATEGORIA)
         }
 
         imagem0.setOnClickListener { showBottomSheet(0) }
@@ -256,70 +286,82 @@ class FormAnuncioActivity : AppCompatActivity() {
         val titulo = editNome.text.toString()
         val preco = editPreco.rawValue / 100
         val descricao = editDescricao.text.toString()
+        val telefone = editTelefone.unMasked
 
         if (titulo.isNotBlank()) {
             if (preco > 0) {
                 if (categoriaSelecinada.isNotBlank()) {
                     if (descricao.isNotBlank()) {
+                        if (telefone.isNotBlank()) {
+                            if (telefone.length == 11) {
 
-                        if (local != null) {
+                                if (local != null) {
 
-                            // Oculta o teclado do dispositivo
-                            ocultaTeclado()
+                                    // Oculta o teclado do dispositivo
+                                    ocultaTeclado()
 
-                            // Exibe a progressBar
-                            progressBar.visibility = View.VISIBLE
+                                    // Exibe a progressBar
+                                    progressBar.visibility = View.VISIBLE
 
-                            if (novoAnuncio) anuncio = Anuncio()
+                                    if (novoAnuncio) anuncio = Anuncio()
 
-                            anuncio.idUsuario = GetFirebase.getIdFirebase()
-                            anuncio.titulo = titulo
-                            anuncio.preco = preco.toDouble()
-                            anuncio.categoria = categoriaSelecinada
-                            anuncio.descricao = descricao
-                            anuncio.local = local!!
+                                    anuncio.idUsuario = GetFirebase.getIdFirebase()
+                                    anuncio.titulo = titulo
+                                    anuncio.preco = preco.toDouble()
+                                    anuncio.categoria = categoriaSelecinada
+                                    anuncio.descricao = descricao
+                                    anuncio.telefone = telefone
+                                    anuncio.local = local!!
 
-                            if (novoAnuncio) { // Novo Anúncio
+                                    if (novoAnuncio) { // Novo Anúncio
 
-                                anuncio.id = GetFirebase.getDatabase().push().key.toString()
+                                        anuncio.id = GetFirebase.getDatabase().push().key.toString()
 
-                                if (imagemList.size == 3) {
+                                        if (imagemList.size == 3) {
 
-                                    for (i in imagemList.indices) {
-                                        salvaImagemFirebase(i)
+                                            for (i in imagemList.indices) {
+                                                salvaImagemFirebase(i)
+                                            }
+
+                                        } else {
+                                            Snackbar.make(
+                                                btnSalvar,
+                                                "Selecione 3 imagens.",
+                                                Snackbar.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                    } else { // Edita Anúncio
+
+                                        if (imagemList.isNotEmpty()) {
+
+                                            for (i in imagemList.indices) {
+                                                salvaImagemFirebase(i)
+                                            }
+
+                                        } else { // Não teve edições de imagens
+
+                                            // Edita o Anúncio no Firebase
+                                            editaAnuncio()
+
+                                        }
+
+
                                     }
 
                                 } else {
-                                    Snackbar.make(
-                                        btnSalvar,
-                                        "Selecione 3 imagens.",
-                                        Snackbar.LENGTH_SHORT
-                                    ).show()
+                                    editCep.error = "Informe o CEP."
+                                    editCep.requestFocus()
                                 }
 
-                            } else { // Edita Anúncio
-
-                                if (imagemList.isNotEmpty()) {
-
-                                    for (i in imagemList.indices) {
-                                        salvaImagemFirebase(i)
-                                    }
-
-                                } else { // Não teve edições de imagens
-
-                                    // Edita o Anúncio no Firebase
-                                    editaAnuncio()
-
-                                }
-
-
+                            } else {
+                                editTelefone.requestFocus()
+                                editTelefone.error = "Telefone inválido."
                             }
-
                         } else {
-                            editCep.error = "Informe o CEP."
-                            editCep.requestFocus()
+                            editTelefone.error = "Informe o telefone"
+                            editTelefone.requestFocus()
                         }
-
                     } else {
                         editDescricao.error = "Informe a descrição."
                         editDescricao.requestFocus()
@@ -384,16 +426,11 @@ class FormAnuncioActivity : AppCompatActivity() {
     }
 
     // Edita o Anúncio no Firebase
-    private fun editaAnuncio(){
-
-        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.id)
-        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.dataCadastro)
-        Log.i("INFOTESTE", "editaAnuncio: " + anuncio.urlFotos.size)
-
+    private fun editaAnuncio() {
         // Edita o Anúncio no Firebase
         anuncio.editar()
 
-       // Fecha a tela
+        // Fecha a tela
         finish()
     }
 
@@ -451,7 +488,7 @@ class FormAnuncioActivity : AppCompatActivity() {
             val imagemSelecionada = data?.data
             val caminho: String
 
-            if (requestCode == REQUEST_CATEGORIA) {
+            if (requestCode == REQUESTCATEGORIA) {
                 val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Categoria?
                 if (categoria != null) {
                     categoriaSelecinada = categoria.nome

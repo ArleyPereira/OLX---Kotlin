@@ -232,6 +232,38 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
+            <com.santalu.maskara.widget.MaskEditText
+                android:id="@+id/editTelefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:background="@drawable/bg_edit_mod_2"
+                android:hint="Telefone"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:mask="(__) _____-____"
+                app:maskCharacter="_"
+                app:maskStyle="completable" />
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:text="Telefone"
+                android:textColor="@color/colorRoxoOlx"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editDescricao" />
+
             <TextView
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
@@ -241,7 +273,7 @@
                 android:text="CEP"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editDescricao" />
+                app:layout_constraintTop_toBottomOf="@+id/editTelefone" />
 
             <LinearLayout
                 android:id="@+id/linearLayout6"

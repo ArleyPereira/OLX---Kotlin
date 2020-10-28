@@ -14,6 +14,7 @@ data class Anuncio(var id: String = "") : Serializable {
 
     var idUsuario: String = ""
     var titulo: String = ""
+    var telefone: String = ""
     var preco: Double = 0.0
     var categoria: String = ""
     var descricao: String = ""

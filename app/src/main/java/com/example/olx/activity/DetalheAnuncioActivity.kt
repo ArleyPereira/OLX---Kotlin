@@ -1,11 +1,16 @@
 package com.example.olx.activity
 
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
 import com.example.olx.Util.GetMask
 import com.example.olx.adapter.SliderAdapter
+import com.example.olx.autenticacao.LoginActivity
 import com.example.olx.helper.GetFirebase
 import com.example.olx.model.Anuncio
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
@@ -32,8 +37,44 @@ class DetalheAnuncioActivity : AppCompatActivity() {
     }
 
     // Ouvinte Cliques
-    private fun configCliques(){
+    private fun configCliques() {
         ibVoltar.setOnClickListener { finish() }
+        ibLigar.setOnClickListener { ligar() }
+    }
+
+    // Abre o aplicativo de chamadas do aparelho
+    private fun ligar() {
+        if (GetFirebase.getAutenticado()) {
+            val intent = Intent(
+                Intent.ACTION_DIAL,
+                Uri.fromParts("tel", anuncio.telefone, null)
+            )
+            startActivity(intent)
+        } else {
+            alertaAutenticacao()
+        }
+    }
+
+    // Dialog Usuário não ligado
+    private fun alertaAutenticacao(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Atenção")
+        builder.setMessage("Para entrar em contato com anunciantes é preciso está logado no app.")
+        builder.setCancelable(false)
+        builder.setNegativeButton("Entendi", null)
+        builder.setPositiveButton(
+            "Fazer login"
+        ) { _: DialogInterface?, _: Int ->
+            startActivity(
+                Intent(
+                    this,
+                    LoginActivity::class.java
+                )
+            )
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     // Configura os dados nos elementos
