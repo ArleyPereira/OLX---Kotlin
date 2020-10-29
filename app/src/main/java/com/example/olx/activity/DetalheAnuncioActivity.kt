@@ -100,6 +100,7 @@ class DetalheAnuncioActivity : AppCompatActivity() {
                     )
 
                 } else {
+                    likeButton?.isLiked = false
                     alertaAutenticacao()
                 }
             }

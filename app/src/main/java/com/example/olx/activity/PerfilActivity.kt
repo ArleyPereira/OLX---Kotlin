@@ -27,7 +27,7 @@ class PerfilActivity : AppCompatActivity() {
 
     private lateinit var usuario: Usuario
 
-    private val SELECAO_GALERIA: Int = 200
+    private val SELECAOGALERIA: Int = 200
     private var caminhoImagem: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,7 +184,7 @@ class PerfilActivity : AppCompatActivity() {
     // Abre a galeria do dispotivo
     private fun abrirGaleria() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, SELECAO_GALERIA)
+        startActivityForResult(intent, SELECAOGALERIA)
     }
 
     // Oculta o teclado do dispositivo

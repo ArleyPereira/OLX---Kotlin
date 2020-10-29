@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.DetalheAnuncioActivity"></activity>
+        <activity android:name=".activity.FormEnderecoActivity"></activity>
+        <activity android:name=".activity.DetalheAnuncioActivity" />
         <activity android:name=".activity.CategoriasActivity" />
         <activity android:name=".activity.FormAnuncioActivity" />
         <activity android:name=".activity.PerfilActivity" />

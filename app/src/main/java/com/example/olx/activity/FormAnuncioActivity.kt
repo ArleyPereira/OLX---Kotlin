@@ -74,7 +74,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         configCep()
 
         // Recupera Usuário
-        recuperaUsuario();
+        recuperaUsuario()
 
     }
 
@@ -104,7 +104,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         val bundle = intent.extras
         if (bundle != null) {
             anuncio = intent.getSerializableExtra("anuncio") as Anuncio
-            novoAnuncio = intent.getBooleanExtra("novoAnuncio", false)
+            novoAnuncio = false
             configDados()
         }
     }

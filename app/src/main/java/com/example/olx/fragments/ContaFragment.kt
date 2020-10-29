@@ -8,14 +8,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.olx.R
+import com.example.olx.activity.FormEnderecoActivity
 import com.example.olx.activity.PerfilActivity
 import com.example.olx.autenticacao.LoginActivity
 import com.example.olx.helper.GetFirebase
+import com.example.olx.model.Usuario
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_conta.*
 
 class ContaFragment : Fragment() {
 
     private lateinit var textConta: TextView
+    private lateinit var usuario: Usuario
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,19 +37,60 @@ class ContaFragment : Fragment() {
         // Ouvinte Cliques
         configCliques(view)
 
-        // Verifica se o Usuário está autenticado
-        configInfo()
-
         return view
     }
 
-    // Verifica se o Usuário está autenticado
-    private fun configInfo(){
+    override fun onStart() {
+        super.onStart()
+
+        // Recupera dados do Perfil
+        recuperaDados()
+    }
+
+    // Recupera dados do Perfil
+    private fun recuperaDados() {
         if(GetFirebase.getAutenticado()){
+            val usuarioRef = GetFirebase.getDatabase()
+                .child("usuarios")
+                .child(GetFirebase.getIdFirebase())
+            usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    usuario = snapshot.getValue(Usuario::class.java) as Usuario
+
+                    // Configura as informações nos elementos
+                    configDados()
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+        }
+    }
+
+    // Configura as informações nos elementos
+    private fun configDados() {
+
+        if(GetFirebase.getAutenticado()){
+
+            if (usuario.urlImagem.isNotBlank()) {
+                Picasso.get()
+                    .load(usuario.urlImagem)
+                    .placeholder(R.drawable.loading)
+                    .into(imagemPerfil)
+            }
+
+            textNome.text = usuario.nome
             textConta.text = "Sair"
         }else {
+            textNome.text = "Acesso sua conta agora!"
             textConta.text = "Clique aqui"
+            imagemPerfil.setImageResource(R.drawable.ic_user_cinza)
         }
+
     }
 
     // Ouvinte Cliques
@@ -51,7 +99,14 @@ class ContaFragment : Fragment() {
             if(GetFirebase.getAutenticado()){
                 startActivity(Intent(activity, PerfilActivity::class.java))
             }else {
-                startActivity(Intent(activity, LoginActivity::class.java))
+                fazerLogin() // Leva o Usuário para tela de login
+            }
+        }
+        view.findViewById<TextView>(R.id.btnEndereco).setOnClickListener {
+            if(GetFirebase.getAutenticado()){
+                startActivity(Intent(activity, FormEnderecoActivity::class.java))
+            }else {
+                fazerLogin() // Leva o Usuário para tela de login
             }
         }
         textConta.setOnClickListener {
@@ -61,14 +116,19 @@ class ContaFragment : Fragment() {
                 // Desloga o Usuário do App
                 GetFirebase.getAuth().signOut()
 
-                // Verifica se o Usuário está autenticado
-                configInfo()
+                // Configura as informações nos elementos
+                configDados()
 
             }else {
-                startActivity(Intent(activity, LoginActivity::class.java))
+                fazerLogin() // Leva o Usuário para tela de login
             }
 
         }
+    }
+
+    // Leva o Usuário para tela de login
+    private fun fazerLogin(){
+        startActivity(Intent(activity, LoginActivity::class.java))
     }
 
     // Inicia componentes de tela

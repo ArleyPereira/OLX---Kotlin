@@ -44,6 +44,13 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        // Recupera anúncios do Firebase
+        recuperaAnuncio()
+    }
+
     // Inicia RecyclerView
     private fun configRv(view: View) {
         view.rvAnuncios.layoutManager = LinearLayoutManager(activity)
@@ -79,7 +86,6 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
             val intent = Intent(activity, FormAnuncioActivity::class.java)
             intent.putExtra("anuncio", anuncio)
-            intent.putExtra("novoAnuncio", false)
             startActivity(intent)
 
             adapterAnuncio.notifyDataSetChanged()
@@ -116,13 +122,6 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
         builder.create().show()
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        // Recupera anúncios do Firebase
-        recuperaAnuncio()
     }
 
     // Recupera anúncios do Firebase
