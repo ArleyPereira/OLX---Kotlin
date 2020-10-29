@@ -1,24 +1,187 @@
 package com.example.olx.fragments
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
+import com.example.olx.activity.DetalheAnuncioActivity
+import com.example.olx.adapter.AdapterAnuncio
+import com.example.olx.autenticacao.LoginActivity
+import com.example.olx.helper.GetFirebase
+import com.example.olx.model.Anuncio
+import com.example.olx.model.Favorito
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.tsuryo.swipeablerv.SwipeLeftRightCallback
+import kotlinx.android.synthetic.main.fragment_favoritos.*
+import kotlinx.android.synthetic.main.fragment_favoritos.view.*
 
 
-class FavoritosFragment : Fragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
+
+    private val favoritos: MutableList<String> = mutableListOf()
+    private val anuncioList: MutableList<Anuncio> = mutableListOf()
+    private lateinit var adapterAnuncio: AdapterAnuncio
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favoritos, container, false)
+        val view = inflater.inflate(R.layout.fragment_favoritos, container, false)
+
+        // Inicia RecyclerView
+        configRv(view)
+
+        return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // Configura os favoritos do Firebase
+        recuperaFavoritos()
+    }
+
+    // Configura os favoritos do Firebase
+    private fun recuperaFavoritos() {
+        if (GetFirebase.getAutenticado()) {
+            val favoritoRef = GetFirebase.getDatabase()
+                .child("favoritos")
+                .child(GetFirebase.getIdFirebase())
+            favoritoRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    favoritos.clear()
+                    for (ds in snapshot.children) {
+                        val id = ds.getValue(String::class.java)
+
+                        if (id != null) {
+                            favoritos.add(id)
+                        }
+                    }
+
+                    if (favoritos.size > 0) {
+                        recuperaAnuncios()
+                    } else {
+                        progressBar.visibility = View.GONE
+                        textInfo.text = "Nenhum anúncio favoritado."
+                    }
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+        } else {
+            progressBar.visibility = View.GONE
+            textInfo.text = "Você não está autenticado no app."
+
+            btnLogin.visibility = View.VISIBLE
+            btnLogin.setOnClickListener {
+                startActivity(
+                    Intent(
+                        activity,
+                        LoginActivity::class.java
+                    )
+                )
+            }
+        }
+    }
+
+    // Recupera Anúncios
+    private fun recuperaAnuncios() {
+        anuncioList.clear()
+        for (idAnuncio in favoritos) {
+            val anunciosRef = GetFirebase.getDatabase()
+                .child("anunciosPublicos")
+                .child(idAnuncio)
+            anunciosRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val anuncio = snapshot.getValue(Anuncio::class.java)
+
+                        if(anuncio != null){
+                            anuncioList.add(anuncio)
+                        }
+
+                        if(anuncioList.size == favoritos.size){
+                            textInfo.text = ""
+                            progressBar.visibility = View.GONE
+                            adapterAnuncio.notifyDataSetChanged()
+                        }
+
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+        }
+
+    }
+
+    // Inicia RecyclerView
+    private fun configRv(view: View){
+        view.rvAnuncios.layoutManager = LinearLayoutManager(activity)
+        view.rvAnuncios.setHasFixedSize(true)
+        adapterAnuncio = AdapterAnuncio(anuncioList, this, requireActivity())
+        view.rvAnuncios.adapter = adapterAnuncio
+
+        view.rvAnuncios.setListener(object : SwipeLeftRightCallback.Listener{
+            override fun onSwipedLeft(position: Int) {
+                removerAnuncio(anuncioList[position])
+            }
+
+            override fun onSwipedRight(position: Int) {
+            }
+
+        })
+
+    }
+
+    // Exibe dialog para deleção do anúncio
+    private fun removerAnuncio(anuncio: Anuncio){
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("Deseja remover este anúncio dos favoritos ?")
+        builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
+        builder.setNegativeButton("Não") { dialogInterface, _ ->
+            dialogInterface.dismiss()
+            adapterAnuncio.notifyDataSetChanged()
+        }
+        builder.setPositiveButton("Sim") { dialogInterface, _ ->
+            favoritos.remove(anuncio.id)
+            anuncioList.remove(anuncio)
+
+            if(anuncioList.size == 0) textInfo.text = "Nenhum anúncio favoritado"
+
+            val favorito = Favorito(favoritos)
+            favorito.salvar()
+
+            dialogInterface.dismiss()
+            adapterAnuncio.notifyDataSetChanged()
+
+        }
+
+        val dialog = builder.create()
+        dialog.show()
+
+    }
+
+    override fun onItemClick(anuncio: Anuncio) {
+        val intent = Intent(activity, DetalheAnuncioActivity::class.java)
+        intent.putExtra("anuncio", anuncio)
+        startActivity(intent)
     }
 
 }

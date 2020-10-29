@@ -43,7 +43,6 @@ class AdapterAnuncio(
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val imagemAnuncio = itemView.imagemAnuncio
         val textTitulo = itemView.textTitulo
         val textPreco = itemView.textPreco
         val textData = itemView.textData

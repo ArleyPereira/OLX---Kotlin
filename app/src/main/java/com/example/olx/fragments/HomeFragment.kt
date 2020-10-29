@@ -32,8 +32,6 @@ class HomeFragment : Fragment(), AdapterAnuncio.OnClickListener {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        adapterAnuncio = AdapterAnuncio(anuncioList, this, requireActivity())
-
         // Inicia RecyclerView
         configRv(view)
 
@@ -51,6 +49,7 @@ class HomeFragment : Fragment(), AdapterAnuncio.OnClickListener {
     private fun configRv(view: View) {
         view.rvAnuncios.layoutManager = LinearLayoutManager(activity)
         view.rvAnuncios.setHasFixedSize(true)
+        adapterAnuncio = AdapterAnuncio(anuncioList, this, requireActivity())
         view.rvAnuncios.adapter = adapterAnuncio
     }
 
