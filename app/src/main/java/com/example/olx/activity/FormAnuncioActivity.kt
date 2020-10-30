@@ -1,5 +1,6 @@
 package com.example.olx.activity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -7,18 +8,18 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.blackcat.currencyedittext.CurrencyEditText
 import com.example.olx.R
-import com.example.olx.Util.SPFiltro
 import com.example.olx.api.CEPService
 import com.example.olx.helper.GetFirebase
 import com.example.olx.model.*
@@ -27,19 +28,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_form_anuncio.*
-import kotlinx.android.synthetic.main.activity_form_anuncio.btnSalvar
-import kotlinx.android.synthetic.main.activity_form_anuncio.editNome
-import kotlinx.android.synthetic.main.activity_form_anuncio.editTelefone
-import kotlinx.android.synthetic.main.activity_form_anuncio.progressBar
-import kotlinx.android.synthetic.main.activity_perfil.*
 import kotlinx.android.synthetic.main.toolbar_voltar.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class FormAnuncioActivity : AppCompatActivity() {
@@ -53,6 +54,9 @@ class FormAnuncioActivity : AppCompatActivity() {
     private val imagemList = mutableListOf<Imagem>()
     private lateinit var retrofit: Retrofit
     private lateinit var usuario: Usuario
+    private lateinit var endereco: Endereco
+
+    private var currentPhotoPath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,10 +80,34 @@ class FormAnuncioActivity : AppCompatActivity() {
         // Recupera Usuário
         recuperaUsuario()
 
+        // Recupera Usuário
+        recuperaEnderecoUsuario()
+
     }
 
     // Recupera Usuário
-    private fun recuperaUsuario(){
+    private fun recuperaEnderecoUsuario() {
+        val enderecoRef = GetFirebase.getDatabase()
+            .child("enderecos")
+            .child(GetFirebase.getIdFirebase())
+        enderecoRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                endereco = snapshot.getValue(Endereco::class.java) as Endereco
+
+                endereco.cep.let {
+                    editCep.setText(it)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    // Recupera Usuário
+    private fun recuperaUsuario() {
         val usuarioRef = GetFirebase.getDatabase()
             .child("usuarios")
             .child(GetFirebase.getIdFirebase())
@@ -134,17 +162,123 @@ class FormAnuncioActivity : AppCompatActivity() {
 
         modalbottomsheet.findViewById<View>(R.id.btnTirarFoto).setOnClickListener {
             dialog.dismiss()
-            //verificaPermissaoCamera(requestCode)
+            verificaPermissaoCamera(requestCode)
         }
 
         modalbottomsheet.findViewById<View>(R.id.btnGaleria).setOnClickListener {
             dialog.dismiss()
-            escolherImagemGaleria(requestCode)
+            verificaPermissaoGaleria(requestCode)
         }
 
         modalbottomsheet.findViewById<View>(R.id.btnCancelar)
             .setOnClickListener { dialog.dismiss() }
 
+    }
+
+    // Verifica a permissão de acesso a Camera
+    private fun verificaPermissaoCamera(requestCode: Int) {
+        val permissionlistener: PermissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {
+                escolherImagemCamera(requestCode)
+            }
+
+            override fun onPermissionDenied(deniedPermissions: List<String>) {
+                Toast.makeText(this@FormAnuncioActivity, "Permissão Negada", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
+        // Exibe Dialog Permissão Negada
+        showDialogPermissao(
+            permissionlistener, arrayOf(Manifest.permission.CAMERA),
+            "Se você não aceitar a permissão não poderá acessar a Camera do dispositivo, deseja ativar a permissão agora ?"
+        )
+
+    }
+
+    // Verifica a permissão de acesso a Galeria
+    private fun verificaPermissaoGaleria(requestCode: Int) {
+        val permissionlistener: PermissionListener = object  : PermissionListener {
+            override fun onPermissionGranted() {
+                escolherImagemGaleria(requestCode)
+            }
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                Toast.makeText(this@FormAnuncioActivity, "Permissão Negada", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
+        }
+
+        // Exibe Dialog Permissão Negada
+        showDialogPermissao(
+            permissionlistener, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+            "Se você não aceitar a permissão não poderá acessar a Galeria do dispositivo, deseja ativar a permissão agora ?"
+        )
+
+
+    }
+
+    // Exibe Dialog Permissão Negada
+    private fun showDialogPermissao(
+        permissionlistener: PermissionListener,
+        permissoes: Array<String>,
+        msg: String
+    ) {
+        TedPermission.with(this)
+            .setPermissionListener(permissionlistener)
+            .setDeniedTitle("Permissões")
+            .setDeniedMessage(msg)
+            .setDeniedCloseButtonText("Não")
+            .setGotoSettingButtonText("Sim")
+            .setPermissions(*permissoes)
+            .check()
+    }
+
+    // Abre a Camera do dispositivo
+    private fun escolherImagemCamera(requestCode: Int) {
+
+        val request = when (requestCode) {
+            0 -> 3
+            1 -> 4
+            2 -> 5
+            else -> 6
+        }
+
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        var photoFile: File? = null
+
+        try {
+            photoFile = createImageFile()
+        } catch (ignored: IOException) {
+        }
+
+        if (photoFile != null) {
+            val photoURI = FileProvider.getUriForFile(
+                this,
+                "com.example.olx.fileprovider",
+                photoFile
+            )
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+            startActivityForResult(takePictureIntent, request)
+        }
+
+    }
+
+    // Cria um arquivo foto no dispositivo
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale("pt", "BR")).format(Date())
+        val imageFileName = "JPEG_" + timeStamp + "_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(
+            imageFileName,  /* prefix */
+            ".jpg",  /* suffix */
+            storageDir /* directory */
+        )
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.absolutePath
+        return image
     }
 
     // Abre a Galeria do dispositivo
@@ -558,6 +692,26 @@ class FormAnuncioActivity : AppCompatActivity() {
                 }
 
             } else { // Camera
+
+                try {
+
+                    val f = File(currentPhotoPath!!)
+
+                    // Recupera o caminho da imagem
+                    caminho = f.toURI().toString()
+
+                    when (requestCode) {
+                        3 -> imagem0.setImageURI(Uri.fromFile(f))
+                        4 -> imagem1.setImageURI(Uri.fromFile(f))
+                        5 -> imagem2.setImageURI(Uri.fromFile(f))
+                    }
+
+                    // Configura index das imagens
+                    configUpload(requestCode, caminho)
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
             }
 
