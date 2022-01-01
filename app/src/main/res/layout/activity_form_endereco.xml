@@ -7,29 +7,49 @@
     android:background="@android:color/white"
     tools:context=".activity.FormEnderecoActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorRoxoOlx"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_back">
+
+        <TextView
+            android:id="@+id/titleToolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Novo endereço"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:fillViewport="true"
-        android:scrollbarThumbVertical="@null">
+        android:paddingTop="32dp"
+        android:scrollbarThumbVertical="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <include
-                android:id="@+id/include9"
-                layout="@layout/toolbar_voltar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
                 android:text="Bairro"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
@@ -40,11 +60,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
-                android:hint="Bairro"
-                android:text="Jardim Limoeiro"
+                android:hint="Centro"
                 android:imeOptions="actionNext"
                 android:inputType="text|textCapWords"
                 android:maxLines="1"
@@ -60,13 +79,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
                 android:layout_marginEnd="32dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/include9">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -78,8 +96,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/colorRoxoOlx"
-                        android:text="CEP"/>
+                        android:text="CEP"
+                        android:textColor="@color/colorRoxoOlx" />
 
                     <com.santalu.maskara.widget.MaskEditText
                         android:id="@+id/editCep"
@@ -87,11 +105,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_edit_mod_2"
-                        android:hint="CEP"
-                        android:text="29164-050"
+                        android:hint="00000-000"
                         android:inputType="number"
-                        android:textColor="@android:color/black"
                         android:padding="16dp"
+                        android:textColor="@android:color/black"
                         app:mask="_____-___"
                         app:maskCharacter="_"
                         app:maskStyle="completable" />
@@ -109,21 +126,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/colorRoxoOlx"
-                        android:text="UF"/>
+                        android:text="UF"
+                        android:textColor="@color/colorRoxoOlx" />
 
                     <EditText
                         android:id="@+id/editEstado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_edit_mod_2"
-                        android:hint="UF"
                         android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_edit_mod_2"
+                        android:hint="SP"
                         android:imeOptions="actionNext"
                         android:inputType="text"
                         android:maxLength="2"
                         android:maxLines="1"
-                        android:text="ES"
                         android:padding="16dp"
                         android:textColor="@android:color/black"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -151,11 +167,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
-                android:hint="Cidade"
-                android:text="Serra"
+                android:hint="São Paulo"
                 android:imeOptions="actionNext"
                 android:inputType="text|textCapWords"
                 android:maxLines="1"
@@ -189,12 +204,11 @@
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="80dp"
-                android:theme="@style/ThemeProgressBar"
+                android:indeterminateTint="@color/colorRoxoOlx"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"

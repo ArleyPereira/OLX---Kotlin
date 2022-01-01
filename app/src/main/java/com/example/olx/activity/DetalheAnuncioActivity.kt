@@ -10,10 +10,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
-import com.example.olx.Util.GetMask
+import com.example.olx.util.GetMask
 import com.example.olx.adapter.SliderAdapter
-import com.example.olx.autenticacao.LoginActivity
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Anuncio
 import com.example.olx.model.Favorito
 import com.google.android.material.snackbar.Snackbar
@@ -54,10 +53,10 @@ class DetalheAnuncioActivity : AppCompatActivity() {
 
     // Recupera favoritos
     private fun recuperaFavoritos() {
-        if (GetFirebase.getAutenticado()) {
-            val favoritoRef = GetFirebase.getDatabase()
+        if (FirebaseHelper.isAutenticated()) {
+            val favoritoRef = FirebaseHelper.getDatabase()
                 .child("favoritos")
-                .child(GetFirebase.getIdFirebase())
+                .child(FirebaseHelper.getIdUser())
             favoritoRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (ds in snapshot.children) {
@@ -92,7 +91,7 @@ class DetalheAnuncioActivity : AppCompatActivity() {
     private fun configLikeButton() {
         likeButton.setOnLikeListener(object : OnLikeListener {
             override fun liked(likeButton: LikeButton?) {
-                if (GetFirebase.getAutenticado()) {
+                if (FirebaseHelper.isAutenticated()) {
                     configSnackBar(
                         "DESFAZER",
                         "Anúncio salvo",
@@ -157,7 +156,7 @@ class DetalheAnuncioActivity : AppCompatActivity() {
 
     // Abre o aplicativo de chamadas do aparelho
     private fun ligar() {
-        if (GetFirebase.getAutenticado()) {
+        if (FirebaseHelper.isAutenticated()) {
             val intent = Intent(
                 Intent.ACTION_DIAL,
                 Uri.fromParts("tel", anuncio.telefone, null)
@@ -194,8 +193,8 @@ class DetalheAnuncioActivity : AppCompatActivity() {
     private fun configDados() {
 
         // Buttons Toolbar
-        if (GetFirebase.getAutenticado()) {
-            if (GetFirebase.getIdFirebase() == anuncio.idUsuario) {
+        if (FirebaseHelper.isAutenticated()) {
+            if (FirebaseHelper.getIdUser() == anuncio.idUsuario) {
                 ibLigar.visibility = View.GONE
                 likeButton.visibility = View.GONE
             }

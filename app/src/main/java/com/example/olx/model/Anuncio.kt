@@ -1,13 +1,10 @@
 package com.example.olx.model
 
-import android.util.Log
-import android.view.View
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import kotlinx.android.synthetic.main.fragment_meus_anuncios.*
 import java.io.Serializable
 
 data class Anuncio(var id: String = "") : Serializable {
@@ -23,19 +20,19 @@ data class Anuncio(var id: String = "") : Serializable {
     var urlFotos: MutableList<String> = mutableListOf()
 
     fun remover() {
-        val anuncioPublicosRef = GetFirebase.getDatabase()
+        val anuncioPublicosRef = FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
             .child(this.id)
         anuncioPublicosRef.removeValue()
 
-        val meusAnunciosRef = GetFirebase.getDatabase()
+        val meusAnunciosRef = FirebaseHelper.getDatabase()
             .child("meusAnuncios")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
             .child(this.id)
         meusAnunciosRef.removeValue()
 
         for (imagem in this.urlFotos.indices) {
-            val imagemAnuncio = GetFirebase.getStorage()
+            val imagemAnuncio = FirebaseHelper.getStorage()
                 .child("imagens")
                 .child("anuncios")
                 .child(this.id)
@@ -46,7 +43,7 @@ data class Anuncio(var id: String = "") : Serializable {
     }
 
     fun salvar() {
-        val anuncioPublicosRef = GetFirebase.getDatabase()
+        val anuncioPublicosRef = FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
             .child(id)
         anuncioPublicosRef.setValue(this)
@@ -55,16 +52,16 @@ data class Anuncio(var id: String = "") : Serializable {
             .child("dataCadastro")
         dataAnuncioPublico.setValue(ServerValue.TIMESTAMP).addOnCompleteListener {
 
-            val anuncioRef = GetFirebase.getDatabase()
+            val anuncioRef = FirebaseHelper.getDatabase()
                 .child("anunciosPublicos")
                 .child(id)
             anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val anuncio = snapshot.getValue(Anuncio::class.java) as Anuncio
 
-                    val meusAnunciosRef = GetFirebase.getDatabase()
+                    val meusAnunciosRef = FirebaseHelper.getDatabase()
                         .child("meusAnuncios")
-                        .child(GetFirebase.getIdFirebase())
+                        .child(FirebaseHelper.getIdUser())
                         .child(id)
                     meusAnunciosRef.setValue(anuncio)
                 }
@@ -80,14 +77,14 @@ data class Anuncio(var id: String = "") : Serializable {
     }
 
     fun editar() {
-        val anuncioPublicosRef = GetFirebase.getDatabase()
+        val anuncioPublicosRef = FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
             .child(id)
         anuncioPublicosRef.setValue(this)
 
-        val meusAnunciosRef = GetFirebase.getDatabase()
+        val meusAnunciosRef = FirebaseHelper.getDatabase()
             .child("meusAnuncios")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
             .child(id)
         meusAnunciosRef.setValue(this)
     }

@@ -8,8 +8,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
-import com.example.olx.helper.GetFirebase
-import com.example.olx.model.Endereco
+import com.example.olx.helper.FirebaseHelper
+import com.example.olx.model.Address
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.toolbar_voltar.*
 
 class FormEnderecoActivity : AppCompatActivity() {
 
-    private lateinit var endereco: Endereco
+    private lateinit var address: Address
     private var novoEndereco: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,14 +40,14 @@ class FormEnderecoActivity : AppCompatActivity() {
 
     // Recupera endereço
     private fun recuperaEndereco(){
-        val enderecoRef = GetFirebase.getDatabase()
+        val enderecoRef = FirebaseHelper.getDatabase()
             .child("enderecos")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
         enderecoRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 if(snapshot.exists()){
-                    endereco = snapshot.getValue(Endereco::class.java) as Endereco
+                    address = snapshot.getValue(Address::class.java) as Address
 
                     // Configura as informações recuperadas
                     configDados()
@@ -68,10 +68,10 @@ class FormEnderecoActivity : AppCompatActivity() {
 
     // Configura as informações recuperadas
     private fun configDados(){
-        editCep.setText(endereco.cep)
-        editEstado.setText(endereco.uf)
-        editCidade.setText(endereco.localidade)
-        editBairro.setText(endereco.bairro)
+        editCep.setText(address.cep)
+        editEstado.setText(address.uf)
+        editCidade.setText(address.localidade)
+        editBairro.setText(address.bairro)
 
         // Oculta progressbar
         progressBar.visibility = View.GONE
@@ -106,12 +106,12 @@ class FormEnderecoActivity : AppCompatActivity() {
                         // Oculta o teclado do dispositivo
                         ocultaTeclado()
 
-                        if(novoEndereco) endereco = Endereco()
-                        endereco.cep = cep
-                        endereco.uf = uf
-                        endereco.localidade = cidade
-                        endereco.bairro = bairro
-                        endereco.salvar(GetFirebase.getIdFirebase())
+                        if(novoEndereco) address = Address()
+                        address.cep = cep
+                        address.uf = uf
+                        address.localidade = cidade
+                        address.bairro = bairro
+                        address.salvar(FirebaseHelper.getIdUser())
 
                         Snackbar.make(
                             btnSalvar,

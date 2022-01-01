@@ -8,14 +8,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
-import com.example.olx.helper.GetFirebase
-import com.example.olx.model.Usuario
+import com.example.olx.helper.FirebaseHelper
+import com.example.olx.model.User
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,7 +24,7 @@ import kotlinx.android.synthetic.main.activity_perfil.*
 
 class PerfilActivity : AppCompatActivity() {
 
-    private lateinit var usuario: Usuario
+    private lateinit var user: User
 
     private val SELECAOGALERIA: Int = 200
     private var caminhoImagem: String = ""
@@ -47,9 +46,9 @@ class PerfilActivity : AppCompatActivity() {
 
     // Recupera dados do Perfil
     private fun recuperaDados() {
-        val usuarioRef = GetFirebase.getDatabase()
+        val usuarioRef = FirebaseHelper.getDatabase()
             .child("usuarios")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
         usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -59,7 +58,7 @@ class PerfilActivity : AppCompatActivity() {
                 // Exibe a progressBar
                 progressBar.visibility = View.VISIBLE
 
-                usuario = snapshot.getValue(Usuario::class.java)!!
+                user = snapshot.getValue(User::class.java)!!
 
                 // Configura as informações nos elementos
                 configDados()
@@ -76,15 +75,15 @@ class PerfilActivity : AppCompatActivity() {
     // Configura as informações nos elementos
     private fun configDados() {
 
-        if (usuario.urlImagem.isNotBlank()) {
+        if (user.urlImagem.isNotBlank()) {
             Picasso.get()
-                .load(usuario.urlImagem)
+                .load(user.urlImagem)
                 .placeholder(R.drawable.loading)
                 .into(imagemPerfil)
         }
-        editNome.setText(usuario.nome)
-        editTelefone.setText(usuario.telefone)
-        editEmail.setText(usuario.email)
+        editNome.setText(user.nome)
+        editTelefone.setText(user.telefone)
+        editEmail.setText(user.email)
 
         // Oculta a progressBar
         progressBar.visibility = View.GONE
@@ -107,8 +106,8 @@ class PerfilActivity : AppCompatActivity() {
                     // Exibe a progressBar
                     progressBar.visibility = View.VISIBLE
 
-                    usuario.nome = nome
-                    usuario.telefone = telefone
+                    user.nome = nome
+                    user.telefone = telefone
 
                     if (caminhoImagem.isBlank()) {
                         // Salva os dados do Usuário no Firebase
@@ -135,16 +134,16 @@ class PerfilActivity : AppCompatActivity() {
 
     // Salva a Imagem no Firebase Storage e recupera a URL
     private fun salvaImagemFirebase() {
-        val perfil = GetFirebase.getStorage()
+        val perfil = FirebaseHelper.getStorage()
             .child("imagens")
             .child("perfil")
-            .child(GetFirebase.getIdFirebase() + ".jpeg")
+            .child(FirebaseHelper.getIdUser() + ".jpeg")
 
         val uploadTask = perfil.putFile(Uri.parse(caminhoImagem))
         uploadTask.addOnSuccessListener {
             perfil.downloadUrl.addOnCompleteListener { task ->
 
-                usuario.urlImagem = task.result.toString()
+                user.urlImagem = task.result.toString()
 
                 // Salva os dados do Usuário no Firebase Data Base
                 salvarDados()
@@ -157,10 +156,10 @@ class PerfilActivity : AppCompatActivity() {
 
     // Salva os dados do Usuário no Firebase Data Base
     private fun salvarDados() {
-        val usuarioRef = GetFirebase.getDatabase()
+        val usuarioRef = FirebaseHelper.getDatabase()
             .child("usuarios")
-            .child(usuario.id)
-        usuarioRef.setValue(usuario).addOnCompleteListener(this) { task ->
+            .child(user.id)
+        usuarioRef.setValue(user).addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
                 Snackbar.make(btnSalvar, "Informações salvas com sucesso.", Snackbar.LENGTH_SHORT)
                     .show()

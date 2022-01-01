@@ -38,7 +38,7 @@
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="match_parent"
-                android:theme="@style/ThemeProgressBar"
+                android:indeterminateTint="@color/colorRoxoOlx"
                 android:layout_height="wrap_content" />
 
             <TextView

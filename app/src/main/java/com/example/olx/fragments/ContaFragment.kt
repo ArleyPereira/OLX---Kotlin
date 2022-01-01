@@ -10,9 +10,8 @@ import androidx.fragment.app.Fragment
 import com.example.olx.R
 import com.example.olx.activity.FormEnderecoActivity
 import com.example.olx.activity.PerfilActivity
-import com.example.olx.autenticacao.LoginActivity
-import com.example.olx.helper.GetFirebase
-import com.example.olx.model.Usuario
+import com.example.olx.helper.FirebaseHelper
+import com.example.olx.model.User
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -22,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_conta.*
 class ContaFragment : Fragment() {
 
     private lateinit var textConta: TextView
-    private lateinit var usuario: Usuario
+    private lateinit var user: User
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,14 +48,14 @@ class ContaFragment : Fragment() {
 
     // Recupera dados do Perfil
     private fun recuperaDados() {
-        if(GetFirebase.getAutenticado()){
-            val usuarioRef = GetFirebase.getDatabase()
+        if(FirebaseHelper.isAutenticated()){
+            val usuarioRef = FirebaseHelper.getDatabase()
                 .child("usuarios")
-                .child(GetFirebase.getIdFirebase())
+                .child(FirebaseHelper.getIdUser())
             usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
-                    usuario = snapshot.getValue(Usuario::class.java) as Usuario
+                    user = snapshot.getValue(User::class.java) as User
 
                     // Configura as informações nos elementos
                     configDados()
@@ -74,16 +73,16 @@ class ContaFragment : Fragment() {
     // Configura as informações nos elementos
     private fun configDados() {
 
-        if(GetFirebase.getAutenticado()){
+        if(FirebaseHelper.isAutenticated()){
 
-            if (usuario.urlImagem.isNotBlank()) {
+            if (user.urlImagem.isNotBlank()) {
                 Picasso.get()
-                    .load(usuario.urlImagem)
+                    .load(user.urlImagem)
                     .placeholder(R.drawable.loading)
                     .into(imagemPerfil)
             }
 
-            textNome.text = usuario.nome
+            textNome.text = user.nome
             textConta.text = "Sair"
         }else {
             textNome.text = "Acesso sua conta agora!"
@@ -96,14 +95,14 @@ class ContaFragment : Fragment() {
     // Ouvinte Cliques
     private fun configCliques(view: View){
         view.findViewById<TextView>(R.id.btnPerfil).setOnClickListener {
-            if(GetFirebase.getAutenticado()){
+            if(FirebaseHelper.isAutenticated()){
                 startActivity(Intent(activity, PerfilActivity::class.java))
             }else {
                 fazerLogin() // Leva o Usuário para tela de login
             }
         }
         view.findViewById<TextView>(R.id.btnEndereco).setOnClickListener {
-            if(GetFirebase.getAutenticado()){
+            if(FirebaseHelper.isAutenticated()){
                 startActivity(Intent(activity, FormEnderecoActivity::class.java))
             }else {
                 fazerLogin() // Leva o Usuário para tela de login
@@ -111,10 +110,10 @@ class ContaFragment : Fragment() {
         }
         textConta.setOnClickListener {
 
-            if(GetFirebase.getAutenticado()){
+            if(FirebaseHelper.isAutenticated()){
 
                 // Desloga o Usuário do App
-                GetFirebase.getAuth().signOut()
+                FirebaseHelper.getAuth().signOut()
 
                 // Configura as informações nos elementos
                 configDados()

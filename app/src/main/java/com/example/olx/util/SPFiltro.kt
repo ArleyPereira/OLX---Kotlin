@@ -1,4 +1,4 @@
-package com.example.olx.Util
+package com.example.olx.util
 
 import android.app.Activity
 import android.content.SharedPreferences

@@ -21,7 +21,7 @@ import androidx.core.content.FileProvider
 import com.blackcat.currencyedittext.CurrencyEditText
 import com.example.olx.R
 import com.example.olx.api.CEPService
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
@@ -53,8 +53,8 @@ class FormAnuncioActivity : AppCompatActivity() {
     private var local: Local? = null
     private val imagemList = mutableListOf<Imagem>()
     private lateinit var retrofit: Retrofit
-    private lateinit var usuario: Usuario
-    private lateinit var endereco: Endereco
+    private lateinit var user: User
+    private lateinit var address: Address
 
     private var currentPhotoPath: String? = null
 
@@ -87,14 +87,14 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Recupera Usuário
     private fun recuperaEnderecoUsuario() {
-        val enderecoRef = GetFirebase.getDatabase()
+        val enderecoRef = FirebaseHelper.getDatabase()
             .child("enderecos")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
         enderecoRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                endereco = snapshot.getValue(Endereco::class.java) as Endereco
+                address = snapshot.getValue(Address::class.java) as Address
 
-                endereco.cep.let {
+                address.cep.let {
                     editCep.setText(it)
                 }
             }
@@ -108,14 +108,14 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Recupera Usuário
     private fun recuperaUsuario() {
-        val usuarioRef = GetFirebase.getDatabase()
+        val usuarioRef = FirebaseHelper.getDatabase()
             .child("usuarios")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
         usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                usuario = snapshot.getValue(Usuario::class.java) as Usuario
+                user = snapshot.getValue(User::class.java) as User
 
-                usuario.telefone.let {
+                user.telefone.let {
                     editTelefone.setText(it)
                 }
             }
@@ -439,7 +439,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
                                     if (novoAnuncio) anuncio = Anuncio()
 
-                                    anuncio.idUsuario = GetFirebase.getIdFirebase()
+                                    anuncio.idUsuario = FirebaseHelper.getIdUser()
                                     anuncio.titulo = titulo
                                     anuncio.preco = preco.toDouble()
                                     anuncio.categoria = categoriaSelecinada
@@ -449,7 +449,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
                                     if (novoAnuncio) { // Novo Anúncio
 
-                                        anuncio.id = GetFirebase.getDatabase().push().key.toString()
+                                        anuncio.id = FirebaseHelper.getDatabase().push().key.toString()
 
                                         if (imagemList.size == 3) {
 
@@ -517,7 +517,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Salva a Imagem no Firebase Storage e recupera a URL
     private fun salvaImagemFirebase(index: Int) {
-        val storageReference = GetFirebase.getStorage()
+        val storageReference = FirebaseHelper.getStorage()
             .child("imagens")
             .child("anuncios")
             .child(anuncio.id)

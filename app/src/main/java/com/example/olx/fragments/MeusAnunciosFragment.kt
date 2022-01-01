@@ -3,7 +3,6 @@ package com.example.olx.fragments
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.activity.FormAnuncioActivity
 import com.example.olx.adapter.AdapterAnuncio
-import com.example.olx.autenticacao.LoginActivity
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Anuncio
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -126,9 +124,9 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     // Recupera anúncios do Firebase
     private fun recuperaAnuncio() {
-        if (GetFirebase.getAutenticado()) {
+        if (FirebaseHelper.isAutenticated()) {
 
-            val anuncioRef = GetFirebase.getDatabase()
+            val anuncioRef = FirebaseHelper.getDatabase()
                 .child("anunciosPublicos")
             anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {

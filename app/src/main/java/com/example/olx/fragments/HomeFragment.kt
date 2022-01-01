@@ -11,8 +11,7 @@ import com.example.olx.R
 import com.example.olx.activity.DetalheAnuncioActivity
 import com.example.olx.activity.FormAnuncioActivity
 import com.example.olx.adapter.AdapterAnuncio
-import com.example.olx.autenticacao.LoginActivity
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Anuncio
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -55,32 +54,25 @@ class HomeFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     // Recupera anúncios do Firebase
     private fun recuperaAnuncio() {
-        val anuncioRef = GetFirebase.getDatabase()
+        val anuncioRef =
+            FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
         anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 anuncioList.clear()
                 if (snapshot.exists()) {
-
                     for (ds in snapshot.children) {
                         val anuncio = ds.getValue(Anuncio::class.java) as Anuncio
                         anuncio.let {
                             anuncioList.add(it)
                         }
-
                     }
-
                     textInfo.text = ""
-
-                } else {
-                    textInfo.text = "Você ainda não possui nenhum anúncio cadastrado."
-                }
+                } else textInfo.text = "Nenhum anúncio cadastrado."
 
                 anuncioList.reverse()
                 progressBar.visibility = View.GONE
                 adapterAnuncio.notifyDataSetChanged()
-
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -93,7 +85,7 @@ class HomeFragment : Fragment(), AdapterAnuncio.OnClickListener {
     // Ouvinte Cliques
     private fun configCliques(view: View){
         view.btnInserir.setOnClickListener {
-            if(GetFirebase.getAutenticado()){
+            if(FirebaseHelper.isAutenticated()){
                 startActivity(Intent(activity, FormAnuncioActivity::class.java))
             }else {
                 startActivity(Intent(activity, LoginActivity::class.java))

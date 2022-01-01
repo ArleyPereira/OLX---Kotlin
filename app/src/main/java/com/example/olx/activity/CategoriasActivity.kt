@@ -6,13 +6,10 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.olx.R
-import com.example.olx.Util.CategoriaList
-import com.example.olx.Util.SPFiltro
+import com.example.olx.util.CategoriaList
 import com.example.olx.adapter.AdapterCategoria
 import com.example.olx.model.Categoria
-import kotlinx.android.synthetic.main.activity_categorias.*
 
 class CategoriasActivity : AppCompatActivity(), AdapterCategoria.OnClickListener {
 

@@ -12,10 +12,6 @@
         <item name="android:navigationBarColor">@color/colorRoxoOlx</item>
     </style>
 
-    <style name="ThemeProgressBar" parent="AppTheme">
-        <item name="colorAccent">@color/colorRoxoOlx</item>
-    </style>
-
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

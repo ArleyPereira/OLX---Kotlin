@@ -9,7 +9,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.R
-import com.example.olx.Util.SPFiltro
+import com.example.olx.util.SPFiltro
 
 class SplashActivity : AppCompatActivity() {
 

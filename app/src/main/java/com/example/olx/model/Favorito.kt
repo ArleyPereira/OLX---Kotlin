@@ -1,15 +1,15 @@
 package com.example.olx.model
 
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 
 data class Favorito(
     var favoritos: MutableList<String> = mutableListOf()
 ) {
 
     public fun salvar() {
-        val favoritosRef = GetFirebase.getDatabase()
+        val favoritosRef = FirebaseHelper.getDatabase()
             .child("favoritos")
-            .child(GetFirebase.getIdFirebase())
+            .child(FirebaseHelper.getIdUser())
         favoritosRef.setValue(this.favoritos)
     }
 

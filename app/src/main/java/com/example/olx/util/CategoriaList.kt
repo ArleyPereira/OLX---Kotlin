@@ -1,4 +1,4 @@
-package com.example.olx.Util
+package com.example.olx.util
 
 import com.example.olx.R
 import com.example.olx.model.Categoria

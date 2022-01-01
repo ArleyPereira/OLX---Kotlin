@@ -9,4 +9,5 @@
     <color name="colorFavorito">#E12E2E</color>
     <color name="colorEdit">#346DEB</color>
     <color name="colorDivisor">#EFEFEF</color>
+    <color name="black">#000000</color>
 </resources>

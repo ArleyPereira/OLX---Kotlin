@@ -1,9 +1,7 @@
 package com.example.olx.fragments
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.activity.DetalheAnuncioActivity
 import com.example.olx.adapter.AdapterAnuncio
-import com.example.olx.autenticacao.LoginActivity
-import com.example.olx.helper.GetFirebase
+import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Anuncio
 import com.example.olx.model.Favorito
 import com.google.firebase.database.DataSnapshot
@@ -53,10 +50,10 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     // Configura os favoritos do Firebase
     private fun recuperaFavoritos() {
-        if (GetFirebase.getAutenticado()) {
-            val favoritoRef = GetFirebase.getDatabase()
+        if (FirebaseHelper.isAutenticated()) {
+            val favoritoRef = FirebaseHelper.getDatabase()
                 .child("favoritos")
-                .child(GetFirebase.getIdFirebase())
+                .child(FirebaseHelper.getIdUser())
             favoritoRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -103,7 +100,7 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
     private fun recuperaAnuncios() {
         anuncioList.clear()
         for (idAnuncio in favoritos) {
-            val anunciosRef = GetFirebase.getDatabase()
+            val anunciosRef = FirebaseHelper.getDatabase()
                 .child("anunciosPublicos")
                 .child(idAnuncio)
             anunciosRef.addListenerForSingleValueEvent(object : ValueEventListener {

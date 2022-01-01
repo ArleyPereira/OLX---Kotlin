@@ -11,4 +11,23 @@
     <string name="publicacao_local">%1$s, %2$s, %3$s</string>
     <string name="publicacao_detalhe">Publicado em %1$s</string>
 
+    <!--    Generics-->
+    <string name="error_generic">Ocorreu um erro, por favor tente novamente mais tarde.</string>
+    <string name="text_send">Enviar</string>
+    <string name="text_email">E-mail</string>
+    <string name="text_hint_email">Email</string>
+
+    <!--    Register Fragment-->
+    <string name="account_not_registered_register_fragment">Nenhuma conta encontrada com este e-mail.</string>
+    <string name="invalid_email_register_fragment">Insira um e-mail válido.</string>
+    <string name="invalid_password_register_fragment">Senha inválida, tente novamente.</string>
+    <string name="email_in_use_register_fragment">Este e-mail já está em uso.</string>
+    <string name="strong_password_register_fragment">Insira uma senha mais forte.</string>
+
+    <!--    Recover Password Fragment-->
+    <string name="title_toolbar_recover_password_fragment">Recuperar conta</string>
+    <string name="text_email_empty">Informe seu email.</string>
+    <string name="text_recover_password_fragment">Pronto, já pode verificar seu e-mail.</string>
+    <string name="text_message_info">Informe seu email cadastrado e você receberá um link para alterar a senha senha.</string>
+
 </resources>

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.olx.R
-import com.example.olx.Util.GetMask
+import com.example.olx.util.GetMask
 import com.example.olx.model.Anuncio
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.adapter_anuncio.view.*

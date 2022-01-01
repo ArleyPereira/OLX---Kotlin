@@ -20,16 +20,14 @@
         <activity android:name=".activity.CategoriasActivity" />
         <activity android:name=".activity.FormAnuncioActivity" />
         <activity android:name=".activity.PerfilActivity" />
-        <activity android:name=".autenticacao.RecuperarSenhaActivity" />
-        <activity android:name=".activity.SplashActivity">
+        <activity android:name=".activity.SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".autenticacao.CriarContaActivity" />
-        <activity android:name=".autenticacao.LoginActivity" />
         <activity android:name=".activity.MainActivity" />
 
         <provider

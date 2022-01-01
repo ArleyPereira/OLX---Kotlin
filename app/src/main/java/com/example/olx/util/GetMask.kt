@@ -1,4 +1,4 @@
-package com.example.olx.Util
+package com.example.olx.util
 
 import java.text.*
 import java.util.*
