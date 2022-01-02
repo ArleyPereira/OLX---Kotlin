@@ -25,7 +25,11 @@
         android:id="@+id/menu_meus_anuncios"
         android:name="com.example.olx.fragments.MeusAnunciosFragment"
         android:label="@string/menu_meus_anuncios"
-        tools:layout="@layout/fragment_meus_anuncios" />
+        tools:layout="@layout/fragment_meus_anuncios" >
+        <action
+            android:id="@+id/action_menu_meus_anuncios_to_formPostFragment"
+            app:destination="@id/formPostFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/menu_favoritos"
@@ -93,6 +97,10 @@
         <action
             android:id="@+id/action_formPostFragment_to_categoriesFragment"
             app:destination="@id/categoriesFragment" />
+        <argument
+            android:name="post"
+            app:argType="com.example.olx.model.Post"
+            app:nullable="true" />
     </fragment>
 
 </navigation>

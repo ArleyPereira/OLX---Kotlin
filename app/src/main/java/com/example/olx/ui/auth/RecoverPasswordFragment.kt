@@ -30,7 +30,6 @@ class RecoverPasswordFragment : BaseFragment() {
 
         initToolbar(binding.toolbar)
 
-        // Ouvinte Cliques dos componentes
         initClicks()
     }
 

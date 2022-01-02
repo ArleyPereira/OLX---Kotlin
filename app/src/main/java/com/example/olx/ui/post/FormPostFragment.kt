@@ -1,7 +1,6 @@
 package com.example.olx.ui.post
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -15,16 +14,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.blackcat.currencyedittext.CurrencyEditText
+import androidx.navigation.fragment.navArgs
 import com.example.olx.R
-import com.example.olx.activity.MainActivity
 import com.example.olx.api.CEPService
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
@@ -52,6 +47,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class FormPostFragment : BaseFragment() {
+
+    private val args: FormPostFragmentArgs by navArgs()
 
     private var _binding: FragmentFormPostBinding? = null
     private val binding get() = _binding!!
@@ -81,17 +78,14 @@ class FormPostFragment : BaseFragment() {
 
         initToolbar(binding.toolbar)
 
-        // Inicia Retrofit
-        retrofitConfig()
+        initRetrofit()
 
-        // Inicia componentes de tela
         iniciaComponentes()
 
         getExtras()
 
         initClicks()
 
-        // Configura o Cep para busca
         configCep()
 
         getUser()
@@ -101,24 +95,26 @@ class FormPostFragment : BaseFragment() {
 
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
-        binding.btnSalvar.setOnClickListener { validaDados() }
+        binding.btnSalvar.setOnClickListener { validData() }
         binding.btnCategoria.setOnClickListener {
             findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
         }
 
-        binding.imagem0.setOnClickListener { showBottomSheet(0) }
-        binding.imagem1.setOnClickListener { showBottomSheet(1) }
-        binding.imagem2.setOnClickListener { showBottomSheet(2) }
+        binding.imagem0.setOnClickListener { bottomSheetSelectImage(0) }
+        binding.imagem1.setOnClickListener { bottomSheetSelectImage(1) }
+        binding.imagem2.setOnClickListener { bottomSheetSelectImage(2) }
     }
 
     // Receber dados via argumentos
     private fun getExtras() {
-        val bundle = intent.extras
-        if (bundle != null) {
-            post = intent.getSerializableExtra("anuncio") as Post
-            novoAnuncio = false
-            configDados()
-        }
+         args.post.let {
+             if (it != null) {
+                 post = it
+
+                 newPost = false
+                 configData()
+             }
+         }
     }
 
     // Recupera o endereço do usuário que está cadastrando o post
@@ -131,7 +127,7 @@ class FormPostFragment : BaseFragment() {
                     address = snapshot.getValue(Address::class.java) as Address
 
                     address.cep.let {
-                        editCep.setText(it)
+                        binding.editCep.setText(it)
                     }
                 }
 
@@ -151,7 +147,7 @@ class FormPostFragment : BaseFragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     user = snapshot.getValue(User::class.java) as User
 
-                    user.phone.let { editTelefone.setText(it) }
+                    user.phone.let { binding.editTelefone.setText(it) }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -314,8 +310,7 @@ class FormPostFragment : BaseFragment() {
             getString(R.string.publicacao_local, address.bairro, address.localidade, address.uf)
     }
 
-    // Inicia Retrofit
-    private fun retrofitConfig() {
+    private fun initRetrofit() {
         retrofit = Retrofit
             .Builder()
             .baseUrl("https://viacep.com.br/ws/")
@@ -331,33 +326,25 @@ class FormPostFragment : BaseFragment() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
                 val cep = p0.toString()
                     .replace("-", "")
                     .replace("_".toRegex(), "")
 
                 if (cep.length == 8) {
-
-                    // Oculta o teclado do dispotivo
-                    ocultaTeclado()
+                    hideKeyboard()
 
                     // Realiza a chamada da busca
                     // do endereço com base no cep digitado
-                    buscarEndereco(cep)
-
-
+                    getAddress(cep)
                 } else {
 
                 }
-
             }
 
             override fun afterTextChanged(p0: Editable?) {
 
             }
-
         })
-
     }
 
     // Realiza a busca do endereço
@@ -372,7 +359,7 @@ class FormPostFragment : BaseFragment() {
             override fun onResponse(call: Call<Address?>?, response: Response<Address?>?) {
                 response?.body()?.let {
                     address = it
-                    configEndereco()
+                    configAddress()
                 }
             }
 
@@ -433,7 +420,7 @@ class FormPostFragment : BaseFragment() {
 
                                     if (imageList.size == 3) {
                                         for (i in imageList.indices) {
-                                            salvaImagemFirebase(i)
+                                            saveImagePost(i)
                                         }
                                     } else {
                                         Snackbar.make(
@@ -445,10 +432,10 @@ class FormPostFragment : BaseFragment() {
                                 } else { // Edita Anúncio
                                     if (imageList.isNotEmpty()) {
                                         for (i in imageList.indices) {
-                                            salvaImagemFirebase(i)
+                                            saveImagePost(i)
                                         }
                                     } else { // Não teve edições de imagens
-                                        editaAnuncio()
+                                        post.editar()
                                     }
                                 }
                             } else {
@@ -479,98 +466,60 @@ class FormPostFragment : BaseFragment() {
     }
 
     // Salva a Imagem no Firebase Storage e recupera a URL
-    private fun salvaImagemFirebase(index: Int) {
+    private fun saveImagePost(index: Int) {
         val storageReference = FirebaseHelper.getStorage()
             .child("imagens")
             .child("anuncios")
             .child(post.id)
             .child("imagem$index.jpeg")
 
-        val uploadTask = storageReference.putFile(Uri.parse(imagemList[index].caminhoImagem))
+        val uploadTask = storageReference.putFile(Uri.parse(imageList[index].caminhoImagem))
         uploadTask.addOnSuccessListener {
             storageReference.downloadUrl.addOnCompleteListener { task ->
 
-                if (novoAnuncio) {
-                    post.urlFotos.add(task.result.toString())
+                if (newPost) {
+                    post.urlImages.add(task.result.toString())
                 } else {
-                    post.urlFotos[index] = task.result.toString()
+                    post.urlImages[index] = task.result.toString()
                 }
 
-                if (imagemList.size == index + 1) { // Hora de Salvar
-                    // Salva o Anúncio no Firebase
-                    salvaAnuncio()
+                if (imageList.size == index + 1) { // Hora de Salvar
+                    post.salvar()
+                    findNavController().popBackStack()
                 }
 
             }
-        }.addOnFailureListener(this) {
-            Toast.makeText(this, "Falha no Upload.", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener(requireActivity()) {
+            Toast.makeText(requireContext(), "Falha no Upload.", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    // Salva o Anúncio no Firebase
-    private fun salvaAnuncio() {
-
-        // Salva o Anúncio no Firebase
-        post.salvar()
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("id", 2)
-        startActivity(intent)
-
-        // Fecha a tela
-        finish()
-
-    }
-
-    // Edita o Anúncio no Firebase
-    private fun editaAnuncio() {
-        // Edita o Anúncio no Firebase
-        post.editar()
-
-        // Fecha a tela
-        finish()
-    }
-
-    // Oculta o teclado do dispositivo
-    private fun ocultaTeclado() {
-        val inputManager: InputMethodManager =
-            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(
-            currentFocus?.windowToken,
-            InputMethodManager.SHOW_FORCED
-        )
     }
 
     // Inicia componentes de tela
     private fun iniciaComponentes() {
-        findViewById<CurrencyEditText>(R.id.editPreco).locale = Locale("PT", "br")
-        findViewById<TextView>(R.id.textToolbar).text = "Novo anúncio"
+        binding.editPreco.locale = Locale("PT", "br")
     }
 
     // Configura index das imagens
     private fun configUpload(requestCode: Int, caminho: String) {
-
         val imagem = Imagem(caminho, requestCode)
 
-        if (imagemList.isNotEmpty()) {
+        if (imageList.isNotEmpty()) {
 
             var encontrou = false
-            for (i in imagemList.indices) {
-                if (imagemList[i].index == requestCode) {
+            for (i in imageList.indices) {
+                if (imageList[i].index == requestCode) {
                     encontrou = true
                 }
             }
 
             if (encontrou) { // já está na lista ( Atualiza )
-                imagemList[requestCode] = imagem
+                imageList[requestCode] = imagem
             } else { // Não está na lista ( Adiciona )
-                imagemList.add(imagem)
+                imageList.add(imagem)
             }
-
         } else {
-            imagemList.add(imagem)
+            imageList.add(imagem)
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
