@@ -9,11 +9,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
-import com.example.olx.activity.DetalheAnuncioActivity
 import com.example.olx.adapter.AdapterAnuncio
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.model.Anuncio
-import com.example.olx.model.Favorito
+import com.example.olx.model.Post
+import com.example.olx.model.Favorite
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -25,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_favoritos.view.*
 class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     private val favoritos: MutableList<String> = mutableListOf()
-    private val anuncioList: MutableList<Anuncio> = mutableListOf()
+    private val postList: MutableList<Post> = mutableListOf()
     private lateinit var adapterAnuncio: AdapterAnuncio
 
     override fun onCreateView(
@@ -98,20 +97,20 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     // Recupera Anúncios
     private fun recuperaAnuncios() {
-        anuncioList.clear()
+        postList.clear()
         for (idAnuncio in favoritos) {
             val anunciosRef = FirebaseHelper.getDatabase()
                 .child("anunciosPublicos")
                 .child(idAnuncio)
             anunciosRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val anuncio = snapshot.getValue(Anuncio::class.java)
+                        val anuncio = snapshot.getValue(Post::class.java)
 
                         if(anuncio != null){
-                            anuncioList.add(anuncio)
+                            postList.add(anuncio)
                         }
 
-                        if(anuncioList.size == favoritos.size){
+                        if(postList.size == favoritos.size){
                             textInfo.text = ""
                             progressBar.visibility = View.GONE
                             adapterAnuncio.notifyDataSetChanged()
@@ -132,12 +131,12 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
     private fun configRv(view: View){
         view.rvAnuncios.layoutManager = LinearLayoutManager(activity)
         view.rvAnuncios.setHasFixedSize(true)
-        adapterAnuncio = AdapterAnuncio(anuncioList, this, requireActivity())
+        adapterAnuncio = AdapterAnuncio(postList, this, requireActivity())
         view.rvAnuncios.adapter = adapterAnuncio
 
         view.rvAnuncios.setListener(object : SwipeLeftRightCallback.Listener{
             override fun onSwipedLeft(position: Int) {
-                removerAnuncio(anuncioList[position])
+                removerAnuncio(postList[position])
             }
 
             override fun onSwipedRight(position: Int) {
@@ -148,7 +147,7 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
     }
 
     // Exibe dialog para deleção do anúncio
-    private fun removerAnuncio(anuncio: Anuncio){
+    private fun removerAnuncio(post: Post){
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle("Deseja remover este anúncio dos favoritos ?")
         builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
@@ -157,12 +156,12 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
             adapterAnuncio.notifyDataSetChanged()
         }
         builder.setPositiveButton("Sim") { dialogInterface, _ ->
-            favoritos.remove(anuncio.id)
-            anuncioList.remove(anuncio)
+            favoritos.remove(post.id)
+            postList.remove(post)
 
-            if(anuncioList.size == 0) textInfo.text = "Nenhum anúncio favoritado"
+            if(postList.size == 0) textInfo.text = "Nenhum anúncio favoritado"
 
-            val favorito = Favorito(favoritos)
+            val favorito = Favorite(favoritos)
             favorito.salvar()
 
             dialogInterface.dismiss()
@@ -175,9 +174,9 @@ class FavoritosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
     }
 
-    override fun onItemClick(anuncio: Anuncio) {
+    override fun onItemClick(post: Post) {
         val intent = Intent(activity, DetalheAnuncioActivity::class.java)
-        intent.putExtra("anuncio", anuncio)
+        intent.putExtra("anuncio", post)
         startActivity(intent)
     }
 

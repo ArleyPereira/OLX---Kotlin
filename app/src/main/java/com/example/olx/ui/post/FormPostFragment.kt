@@ -1,4 +1,4 @@
-package com.example.olx.activity
+package com.example.olx.ui.post
 
 import android.Manifest
 import android.content.Context
@@ -12,27 +12,35 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.blackcat.currencyedittext.CurrencyEditText
 import com.example.olx.R
+import com.example.olx.activity.MainActivity
 import com.example.olx.api.CEPService
+import com.example.olx.databinding.BottomSheetSelectImageBinding
+import com.example.olx.databinding.FragmentFormPostBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
+import com.example.olx.util.BaseFragment
+import com.example.olx.util.initToolbar
+import com.example.olx.util.toast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
+import com.gun0912.tedpermission.normal.TedPermission
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_form_anuncio.*
-import kotlinx.android.synthetic.main.toolbar_voltar.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,24 +51,35 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FormAnuncioActivity : AppCompatActivity() {
+class FormPostFragment : BaseFragment() {
+
+    private var _binding: FragmentFormPostBinding? = null
+    private val binding get() = _binding!!
 
     private val REQUESTCATEGORIA = 10
 
-    private var novoAnuncio = true
-    private lateinit var anuncio: Anuncio
-    private var categoriaSelecinada: String = ""
-    private var local: Local? = null
-    private val imagemList = mutableListOf<Imagem>()
+    private var newPost = true
+    private lateinit var post: Post
+    private var categorySelected: String = ""
+    private lateinit var address: Address
+    private val imageList = mutableListOf<Imagem>()
     private lateinit var retrofit: Retrofit
     private lateinit var user: User
-    private lateinit var address: Address
 
     private var currentPhotoPath: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_form_anuncio)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFormPostBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initToolbar(binding.toolbar)
 
         // Inicia Retrofit
         retrofitConfig()
@@ -68,176 +87,144 @@ class FormAnuncioActivity : AppCompatActivity() {
         // Inicia componentes de tela
         iniciaComponentes()
 
-        // Recupera informações via Intent
-        getInfoIntent()
+        getExtras()
 
-        // Ouvinte Cliques
-        configCliques()
+        initClicks()
 
         // Configura o Cep para busca
         configCep()
 
-        // Recupera Usuário
-        recuperaUsuario()
+        getUser()
 
-        // Recupera Usuário
-        recuperaEnderecoUsuario()
-
+        getAddressUser()
     }
 
-    // Recupera Usuário
-    private fun recuperaEnderecoUsuario() {
-        val enderecoRef = FirebaseHelper.getDatabase()
-            .child("enderecos")
-            .child(FirebaseHelper.getIdUser())
-        enderecoRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                address = snapshot.getValue(Address::class.java) as Address
+    // Ouvinte Cliques dos componentes
+    private fun initClicks() {
+        binding.btnSalvar.setOnClickListener { validaDados() }
+        binding.btnCategoria.setOnClickListener {
+            findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
+        }
 
-                address.cep.let {
-                    editCep.setText(it)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
+        binding.imagem0.setOnClickListener { showBottomSheet(0) }
+        binding.imagem1.setOnClickListener { showBottomSheet(1) }
+        binding.imagem2.setOnClickListener { showBottomSheet(2) }
     }
 
-    // Recupera Usuário
-    private fun recuperaUsuario() {
-        val usuarioRef = FirebaseHelper.getDatabase()
-            .child("usuarios")
-            .child(FirebaseHelper.getIdUser())
-        usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                user = snapshot.getValue(User::class.java) as User
-
-                user.telefone.let {
-                    editTelefone.setText(it)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-    }
-
-    // Recupera informações via Intent
-    private fun getInfoIntent() {
+    // Receber dados via argumentos
+    private fun getExtras() {
         val bundle = intent.extras
         if (bundle != null) {
-            anuncio = intent.getSerializableExtra("anuncio") as Anuncio
+            post = intent.getSerializableExtra("anuncio") as Post
             novoAnuncio = false
             configDados()
         }
     }
 
-    // Ouvinte Cliques
-    private fun configCliques() {
-        ibVoltar.setOnClickListener { finish() }
-        btnSalvar.setOnClickListener { validaDados() }
-        btnCategoria.setOnClickListener {
-            val intent = Intent(this, CategoriasActivity::class.java)
-            intent.putExtra("todasCategorias", false)
-            startActivityForResult(intent, REQUESTCATEGORIA)
-        }
+    // Recupera o endereço do usuário que está cadastrando o post
+    private fun getAddressUser() {
+        FirebaseHelper.getDatabase()
+            .child("enderecos")
+            .child(FirebaseHelper.getIdUser())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    address = snapshot.getValue(Address::class.java) as Address
 
-        imagem0.setOnClickListener { showBottomSheet(0) }
-        imagem1.setOnClickListener { showBottomSheet(1) }
-        imagem2.setOnClickListener { showBottomSheet(2) }
+                    address.cep.let {
+                        editCep.setText(it)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
     }
 
-    // Exibe Bottom Sheet
-    private fun showBottomSheet(requestCode: Int) {
+    // Recupera os dados do usuário do firebase
+    private fun getUser() {
+        FirebaseHelper.getDatabase()
+            .child("usuarios")
+            .child(FirebaseHelper.getIdUser())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    user = snapshot.getValue(User::class.java) as User
 
-        val modalbottomsheet = layoutInflater.inflate(R.layout.bottom_sheet_form_anuncio, null)
-        val dialog = BottomSheetDialog(this, R.style.BottomSheetDialog)
-        dialog.setContentView(modalbottomsheet)
+                    user.phone.let { editTelefone.setText(it) }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+    }
+
+    // Abre bottom sheet para seleção das imagens do post ( câmera e galeria )
+    private fun bottomSheetSelectImage(requestCode: Int) {
+        val dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialog)
+        val sheetBinding: BottomSheetSelectImageBinding =
+            BottomSheetSelectImageBinding.inflate(layoutInflater, null, false)
+
+        sheetBinding.btnCamera.setOnClickListener {
+            dialog.dismiss()
+            checkPermissionCamera(requestCode)
+        }
+
+        sheetBinding.btnGallery.setOnClickListener {
+            dialog.dismiss()
+            checkPermissionGallery(requestCode)
+        }
+
+        sheetBinding.btnCancel.setOnClickListener { dialog.dismiss() }
+
+        dialog.setContentView(sheetBinding.root)
         dialog.show()
-
-        modalbottomsheet.findViewById<View>(R.id.btnTirarFoto).setOnClickListener {
-            dialog.dismiss()
-            verificaPermissaoCamera(requestCode)
-        }
-
-        modalbottomsheet.findViewById<View>(R.id.btnGaleria).setOnClickListener {
-            dialog.dismiss()
-            verificaPermissaoGaleria(requestCode)
-        }
-
-        modalbottomsheet.findViewById<View>(R.id.btnCancelar)
-            .setOnClickListener { dialog.dismiss() }
-
     }
 
-    // Verifica a permissão de acesso a Camera
-    private fun verificaPermissaoCamera(requestCode: Int) {
+    // Solicita permissções de acesso a galeria
+    private fun checkPermissionGallery(requestCode: Int) {
         val permissionlistener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-                escolherImagemCamera(requestCode)
+                openGallery(requestCode)
             }
 
             override fun onPermissionDenied(deniedPermissions: List<String>) {
-                Toast.makeText(this@FormAnuncioActivity, "Permissão Negada", Toast.LENGTH_SHORT)
-                    .show()
+                requireContext().toast(R.string.permission_denied)
             }
         }
-
-        // Exibe Dialog Permissão Negada
-        showDialogPermissao(
-            permissionlistener, arrayOf(Manifest.permission.CAMERA),
-            "Se você não aceitar a permissão não poderá acessar a Camera do dispositivo, deseja ativar a permissão agora ?"
-        )
-
-    }
-
-    // Verifica a permissão de acesso a Galeria
-    private fun verificaPermissaoGaleria(requestCode: Int) {
-        val permissionlistener: PermissionListener = object  : PermissionListener {
-            override fun onPermissionGranted() {
-                escolherImagemGaleria(requestCode)
-            }
-
-            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                Toast.makeText(this@FormAnuncioActivity, "Permissão Negada", Toast.LENGTH_SHORT)
-                    .show()
-            }
-
-        }
-
-        // Exibe Dialog Permissão Negada
-        showDialogPermissao(
+        showDialogPermission(
             permissionlistener, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            "Se você não aceitar a permissão não poderá acessar a Galeria do dispositivo, deseja ativar a permissão agora ?"
+            R.string.gallery_permission_denied
         )
-
-
     }
 
-    // Exibe Dialog Permissão Negada
-    private fun showDialogPermissao(
-        permissionlistener: PermissionListener,
-        permissoes: Array<String>,
-        msg: String
-    ) {
-        TedPermission.with(this)
-            .setPermissionListener(permissionlistener)
-            .setDeniedTitle("Permissões")
-            .setDeniedMessage(msg)
-            .setDeniedCloseButtonText("Não")
-            .setGotoSettingButtonText("Sim")
-            .setPermissions(*permissoes)
-            .check()
+    // Solicita permissções de acesso a câmera
+    private fun checkPermissionCamera(requestCode: Int) {
+        val permissionlistener: PermissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {
+                openCamera(requestCode)
+            }
+
+            override fun onPermissionDenied(deniedPermissions: List<String>) {
+                requireContext().toast(R.string.permission_denied)
+            }
+        }
+        showDialogPermission(
+            permissionlistener, arrayOf(Manifest.permission.CAMERA),
+            R.string.camera_permission_denied
+        )
     }
 
-    // Abre a Camera do dispositivo
-    private fun escolherImagemCamera(requestCode: Int) {
+    // Abre a galeria do dispositivo do usuário
+    private fun openGallery(requestCode: Int) {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, requestCode)
+    }
 
+    // Abre a câmera do dispositivo do usuário
+    private fun openCamera(requestCode: Int) {
         val request = when (requestCode) {
             0 -> 3
             1 -> 4
@@ -255,7 +242,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
         if (photoFile != null) {
             val photoURI = FileProvider.getUriForFile(
-                this,
+                requireContext(),
                 "com.example.olx.fileprovider",
                 photoFile
             )
@@ -269,7 +256,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     private fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale("pt", "BR")).format(Date())
         val imageFileName = "JPEG_" + timeStamp + "_"
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val image = File.createTempFile(
             imageFileName,  /* prefix */
             ".jpg",  /* suffix */
@@ -281,42 +268,50 @@ class FormAnuncioActivity : AppCompatActivity() {
         return image
     }
 
-    // Abre a Galeria do dispositivo
-    private fun escolherImagemGaleria(requestCode: Int) {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, requestCode)
+    // Exibe dialog permissões negadas
+    private fun showDialogPermission(
+        permissionlistener: PermissionListener,
+        permissions: Array<String>,
+        msg: Int
+    ) {
+        TedPermission.create()
+            .setPermissionListener(permissionlistener)
+            .setDeniedTitle(R.string.permission_denied)
+            .setDeniedMessage(msg)
+            .setDeniedCloseButtonText("Não")
+            .setGotoSettingButtonText("Sim")
+            .setPermissions(*permissions)
+            .check()
     }
 
-    // Exibe as informações nos elementos
-    private fun configDados() {
-
-        // TextView Toolbar
-        textToolbar.text = "Edição anúncio"
-
-        // Fotos
-        Picasso.get().load(anuncio.urlFotos[0]).into(imagem0)
-        Picasso.get().load(anuncio.urlFotos[1]).into(imagem1)
-        Picasso.get().load(anuncio.urlFotos[2]).into(imagem2)
+    // Exibe as informações do post nos componentes
+    private fun configData() {
+        Picasso.get().load(post.urlImages[0]).into(binding.imagem0)
+        Picasso.get().load(post.urlImages[1]).into(binding.imagem1)
+        Picasso.get().load(post.urlImages[2]).into(binding.imagem2)
 
         // Titulo
-        editNome.setText(anuncio.titulo)
+        binding.editNome.setText(post.title)
 
         // Preço
-        editPreco.setText((anuncio.preco * 10).toString())
+        binding.editPreco.setText((post.price * 10).toString())
 
         // Categoria
-        btnCategoria.text = anuncio.categoria
-        categoriaSelecinada = anuncio.categoria
+        binding.btnCategoria.text = post.category
+        categorySelected = post.category
 
         //Descrição
-        editDescricao.setText(anuncio.descricao)
+        binding.editDescricao.setText(post.description)
 
         // CEP
-        editCep.setText(anuncio.local.cep)
-        local = anuncio.local
-        textLocal.text =
-            getString(R.string.publicacao_local, local?.bairro, local?.localidade, local?.uf)
-
+        binding.editCep.setText(post.address?.cep)
+        post.address.let {
+            if (it != null) {
+                address = it
+            }
+        }
+        binding.textLocal.text =
+            getString(R.string.publicacao_local, address.bairro, address.localidade, address.uf)
     }
 
     // Inicia Retrofit
@@ -330,8 +325,7 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Configura o Cep para busca
     private fun configCep() {
-
-        editCep.addTextChangedListener(object : TextWatcher {
+        binding.editCep.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
@@ -368,36 +362,30 @@ class FormAnuncioActivity : AppCompatActivity() {
 
     // Realiza a busca do endereço
     // com base no CEP digitado
-    private fun buscarEndereco(cep: String) {
-
-        // Exibe a progressBar
-        progressBar.visibility = View.VISIBLE
+    private fun getAddress(cep: String) {
+        binding.progressBar.visibility = View.VISIBLE
 
         val cepService = retrofit.create(CEPService::class.java)
         val call = cepService.recuperarCEP(cep)
 
-        call.enqueue(object : Callback<Local?> {
-            override fun onResponse(call: Call<Local?>?, response: Response<Local?>?) {
-
+        call.enqueue(object : Callback<Address?> {
+            override fun onResponse(call: Call<Address?>?, response: Response<Address?>?) {
                 response?.body()?.let {
-                    local = it
+                    address = it
                     configEndereco()
                 }
-
             }
 
-            override fun onFailure(call: Call<Local?>?, t: Throwable?) {
+            override fun onFailure(call: Call<Address?>?, t: Throwable?) {
 
             }
         })
-
     }
 
     // Exibe um TextView com o endereço
     // correspondente ao CEP digitado
-    private fun configEndereco() {
-
-        local?.let {
+    private fun configAddress() {
+        address.let {
             val endereco = StringBuffer()
             endereco
                 .append(it.bairro)
@@ -406,111 +394,86 @@ class FormAnuncioActivity : AppCompatActivity() {
                 .append(", ")
                 .append(it.uf)
 
-            textLocal.text = endereco
+            binding.textLocal.text = endereco
         }
-
-        // Oculta a progressBar
-        progressBar.visibility = View.GONE
-
+        binding.progressBar.visibility = View.GONE
     }
 
-    // Valida as informações inseridas
-    private fun validaDados() {
+    // Valida se as informacoes foram preenchidas
+    private fun validData() {
+        val title = binding.editNome.text.toString().trim()
+        val price = binding.editPreco.rawValue / 100
+        val description = binding.editDescricao.text.toString().trim()
+        val phone = binding.editTelefone.unMasked.trim()
 
-        val titulo = editNome.text.toString()
-        val preco = editPreco.rawValue / 100
-        val descricao = editDescricao.text.toString()
-        val telefone = editTelefone.unMasked
+        if (title.isNotEmpty()) {
+            if (price > 0) {
+                if (categorySelected.isNotBlank()) {
+                    if (description.isNotEmpty()) {
+                        if (phone.isNotEmpty()) {
+                            if (phone.length == 11) {
 
-        if (titulo.isNotBlank()) {
-            if (preco > 0) {
-                if (categoriaSelecinada.isNotBlank()) {
-                    if (descricao.isNotBlank()) {
-                        if (telefone.isNotBlank()) {
-                            if (telefone.length == 11) {
+                                hideKeyboard()
 
-                                if (local != null) {
+                                binding.progressBar.visibility = View.VISIBLE
 
-                                    // Oculta o teclado do dispositivo
-                                    ocultaTeclado()
+                                if (newPost) post = Post()
 
-                                    // Exibe a progressBar
-                                    progressBar.visibility = View.VISIBLE
+                                post.idUsuario = FirebaseHelper.getIdUser()
+                                post.title = title
+                                post.price = price.toDouble()
+                                post.category = categorySelected
+                                post.description = description
+                                post.phone = phone
+                                post.address = address
 
-                                    if (novoAnuncio) anuncio = Anuncio()
+                                if (newPost) { // Novo Anúncio
 
-                                    anuncio.idUsuario = FirebaseHelper.getIdUser()
-                                    anuncio.titulo = titulo
-                                    anuncio.preco = preco.toDouble()
-                                    anuncio.categoria = categoriaSelecinada
-                                    anuncio.descricao = descricao
-                                    anuncio.telefone = telefone
-                                    anuncio.local = local!!
+                                    post.id = FirebaseHelper.getDatabase().push().key.toString()
 
-                                    if (novoAnuncio) { // Novo Anúncio
-
-                                        anuncio.id = FirebaseHelper.getDatabase().push().key.toString()
-
-                                        if (imagemList.size == 3) {
-
-                                            for (i in imagemList.indices) {
-                                                salvaImagemFirebase(i)
-                                            }
-
-                                        } else {
-                                            Snackbar.make(
-                                                btnSalvar,
-                                                "Selecione 3 imagens.",
-                                                Snackbar.LENGTH_SHORT
-                                            ).show()
+                                    if (imageList.size == 3) {
+                                        for (i in imageList.indices) {
+                                            salvaImagemFirebase(i)
                                         }
-
-                                    } else { // Edita Anúncio
-
-                                        if (imagemList.isNotEmpty()) {
-
-                                            for (i in imagemList.indices) {
-                                                salvaImagemFirebase(i)
-                                            }
-
-                                        } else { // Não teve edições de imagens
-
-                                            // Edita o Anúncio no Firebase
-                                            editaAnuncio()
-
-                                        }
-
-
+                                    } else {
+                                        Snackbar.make(
+                                            binding.btnSalvar,
+                                            "Selecione 3 imagens.",
+                                            Snackbar.LENGTH_SHORT
+                                        ).show()
                                     }
-
-                                } else {
-                                    editCep.error = "Informe o CEP."
-                                    editCep.requestFocus()
+                                } else { // Edita Anúncio
+                                    if (imageList.isNotEmpty()) {
+                                        for (i in imageList.indices) {
+                                            salvaImagemFirebase(i)
+                                        }
+                                    } else { // Não teve edições de imagens
+                                        editaAnuncio()
+                                    }
                                 }
-
                             } else {
-                                editTelefone.requestFocus()
-                                editTelefone.error = "Telefone inválido."
+                                binding.editTelefone.requestFocus()
+                                binding.editTelefone.error = "Telefone inválido."
                             }
                         } else {
-                            editTelefone.error = "Informe o telefone"
-                            editTelefone.requestFocus()
+                            binding.editTelefone.error = "Informe o telefone"
+                            binding.editTelefone.requestFocus()
                         }
                     } else {
-                        editDescricao.error = "Informe a descrição."
-                        editDescricao.requestFocus()
+                        binding.editDescricao.error = "Informe a descrição."
+                        binding.editDescricao.requestFocus()
                     }
                 } else {
-                    Snackbar.make(btnCategoria, "Selecione a categoria.", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(binding.btnCategoria, "Selecione a categoria.", Snackbar.LENGTH_SHORT)
                         .show()
                 }
             } else {
-                editPreco.error = "Informe o preço."
-                editPreco.requestFocus()
+                binding.editPreco.error = "Informe o preço."
+                binding.editPreco.requestFocus()
             }
         } else {
-            editNome.error = "Informe o título."
-            editNome.requestFocus()
+            binding.editNome.error = "Informe o título."
+            binding.editNome.requestFocus()
         }
 
     }
@@ -520,7 +483,7 @@ class FormAnuncioActivity : AppCompatActivity() {
         val storageReference = FirebaseHelper.getStorage()
             .child("imagens")
             .child("anuncios")
-            .child(anuncio.id)
+            .child(post.id)
             .child("imagem$index.jpeg")
 
         val uploadTask = storageReference.putFile(Uri.parse(imagemList[index].caminhoImagem))
@@ -528,9 +491,9 @@ class FormAnuncioActivity : AppCompatActivity() {
             storageReference.downloadUrl.addOnCompleteListener { task ->
 
                 if (novoAnuncio) {
-                    anuncio.urlFotos.add(task.result.toString())
+                    post.urlFotos.add(task.result.toString())
                 } else {
-                    anuncio.urlFotos[index] = task.result.toString()
+                    post.urlFotos[index] = task.result.toString()
                 }
 
                 if (imagemList.size == index + 1) { // Hora de Salvar
@@ -548,7 +511,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     private fun salvaAnuncio() {
 
         // Salva o Anúncio no Firebase
-        anuncio.salvar()
+        post.salvar()
 
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("id", 2)
@@ -562,7 +525,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     // Edita o Anúncio no Firebase
     private fun editaAnuncio() {
         // Edita o Anúncio no Firebase
-        anuncio.editar()
+        post.editar()
 
         // Fecha a tela
         finish()
@@ -613,7 +576,7 @@ class FormAnuncioActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
 
             val bitmap0: Bitmap
             val bitmap1: Bitmap
@@ -623,7 +586,7 @@ class FormAnuncioActivity : AppCompatActivity() {
             val caminho: String
 
             if (requestCode == REQUESTCATEGORIA) {
-                val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Categoria?
+                val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Category?
                 if (categoria != null) {
                     categoriaSelecinada = categoria.nome
                     btnCategoria.text = categoriaSelecinada
@@ -717,6 +680,11 @@ class FormAnuncioActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

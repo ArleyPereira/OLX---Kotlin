@@ -28,7 +28,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imagemAnuncio"
+                android:id="@+id/imgPost"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
@@ -38,7 +38,7 @@
                 tools:src="@drawable/anuncio" />
 
             <TextView
-                android:id="@+id/textTitulo"
+                android:id="@+id/textTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -47,12 +47,12 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imagemAnuncio"
+                app:layout_constraintStart_toEndOf="@+id/imgPost"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Kawasaki Z800 ABS" />
 
             <TextView
-                android:id="@+id/textPreco"
+                android:id="@+id/textPrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -60,14 +60,14 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/textData"
+                app:layout_constraintBottom_toTopOf="@+id/textPublication"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imagemAnuncio"
-                app:layout_constraintTop_toBottomOf="@+id/textTitulo"
+                app:layout_constraintStart_toEndOf="@+id/imgPost"
+                app:layout_constraintTop_toBottomOf="@+id/textTitle"
                 tools:text="R$ 34,990" />
 
             <TextView
-                android:id="@+id/textData"
+                android:id="@+id/textPublication"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -78,7 +78,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/imagemAnuncio"
+                app:layout_constraintStart_toEndOf="@+id/imgPost"
                 tools:text="02/10/2020 Jardim Limoeiro" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

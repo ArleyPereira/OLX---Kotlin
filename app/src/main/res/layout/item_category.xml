@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/imgCategoria"
+        android:id="@+id/imgCategory"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:padding="16dp"
@@ -17,14 +17,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textCategoria"
+        android:id="@+id/textCategory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="Imóveis"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imgCategoria"
+        app:layout_constraintStart_toEndOf="@+id/imgCategory"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

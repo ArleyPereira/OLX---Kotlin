@@ -10,10 +10,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
-import com.example.olx.activity.FormAnuncioActivity
 import com.example.olx.adapter.AdapterAnuncio
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.model.Anuncio
+import com.example.olx.model.Post
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -23,7 +22,7 @@ import kotlinx.android.synthetic.main.fragment_meus_anuncios.view.*
 
 class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
-    private var anuncioList = mutableListOf<Anuncio>()
+    private var anuncioList = mutableListOf<Post>()
     private lateinit var adapterAnuncio: AdapterAnuncio
 
     override fun onCreateView(
@@ -71,7 +70,7 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
     }
 
     // Exibe Dialog para editar do anúncio
-    private fun editAnuncio(anuncio: Anuncio){
+    private fun editAnuncio(post: Post){
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle("Deseja editar este anúncio ?")
         builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
@@ -83,7 +82,7 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
         }.setPositiveButton("Sim") { _: DialogInterface, _: Int ->
 
             val intent = Intent(activity, FormAnuncioActivity::class.java)
-            intent.putExtra("anuncio", anuncio)
+            intent.putExtra("anuncio", post)
             startActivity(intent)
 
             adapterAnuncio.notifyDataSetChanged()
@@ -94,7 +93,7 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
     }
 
     // Exibe Dialog para deleção do Anúncio
-    private fun removerAnuncio(anuncio: Anuncio) {
+    private fun removerAnuncio(post: Post) {
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle("Deseja remover este anúncio ?")
         builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
@@ -105,8 +104,8 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
 
         }.setPositiveButton("Sim") { dialog: DialogInterface, _: Int ->
 
-            anuncioList.remove(anuncio)
-            anuncio.remover()
+            anuncioList.remove(post)
+            post.remover()
             dialog.dismiss()
             adapterAnuncio.notifyDataSetChanged()
 
@@ -135,7 +134,7 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
                     if (snapshot.exists()) {
 
                         for (ds in snapshot.children) {
-                            val anuncio = ds.getValue(Anuncio::class.java) as Anuncio
+                            val anuncio = ds.getValue(Post::class.java) as Post
                             anuncio.let {
                                 anuncioList.add(it)
                             }
@@ -176,7 +175,7 @@ class MeusAnunciosFragment : Fragment(), AdapterAnuncio.OnClickListener {
         }
     }
 
-    override fun onItemClick(anuncio: Anuncio) {
+    override fun onItemClick(post: Post) {
     }
 
 }

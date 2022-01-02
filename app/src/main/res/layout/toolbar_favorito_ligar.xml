@@ -36,7 +36,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         app:like_drawable="@drawable/ic_favorito_like"
-        app:unlike_drawable="@drawable/ic_favorito_unlike"
+        app:unlike_drawable="@drawable/ic_unlike"
         app:icon_size="30dp"
         app:icon_type="heart"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -50,7 +50,7 @@
         android:background="@android:color/transparent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:src="@drawable/ic_telefone"
+        android:src="@drawable/ic_phone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

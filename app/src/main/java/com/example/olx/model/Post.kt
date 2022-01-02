@@ -1,23 +1,26 @@
 package com.example.olx.model
 
+import android.os.Parcelable
 import com.example.olx.helper.FirebaseHelper
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+import kotlinx.parcelize.Parcelize
 import java.io.Serializable
 
-data class Anuncio(var id: String = "") : Serializable {
+@Parcelize
+data class Post(var id: String = "") : Parcelable {
 
     var idUsuario: String = ""
-    var titulo: String = ""
-    var telefone: String = ""
-    var preco: Double = 0.0
-    var categoria: String = ""
-    var descricao: String = ""
-    var local: Local = Local()
-    var dataCadastro: Long = 0
-    var urlFotos: MutableList<String> = mutableListOf()
+    var title: String = ""
+    var phone: String = ""
+    var price: Double = 0.0
+    var category: String = ""
+    var description: String = ""
+    var address: Address? = null
+    var registrationDate: Long = 0
+    var urlImages: MutableList<String> = mutableListOf()
 
     fun remover() {
         val anuncioPublicosRef = FirebaseHelper.getDatabase()
@@ -31,7 +34,7 @@ data class Anuncio(var id: String = "") : Serializable {
             .child(this.id)
         meusAnunciosRef.removeValue()
 
-        for (imagem in this.urlFotos.indices) {
+        for (imagem in this.urlImages.indices) {
             val imagemAnuncio = FirebaseHelper.getStorage()
                 .child("imagens")
                 .child("anuncios")
@@ -57,7 +60,7 @@ data class Anuncio(var id: String = "") : Serializable {
                 .child(id)
             anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val anuncio = snapshot.getValue(Anuncio::class.java) as Anuncio
+                    val anuncio = snapshot.getValue(Post::class.java) as Post
 
                     val meusAnunciosRef = FirebaseHelper.getDatabase()
                         .child("meusAnuncios")

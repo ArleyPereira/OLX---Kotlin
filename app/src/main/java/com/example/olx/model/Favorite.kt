@@ -2,7 +2,7 @@ package com.example.olx.model
 
 import com.example.olx.helper.FirebaseHelper
 
-data class Favorito(
+data class Favorite(
     var favoritos: MutableList<String> = mutableListOf()
 ) {
 

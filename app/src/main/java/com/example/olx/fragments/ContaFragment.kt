@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.olx.R
 import com.example.olx.activity.FormEnderecoActivity
-import com.example.olx.activity.PerfilActivity
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
 import com.google.firebase.database.DataSnapshot

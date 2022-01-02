@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'com.google.gms.google-services'
     id 'kotlin-parcelize'
+    id 'androidx.navigation.safeargs'
 }
 
 android {
@@ -77,7 +78,7 @@ dependencies {
     implementation 'com.github.smarteist:autoimageslider:1.4.0'
 
     // TedPermission -> https://github.com/ParkSangGwon/TedPermission
-    implementation 'gun0912.ted:tedpermission:2.2.3'
+    implementation 'io.github.ParkSangGwon:tedpermission-normal:3.3.0'
 
     // SpringAnimation
     implementation "androidx.dynamicanimation:dynamicanimation:1.0.0"

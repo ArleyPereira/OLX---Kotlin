@@ -6,7 +6,7 @@
     android:background="@drawable/bg_bottom_sheet">
 
     <Button
-        android:id="@+id/btnTirarFoto"
+        android:id="@+id/btnCamera"
         android:layout_width="match_parent"
         android:layout_height="62sp"
         android:background="@android:color/transparent"
@@ -20,7 +20,7 @@
         android:paddingEnd="0dp"/>
 
     <Button
-        android:id="@+id/btnGaleria"
+        android:id="@+id/btnGallery"
         android:layout_width="match_parent"
         android:layout_height="62sp"
         android:background="@android:color/transparent"
@@ -34,7 +34,7 @@
         android:paddingEnd="0dp"/>
 
     <Button
-        android:id="@+id/btnCancelar"
+        android:id="@+id/btnCancel"
         android:layout_width="match_parent"
         android:layout_height="62sp"
         android:background="@android:color/transparent"

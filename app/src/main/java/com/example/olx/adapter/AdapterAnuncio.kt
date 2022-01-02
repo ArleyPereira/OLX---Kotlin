@@ -1,51 +1,56 @@
 package com.example.olx.adapter
 
-import android.app.Activity
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.olx.R
 import com.example.olx.util.GetMask
-import com.example.olx.model.Anuncio
+import com.example.olx.model.Post
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.adapter_anuncio.view.*
 
 class AdapterAnuncio(
-    private var anuncioList: List<Anuncio>,
-    private var clickListener: OnClickListener,
-    private var activity: Activity
+    private var postList: List<Post>,
+    private var context: Context,
+    val postSelected: (Post) -> Unit?
 ) : RecyclerView.Adapter<AdapterAnuncio.MyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.adapter_anuncio, parent, false)
+        val itemView =
+            LayoutInflater.from(parent.context).inflate(R.layout.adapter_anuncio, parent, false)
         return MyViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        val anuncio = anuncioList[position]
+        val post = postList[position]
 
-        Picasso.get().load(anuncio.urlFotos[0]).into(holder.itemView.imagemAnuncio)
-        holder.textTitulo.text = anuncio.titulo
-        holder.textPreco.text = activity.getString(R.string.valor_anuncio, GetMask.getValor(anuncio.preco))
-        holder.textData.text = activity.getString(R.string.publicacao_anuncio,
-            anuncio.local.bairro, GetMask.getDate(anuncio.dataCadastro, GetMask.DIA_MES))
+        Picasso.get().load(post.urlImages[0]).into(holder.imgPost)
+        holder.textTitle.text = post.title
+        holder.textPrice.text =
+            context.getString(R.string.valor_anuncio, GetMask.getValor(post.price))
+        holder.textPublication.text = context.getString(
+            R.string.publicacao_anuncio,
+            post.address?.bairro, GetMask.getDate(post.registrationDate, GetMask.DIA_MES)
+        )
 
-        holder.itemView.setOnClickListener { clickListener.onItemClick(anuncio) }
-
+        holder.itemView.setOnClickListener { postSelected(post) }
     }
 
-    override fun getItemCount() = anuncioList.size
+    override fun getItemCount() = postList.size
 
-    interface OnClickListener{
-        fun onItemClick(anuncio: Anuncio)
+    interface OnClickListener {
+        fun onItemClick(post: Post)
     }
 
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val textTitulo = itemView.textTitulo
-        val textPreco = itemView.textPreco
-        val textData = itemView.textData
+    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgPost: ImageView = itemView.findViewById(R.id.imgPost)
+        val textTitle: TextView = itemView.findViewById(R.id.textTitle)
+        val textPrice: TextView = itemView.findViewById(R.id.textPrice)
+        val textPublication: TextView = itemView.findViewById(R.id.textPublication)
     }
 
 }
