@@ -15,11 +15,5 @@ class MainActivity : AppCompatActivity() {
         val navView = findViewById<BottomNavigationView>(R.id.nav_view)
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupWithNavController(navView, navController)
-
-        val id = intent.getIntExtra("id", 0)
-        if(id == 2){
-            navView.selectedItemId = R.id.menu_meus_anuncios
-        }
-
     }
 }

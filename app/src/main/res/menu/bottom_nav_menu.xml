@@ -3,22 +3,22 @@
 
     <item
         android:id="@+id/menu_home"
-        android:icon="@drawable/menu_item_home"
+        android:icon="@drawable/menu_bottom_item_home"
         android:title="@string/menu_inicio" />
 
     <item
-        android:id="@+id/menu_meus_anuncios"
-        android:icon="@drawable/menu_item_meus_anuncios"
-        android:title="@string/menu_meus_anuncios" />
+        android:id="@+id/menu_my_posts"
+        android:icon="@drawable/menu_bottom_item_my_posts"
+        android:title="@string/menu_my_posts" />
 
     <item
-        android:id="@+id/menu_favoritos"
-        android:icon="@drawable/menu_item_favoritos"
+        android:id="@+id/menu_favorites"
+        android:icon="@drawable/menu_bottom_item_favorite"
         android:title="@string/menu_favoritos" />
 
     <item
-        android:id="@+id/menu_perfil"
-        android:icon="@drawable/menu_item_perfil"
+        android:id="@+id/menu_account"
+        android:icon="@drawable/menu_bottom_item_account"
         android:title="@string/menu_perfil" />
 
 </menu>

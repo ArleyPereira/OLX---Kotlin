@@ -1,4 +1,4 @@
-package com.example.olx.fragments
+package com.example.olx.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.adapter.AdapterAnuncio
+import com.example.olx.R
+import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentHomeBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Post
@@ -21,7 +23,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var anuncioList = mutableListOf<Post>()
-    private lateinit var adapterAnuncio: AdapterAnuncio
+    private lateinit var adapterPost: AdapterPost
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,23 +48,23 @@ class HomeFragment : Fragment() {
 
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
-//        binding.btnInserir.setOnClickListener {
-//            if (FirebaseHelper.isAutenticated()) {
-//                startActivity(Intent(activity, FormAnuncioActivity::class.java))
-//            } else {
-//                startActivity(Intent(activity, LoginActivity::class.java))
-//            }
-//        }
+        binding.btnNewPost.setOnClickListener {
+            if (FirebaseHelper.isAutenticated()) {
+                findNavController().navigate(R.id.action_menu_home_to_formPostFragment)
+            } else {
+                findNavController().navigate(R.id.action_menu_home_to_navigation)
+            }
+        }
     }
 
     // Configurações iniciais do RecyclerView
     private fun initRecyclerView() {
         binding.rvAnuncios.layoutManager = LinearLayoutManager(activity)
         binding.rvAnuncios.setHasFixedSize(true)
-        adapterAnuncio = AdapterAnuncio(anuncioList, requireContext()) { post ->
+        adapterPost = AdapterPost(anuncioList, requireContext()) { post ->
             Toast.makeText(requireContext(), post.title, Toast.LENGTH_SHORT).show()
         }
-        binding.rvAnuncios.adapter = adapterAnuncio
+        binding.rvAnuncios.adapter = adapterPost
     }
 
     // Recupera anúncios do Firebase
@@ -84,7 +86,7 @@ class HomeFragment : Fragment() {
 
                     anuncioList.reverse()
                     binding.progressBar.visibility = View.GONE
-                    adapterAnuncio.notifyDataSetChanged()
+                    adapterPost.notifyDataSetChanged()
                 }
 
                 override fun onCancelled(error: DatabaseError) {

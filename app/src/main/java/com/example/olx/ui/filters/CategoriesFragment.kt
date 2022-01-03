@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.adapter.CategoriesAdapter
 import com.example.olx.databinding.FragmentCategoriesBinding
@@ -13,6 +14,8 @@ import com.example.olx.util.CategoriaList
 import com.example.olx.util.initToolbar
 
 class CategoriesFragment : Fragment() {
+
+    private val args: CategoriesFragmentArgs by navArgs()
 
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
@@ -36,9 +39,7 @@ class CategoriesFragment : Fragment() {
 
     // Receber dados via argumentos
     private fun getExtras() {
-        val allCategories = intent.getBooleanExtra("todasCategorias", true)
-
-        initRecyclerView(allCategories)
+        initRecyclerView(args.allCategorys)
     }
 
     // Configurações iniciais do RecyclerView

@@ -7,7 +7,6 @@ import android.widget.ImageView
 import com.example.olx.R
 import com.smarteist.autoimageslider.SliderViewAdapter
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.slider_layout_item.view.*
 
 class SliderAdapter(private var urlsImagens: List<String>) :
     SliderViewAdapter<SliderAdapter.SliderAdapterVH>() {
@@ -31,7 +30,7 @@ class SliderAdapter(private var urlsImagens: List<String>) :
     override fun getCount() = urlsImagens.size
 
     class SliderAdapterVH(itemView: View) : SliderViewAdapter.ViewHolder(itemView) {
-        val imageViewBackground: ImageView = itemView.imageViewBackground
+        val imageViewBackground: ImageView = itemView.findViewById(R.id.imageViewBackground)
     }
 
 }

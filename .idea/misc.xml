@@ -5,27 +5,40 @@
       <map>
         <entry key="app/src/main/res/drawable/bg_bottom_sheet_info.xml" value="0.2601851851851852" />
         <entry key="app/src/main/res/drawable/bg_btn.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/bg_select_item_bottom_menu.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/ic_favorito_like.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_like_red.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_off.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_on.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_unlike.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/ic_like.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/ic_like_white.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/ic_telefone_roxo.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/ic_unlike.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/ic_unlike_white.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/ic_voltar.xml" value="0.3148148148148148" />
+        <entry key="app/src/main/res/drawable/menu_bottom_item_favorite.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/menu_bottom_item_home.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/menu_item_favoritos.xml" value="0.3546875" />
+        <entry key="app/src/main/res/drawable/menu_item_home.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/layout/activity_categorias.xml" value="0.40037071362372567" />
         <entry key="app/src/main/res/layout/activity_criar_conta.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/activity_detalhe_anuncio.xml" value="0.20092592592592592" />
         <entry key="app/src/main/res/layout/activity_form_anuncio.xml" value="0.33871808233454925" />
         <entry key="app/src/main/res/layout/activity_form_endereco.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.2740740740740741" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.35551811288963775" />
         <entry key="app/src/main/res/layout/activity_perfil.xml" value="0.33871808233454925" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/adapter_anuncio.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/adapter_categoria.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/bottom_sheet_form_anuncio.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/bottom_sheet_select_image.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_categories.xml" value="0.32447916666666665" />
+        <entry key="app/src/main/res/layout/fragment_conta.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_detail_post.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_favoritos.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_form_address.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_form_post.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.3385416666666667" />
@@ -33,9 +46,12 @@
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_recover_password.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/layout_info_bottom_sheet.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/slider_layout_item.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/toolbar_favorito_ligar.xml" value="0.18645833333333334" />
         <entry key="app/src/main/res/layout/toolbar_voltar.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/menu/menu_call.xml" value="0.3385416666666667" />
       </map>
     </option>

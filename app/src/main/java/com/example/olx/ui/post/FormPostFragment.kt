@@ -350,23 +350,23 @@ class FormPostFragment : BaseFragment() {
     // Realiza a busca do endereço
     // com base no CEP digitado
     private fun getAddress(cep: String) {
-        binding.progressBar.visibility = View.VISIBLE
-
-        val cepService = retrofit.create(CEPService::class.java)
-        val call = cepService.recuperarCEP(cep)
-
-        call.enqueue(object : Callback<Address?> {
-            override fun onResponse(call: Call<Address?>?, response: Response<Address?>?) {
-                response?.body()?.let {
-                    address = it
-                    configAddress()
-                }
-            }
-
-            override fun onFailure(call: Call<Address?>?, t: Throwable?) {
-
-            }
-        })
+//        binding.progressBar.visibility = View.VISIBLE
+//
+//        val cepService = retrofit.create(CEPService::class.java)
+//        val call = cepService.recuperarCEP(cep)
+//
+//        call.enqueue(object : Callback<Address?> {
+//            override fun onResponse(call: Call<Address?>?, response: Response<Address?>?) {
+//                response?.body()?.let {
+//                    address = it
+//                    configAddress()
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<Address?>?, t: Throwable?) {
+//
+//            }
+//        })
     }
 
     // Exibe um TextView com o endereço
@@ -537,12 +537,10 @@ class FormPostFragment : BaseFragment() {
             if (requestCode == REQUESTCATEGORIA) {
                 val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Category?
                 if (categoria != null) {
-                    categoriaSelecinada = categoria.nome
-                    btnCategoria.text = categoriaSelecinada
+                    categorySelected = categoria.name
+                    binding.btnCategoria.text = categorySelected
                 }
-
             } else if (requestCode <= 2) { // Galeria
-
                 try {
 
                     //Recuperar caminho da imagem
@@ -552,83 +550,73 @@ class FormPostFragment : BaseFragment() {
                         0 -> {
                             bitmap0 = if (Build.VERSION.SDK_INT < 28) {
                                 MediaStore.Images.Media.getBitmap(
-                                    baseContext.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada
                                 )
                             } else {
                                 val source = ImageDecoder.createSource(
-                                    this.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada!!
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            imagem0.setImageBitmap(bitmap0)
+                            binding.imagem0.setImageBitmap(bitmap0)
                         }
                         1 -> {
                             bitmap1 = if (Build.VERSION.SDK_INT < 28) {
                                 MediaStore.Images.Media.getBitmap(
-                                    baseContext.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada
                                 )
                             } else {
                                 val source = ImageDecoder.createSource(
-                                    this.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada!!
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            imagem1.setImageBitmap(bitmap1)
+                            binding.imagem1.setImageBitmap(bitmap1)
                         }
                         2 -> {
                             bitmap2 = if (Build.VERSION.SDK_INT < 28) {
                                 MediaStore.Images.Media.getBitmap(
-                                    baseContext.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada
                                 )
                             } else {
                                 val source = ImageDecoder.createSource(
-                                    this.contentResolver,
+                                    requireContext().contentResolver,
                                     imagemSelecionada!!
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            imagem2.setImageBitmap(bitmap2)
+                            binding.imagem2.setImageBitmap(bitmap2)
                         }
                     }
-
                     // Configura index das imagens
                     configUpload(requestCode, caminho)
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             } else { // Camera
-
                 try {
-
                     val f = File(currentPhotoPath!!)
 
                     // Recupera o caminho da imagem
                     caminho = f.toURI().toString()
 
                     when (requestCode) {
-                        3 -> imagem0.setImageURI(Uri.fromFile(f))
-                        4 -> imagem1.setImageURI(Uri.fromFile(f))
-                        5 -> imagem2.setImageURI(Uri.fromFile(f))
+                        3 -> binding.imagem0.setImageURI(Uri.fromFile(f))
+                        4 -> binding.imagem1.setImageURI(Uri.fromFile(f))
+                        5 -> binding.imagem2.setImageURI(Uri.fromFile(f))
                     }
-
                     // Configura index das imagens
                     configUpload(requestCode, caminho)
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             }
-
         }
-
     }
 
     override fun onDestroyView() {

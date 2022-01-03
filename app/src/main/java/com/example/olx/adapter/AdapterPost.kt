@@ -12,11 +12,11 @@ import com.example.olx.util.GetMask
 import com.example.olx.model.Post
 import com.squareup.picasso.Picasso
 
-class AdapterAnuncio(
+class AdapterPost(
     private var postList: List<Post>,
     private var context: Context,
     val postSelected: (Post) -> Unit?
-) : RecyclerView.Adapter<AdapterAnuncio.MyViewHolder>() {
+) : RecyclerView.Adapter<AdapterPost.MyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView =
