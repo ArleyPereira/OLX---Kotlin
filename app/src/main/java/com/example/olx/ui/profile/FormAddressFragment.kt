@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.example.olx.MainGraphDirections
 import com.example.olx.databinding.FragmentFormAddressBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Address
@@ -46,33 +48,33 @@ class FormAddressFragment : BaseFragment() {
     }
 
     // Recupera endereço do firebase
-    private fun getAddress(){
-        FirebaseHelper.getDatabase()
-            .child("enderecos")
-            .child(FirebaseHelper.getIdUser())
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+    private fun getAddress() {
+        if (FirebaseHelper.isAutenticated()) {
+            FirebaseHelper.getDatabase()
+                .child("enderecos")
+                .child(FirebaseHelper.getIdUser())
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            address = snapshot.getValue(Address::class.java) as Address
+                            configData()
+                            newAddress = false
+                        } else {
+                            binding.progressBar.visibility = View.GONE
+                        }
+                    }
 
-                if(snapshot.exists()){
-                    address = snapshot.getValue(Address::class.java) as Address
-
-                    configData()
-
-                    newAddress = false
-                }else {
-                    binding.progressBar.visibility = View.GONE
-                }
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+        } else {
+            findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
+        }
     }
 
     // Exibe as informações do post nos componentes
-    private fun configData(){
+    private fun configData() {
         binding.editCep.setText(address.cep)
         binding.editEstado.setText(address.uf)
         binding.editCidade.setText(address.localidade)
@@ -97,7 +99,7 @@ class FormAddressFragment : BaseFragment() {
 
                         binding.progressBar.visibility = View.VISIBLE
 
-                        if(newAddress) address = Address()
+                        if (newAddress) address = Address()
                         address.cep = cep
                         address.uf = uf
                         address.localidade = cidade
@@ -110,7 +112,7 @@ class FormAddressFragment : BaseFragment() {
                             Snackbar.LENGTH_SHORT
                         ).show()
 
-                        binding. progressBar.visibility = View.GONE
+                        binding.progressBar.visibility = View.GONE
                     } else {
                         binding.editBairro.requestFocus()
                         binding.editBairro.error = "Informe o bairro."

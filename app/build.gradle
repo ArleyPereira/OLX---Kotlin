@@ -49,6 +49,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    implementation "androidx.fragment:fragment-ktx:1.4.0"
+
     // Mascara -> https://github.com/santalu/maskara
     implementation 'com.github.santalu:maskara:1.0.0'
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.olx.R
 import com.example.olx.databinding.FragmentLoginBinding
@@ -29,14 +30,13 @@ class LoginFragment : BaseFragment() {
 
         // Ouvinte Cliques dos componentes
         initClicks()
+
+        // Recupera o retorno e verifica se o usuário se cadastrou no app
+        listenerRegisterAccount()
     }
 
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
         binding.btnRegister.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         }
@@ -61,13 +61,25 @@ class LoginFragment : BaseFragment() {
 
                 loginApp(email, password)
             } else {
-                binding.editPassword.requestFocus()
-                binding.editPassword.error = "Informe uma senha."
+                showBottomSheetInfo(R.string.password_empty_login_fragment)
             }
         } else {
-            binding.editEmail.requestFocus()
-            binding.editEmail.error = "Informe seu e-mail."
+            showBottomSheetInfo(R.string.email_empty_login_fragment)
         }
+    }
+
+    // Recupera o retorno e verifica se o usuário se cadastrou no app
+    private fun listenerRegisterAccount() {
+        parentFragmentManager.setFragmentResultListener(RegisterFragment.REGISTER_SUCESS,
+            this,
+            { key, bundle ->
+                val sucess =
+                    bundle.getBoolean(RegisterFragment.REGISTER_SUCESS, false)
+
+                if (sucess) {
+                    findNavController().popBackStack()
+                }
+            })
     }
 
     // Efetua login no app pelo firebase autentication
@@ -76,10 +88,9 @@ class LoginFragment : BaseFragment() {
             email, password
         ).addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {
-
-
-
+                findNavController().popBackStack()
             } else {
+                binding.progressBar.visibility = View.GONE
                 showBottomSheetInfo(
                     FirebaseHelper.validError(task.exception?.message.toString())
                 )

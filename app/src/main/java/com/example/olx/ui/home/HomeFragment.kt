@@ -49,11 +49,7 @@ class HomeFragment : Fragment() {
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
         binding.btnNewPost.setOnClickListener {
-            if (FirebaseHelper.isAutenticated()) {
-                findNavController().navigate(R.id.action_menu_home_to_formPostFragment)
-            } else {
-                findNavController().navigate(R.id.action_menu_home_to_navigation)
-            }
+            findNavController().navigate(R.id.action_menu_home_to_formPostFragment)
         }
     }
 

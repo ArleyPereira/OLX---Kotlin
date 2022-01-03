@@ -26,6 +26,15 @@
     <string name="invalid_password_register_fragment">Senha inválida, tente novamente.</string>
     <string name="email_in_use_register_fragment">Este e-mail já está em uso.</string>
     <string name="strong_password_register_fragment">Insira uma senha mais forte.</string>
+    <string name="name_empty_register_fragment">Informe um nome.</string>
+    <string name="email_empty_register_fragment">Informe um e-mail.</string>
+    <string name="password_empty_register_fragment">Informe uma senha.</string>
+    <string name="phone_empty_register_fragment">Informe um número de telefone.</string>
+    <string name="phone_not_valid_register_fragment">Informe um número de telefone válido.</string>
+
+    <!--    Login Fragment-->
+    <string name="email_empty_login_fragment">Informe seu e-mail.</string>
+    <string name="password_empty_login_fragment">Informe sua senha.</string>
 
     <!--    Recover Password Fragment-->
     <string name="title_toolbar_recover_password_fragment">Recuperar conta</string>

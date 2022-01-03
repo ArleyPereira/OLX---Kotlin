@@ -48,18 +48,6 @@
                 android:text="Carregando..."
                 android:textAlignment="center" />
 
-            <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                tools:visibility="visible"
-                android:textSize="18sp"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center"
-                android:text="Fazer Login"
-                android:textAllCaps="false"/>
-
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

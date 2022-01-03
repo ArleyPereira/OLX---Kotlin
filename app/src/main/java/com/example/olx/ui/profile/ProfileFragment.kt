@@ -15,11 +15,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.navigation.fragment.findNavController
+import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.databinding.FragmentProfileBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
 import com.example.olx.util.BaseFragment
+import com.example.olx.util.initToolbar
 import com.example.olx.util.toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
@@ -49,6 +52,8 @@ class ProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initToolbar(binding.toolbar)
+
         // Recupera dados do Perfil
         getProfile()
 
@@ -58,26 +63,30 @@ class ProfileFragment : BaseFragment() {
 
     // Recupera dados do Perfil
     private fun getProfile() {
-        val usuarioRef = FirebaseHelper.getDatabase()
-            .child("usuarios")
-            .child(FirebaseHelper.getIdUser())
-        usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                hideKeyboard()
+        if(FirebaseHelper.isAutenticated()){
+            FirebaseHelper.getDatabase()
+                .child("usuarios")
+                .child(FirebaseHelper.getIdUser())
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        hideKeyboard()
 
-                binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
 
-                user = snapshot.getValue(User::class.java)!!
+                        user = snapshot.getValue(User::class.java)!!
 
-                // Configura as informações nos elementos
-                configData()
-            }
+                        // Configura as informações nos elementos
+                        configData()
+                    }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
 
-        })
+                })
+        }else {
+            findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
+        }
     }
 
     // Configura as informações nos componentes em tela
@@ -155,10 +164,18 @@ class ProfileFragment : BaseFragment() {
             .child(user.id)
         usuarioRef.setValue(user).addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {
-                Snackbar.make(binding.btnSalvar, "Informações salvas com sucesso.", Snackbar.LENGTH_SHORT)
+                Snackbar.make(
+                    binding.btnSalvar,
+                    "Informações salvas com sucesso.",
+                    Snackbar.LENGTH_SHORT
+                )
                     .show()
             } else {
-                Toast.makeText(requireContext(), "Não foi possível salvar os dados.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Não foi possível salvar os dados.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         binding.progressBar.visibility = View.GONE

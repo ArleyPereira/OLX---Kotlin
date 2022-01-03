@@ -6,6 +6,8 @@
         <entry key="app/src/main/res/drawable/bg_bottom_sheet_info.xml" value="0.2601851851851852" />
         <entry key="app/src/main/res/drawable/bg_btn.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/bg_select_item_bottom_menu.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/ic_back.xml" value="0.34074074074074073" />
+        <entry key="app/src/main/res/drawable/ic_back_purple.xml" value="0.25092592592592594" />
         <entry key="app/src/main/res/drawable/ic_favorito_like.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_like_red.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_favorito_off.xml" value="0.3546875" />
@@ -37,12 +39,14 @@
         <entry key="app/src/main/res/layout/fragment_categories.xml" value="0.32447916666666665" />
         <entry key="app/src/main/res/layout/fragment_conta.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_detail_post.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_favorites.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_favoritos.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_form_address.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_form_post.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_meus_anuncios.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_my_posts.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_recover_password.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3385416666666667" />

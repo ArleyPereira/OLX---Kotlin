@@ -11,28 +11,15 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorRoxoOlx"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_back">
-
-        <TextView
-            android:id="@+id/titleToolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Novo endereço"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
-
-    </androidx.appcompat.widget.Toolbar>
+        app:navigationIcon="@drawable/ic_back_purple"/>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:paddingTop="32dp"
         android:scrollbarThumbVertical="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -194,7 +181,6 @@
                 android:text="Salvar"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"

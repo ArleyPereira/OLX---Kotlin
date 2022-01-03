@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
+import com.example.olx.R
 import com.example.olx.databinding.FragmentRegisterBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
@@ -15,6 +18,10 @@ class RegisterFragment : BaseFragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
+
+    companion object {
+        val REGISTER_SUCESS = "REGISTER_SUCESS"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,24 +73,19 @@ class RegisterFragment : BaseFragment() {
                             )
 
                         } else {
-                            binding.editPassword.requestFocus()
-                            binding.editPassword.error = "Informe uma senha."
+                            showBottomSheetInfo(R.string.password_empty_register_fragment)
                         }
                     } else {
-                        binding.editPhone.requestFocus()
-                        binding.editPhone.error = "Telefone inválido."
+                        showBottomSheetInfo(R.string.phone_not_valid_register_fragment)
                     }
                 } else {
-                    binding.editPhone.requestFocus()
-                    binding.editPhone.error = "Informe seu telefone."
+                    showBottomSheetInfo(R.string.phone_empty_register_fragment)
                 }
             } else {
-                binding.editEmail.requestFocus()
-                binding.editEmail.error = "Informe seu e-mail."
+                showBottomSheetInfo(R.string.email_empty_register_fragment)
             }
         } else {
-            binding.editName.requestFocus()
-            binding.editName.error = "Informe seu nome."
+            showBottomSheetInfo(R.string.name_empty_register_fragment)
         }
     }
 
@@ -109,7 +111,12 @@ class RegisterFragment : BaseFragment() {
         val usuarioRef = FirebaseHelper.getDatabase()
             .child("usuarios")
             .child(user.id)
-        usuarioRef.setValue(user)
+        usuarioRef.setValue(user).addOnCompleteListener {
+            val bundle = Bundle()
+            bundle.putBoolean(REGISTER_SUCESS, true)
+            parentFragmentManager.setFragmentResult(REGISTER_SUCESS, bundle)
+            findNavController().popBackStack()
+        }
     }
 
     override fun onDestroyView() {

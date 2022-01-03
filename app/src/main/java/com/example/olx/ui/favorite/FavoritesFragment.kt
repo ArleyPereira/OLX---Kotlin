@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.R
 import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentFavoritesBinding
 import com.example.olx.helper.FirebaseHelper
@@ -75,13 +73,7 @@ class FavoritesFragment : Fragment() {
                     }
                 })
         } else {
-            binding.progressBar.visibility = View.GONE
-            binding.textInfo.text = "Você não está autenticado no app."
-
-            binding.btnLogin.visibility = View.VISIBLE
-            binding.btnLogin.setOnClickListener {
-                findNavController().navigate(R.id.action_menu_favorites_to_navigation)
-            }
+            //findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
         }
     }
 

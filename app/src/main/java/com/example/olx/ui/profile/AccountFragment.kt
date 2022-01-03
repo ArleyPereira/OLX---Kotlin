@@ -41,19 +41,11 @@ class AccountFragment : Fragment() {
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
         binding.btnProfile.setOnClickListener {
-            if (FirebaseHelper.isAutenticated()) {
-                findNavController().navigate(R.id.action_menu_account_to_profileFragment)
-            } else {
-                loginApp()
-            }
+            findNavController().navigate(R.id.action_menu_account_to_profileFragment)
         }
 
         binding.btnAddress.setOnClickListener {
-            if (FirebaseHelper.isAutenticated()) {
-                findNavController().navigate(R.id.action_menu_account_to_formAddressFragment)
-            } else {
-                loginApp()
-            }
+            findNavController().navigate(R.id.action_menu_account_to_formAddressFragment)
         }
 
         binding.textAccount.setOnClickListener {
@@ -61,7 +53,7 @@ class AccountFragment : Fragment() {
                 FirebaseHelper.getAuth().signOut()
                 configData()
             } else {
-                loginApp()
+                //loginApp()
             }
         }
     }
@@ -101,11 +93,6 @@ class AccountFragment : Fragment() {
             binding.textAccount.text = "Clique aqui"
             binding.imgProfile.setImageResource(R.drawable.ic_user_cinza)
         }
-    }
-
-    // Leva o Usuário para tela de login
-    private fun loginApp() {
-        findNavController().navigate(R.id.action_menu_account_to_navigation)
     }
 
     override fun onDestroyView() {

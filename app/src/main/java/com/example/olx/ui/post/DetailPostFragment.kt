@@ -1,15 +1,12 @@
 package com.example.olx.ui.post
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.olx.R
 import com.example.olx.adapter.SliderAdapter
@@ -113,7 +110,6 @@ class DetailPostFragment : Fragment() {
 
                 } else {
                     likeButton?.isLiked = false
-                    userNotAuthenticated()
                 }
             }
 
@@ -166,32 +162,11 @@ class DetailPostFragment : Fragment() {
 
     // Abre o aplicativo de chamadas do aparelho
     private fun call() {
-        if (FirebaseHelper.isAutenticated()) {
-            val intent = Intent(
-                Intent.ACTION_DIAL,
-                Uri.fromParts("tel", post.phone, null)
-            )
-            startActivity(intent)
-        } else {
-            userNotAuthenticated()
-        }
-    }
-
-    // Dialog Usuário não ligado
-    private fun userNotAuthenticated() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Atenção")
-        builder.setMessage("Para entrar em contato com anunciantes é preciso está logado no app.")
-        builder.setCancelable(false)
-        builder.setNegativeButton("Entendi", null)
-        builder.setPositiveButton(
-            "Fazer login"
-        ) { _: DialogInterface?, _: Int ->
-            findNavController().navigate(R.id.action_detailPostFragment_to_navigation)
-        }
-
-        val dialog = builder.create()
-        dialog.show()
+        val intent = Intent(
+            Intent.ACTION_DIAL,
+            Uri.fromParts("tel", post.phone, null)
+        )
+        startActivity(intent)
     }
 
     // Configura as informações nos componentes em tela

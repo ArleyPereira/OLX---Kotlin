@@ -2,6 +2,7 @@ package com.example.olx.ui.post
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.R
+import com.example.olx.MainGraphDirections
 import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentMyPostsBinding
 import com.example.olx.helper.FirebaseHelper
@@ -49,7 +50,8 @@ class MyPostsFragment : Fragment() {
     private fun initRecyclerView() {
         binding.recyclerPosts.layoutManager = LinearLayoutManager(activity)
         binding.recyclerPosts.setHasFixedSize(true)
-        binding.recyclerPosts.adapter = AdapterPost(postList, requireContext()) {}
+        adapterPost = AdapterPost(postList, requireContext()) {}
+        binding.recyclerPosts.adapter = adapterPost
 
         binding.recyclerPosts.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
@@ -114,13 +116,7 @@ class MyPostsFragment : Fragment() {
                 }
             })
         } else {
-            binding.progressBar.visibility = View.GONE
-            binding.textInfo.text = "Você não está autenticado no app."
-
-            binding.btnLogin.visibility = View.VISIBLE
-            binding.btnLogin.setOnClickListener {
-                findNavController().navigate(R.id.action_menu_my_posts_to_navigation)
-            }
+            findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
         }
     }
 
