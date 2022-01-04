@@ -10,6 +10,7 @@ import com.example.olx.R
 import com.example.olx.databinding.FragmentAccountBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
+import com.example.olx.ui.home.HomeFragmentDirections
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -41,11 +42,11 @@ class AccountFragment : Fragment() {
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
         binding.btnProfile.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_account_to_profileFragment)
+            loginApp(R.id.action_menu_account_to_profileFragment)
         }
 
         binding.btnAddress.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_account_to_formAddressFragment)
+            loginApp(R.id.action_menu_account_to_formAddressFragment)
         }
 
         binding.textAccount.setOnClickListener {
@@ -53,8 +54,19 @@ class AccountFragment : Fragment() {
                 FirebaseHelper.getAuth().signOut()
                 configData()
             } else {
-                //loginApp()
+                loginApp()
             }
+        }
+    }
+
+    // redireciona o usuário para tela de login
+    private fun loginApp(destination: Int = 0) {
+        if(FirebaseHelper.isAutenticated() && destination != 0){
+            findNavController().navigate(destination)
+        }else {
+            findNavController().navigate(
+                HomeFragmentDirections.actionGlobalVisitorFragment().actionId
+            )
         }
     }
 

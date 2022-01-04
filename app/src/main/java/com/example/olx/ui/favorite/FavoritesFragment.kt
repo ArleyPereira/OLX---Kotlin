@@ -46,35 +46,31 @@ class FavoritesFragment : Fragment() {
 
     // Configura os favoritos do firebase
     private fun getIdsFavorites() {
-        if (FirebaseHelper.isAutenticated()) {
-            FirebaseHelper.getDatabase()
-                .child("favoritos")
-                .child(FirebaseHelper.getIdUser())
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        idsFavoritesList.clear()
-                        for (ds in snapshot.children) {
-                            val id = ds.getValue(String::class.java)
-                            if (id != null) {
-                                idsFavoritesList.add(id)
-                            }
-                        }
-
-                        if (idsFavoritesList.size > 0) {
-                            getPosts()
-                        } else {
-                            binding.progressBar.visibility = View.GONE
-                            binding.textInfo.text = "Nenhum anúncio favoritado."
+        FirebaseHelper.getDatabase()
+            .child("favoritos")
+            .child(FirebaseHelper.getIdUser())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    idsFavoritesList.clear()
+                    for (ds in snapshot.children) {
+                        val id = ds.getValue(String::class.java)
+                        if (id != null) {
+                            idsFavoritesList.add(id)
                         }
                     }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+                    if (idsFavoritesList.size > 0) {
+                        getPosts()
+                    } else {
+                        binding.progressBar.visibility = View.GONE
+                        binding.textInfo.text = "Nenhum anúncio favoritado."
                     }
-                })
-        } else {
-            //findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
-        }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
     }
 
     // Recupera posts do firebase

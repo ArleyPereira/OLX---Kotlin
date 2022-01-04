@@ -33,7 +33,7 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         android:scrollbarThumbVertical="@null"
-        app:layout_constraintBottom_toTopOf="@+id/btnSalvar"
+        app:layout_constraintBottom_toTopOf="@+id/btnSave"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -73,7 +73,7 @@
                         app:cardElevation="5dp">
 
                         <ImageView
-                            android:id="@+id/imagem0"
+                            android:id="@+id/image0"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -92,7 +92,7 @@
                         app:cardElevation="5dp">
 
                         <ImageView
-                            android:id="@+id/imagem1"
+                            android:id="@+id/image1"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -111,7 +111,7 @@
                         app:cardElevation="5dp">
 
                         <ImageView
-                            android:id="@+id/imagem2"
+                            android:id="@+id/image2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -136,7 +136,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
 
             <EditText
-                android:id="@+id/editNome"
+                android:id="@+id/editTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -148,6 +148,7 @@
                 android:inputType="text"
                 android:maxLines="1"
                 android:padding="14dp"
+                android:textSize="14sp"
                 android:textColor="@android:color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -162,10 +163,10 @@
                 android:text="Preço"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editNome" />
+                app:layout_constraintTop_toBottomOf="@+id/editTitle" />
 
             <com.blackcat.currencyedittext.CurrencyEditText
-                android:id="@+id/editPreco"
+                android:id="@+id/editPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -177,6 +178,7 @@
                 android:inputType="numberDecimal"
                 android:maxLength="16"
                 android:padding="14dp"
+                android:textSize="14sp"
                 android:textColor="@android:color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -192,10 +194,10 @@
                 android:text="Categoria"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editPreco" />
+                app:layout_constraintTop_toBottomOf="@+id/editPrice" />
 
             <Button
-                android:id="@+id/btnCategoria"
+                android:id="@+id/btnCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -210,7 +212,7 @@
                 android:paddingEnd="16dp"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -225,10 +227,10 @@
                 android:text="Descrição"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnCategoria" />
+                app:layout_constraintTop_toBottomOf="@+id/btnCategory" />
 
             <EditText
-                android:id="@+id/editDescricao"
+                android:id="@+id/editDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -240,6 +242,7 @@
                 android:inputType="textMultiLine"
                 android:maxLines="5"
                 android:padding="14dp"
+                android:textSize="14sp"
                 android:textColor="@android:color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -247,7 +250,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
             <com.santalu.maskara.widget.MaskEditText
-                android:id="@+id/editTelefone"
+                android:id="@+id/editPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -258,6 +261,7 @@
                 android:imeOptions="actionNext"
                 android:inputType="number"
                 android:padding="16dp"
+                android:textSize="14sp"
                 android:textColor="@android:color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -276,7 +280,7 @@
                 android:text="Telefone"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editDescricao" />
+                app:layout_constraintTop_toBottomOf="@+id/editDescription" />
 
             <TextView
                 android:id="@+id/textView8"
@@ -287,7 +291,7 @@
                 android:text="CEP"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTelefone" />
+                app:layout_constraintTop_toBottomOf="@+id/editPhone" />
 
             <LinearLayout
                 android:id="@+id/linearLayout6"
@@ -303,7 +307,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView8">
 
                 <com.santalu.maskara.widget.MaskEditText
-                    android:id="@+id/editCep"
+                    android:id="@+id/editZipCode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -311,6 +315,7 @@
                     android:hint="CEP"
                     android:inputType="number"
                     android:padding="14dp"
+                    android:textSize="14sp"
                     app:mask="_____-___"
                     app:maskCharacter="_"
                     app:maskStyle="completable" />
@@ -328,24 +333,24 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textLocal"
+                android:id="@+id/textAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp"
-                android:layout_marginBottom="48dp"
+                android:layout_marginBottom="24dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
-                tools:text="Jardim Limoeiro, Serra, ES" />
+                tools:text="Centro, São Paulo-SP" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
     <Button
-        android:id="@+id/btnSalvar"
+        android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"

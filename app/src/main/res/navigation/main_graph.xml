@@ -117,8 +117,17 @@
         android:label="fragment_form_address"
         tools:layout="@layout/fragment_form_address" />
 
+    <fragment
+        android:id="@+id/visitorFragment"
+        android:name="com.example.olx.ui.auth.VisitorFragment"
+        android:label="fragment_visitor"
+        tools:layout="@layout/fragment_visitor" >
+        <action
+            android:id="@+id/action_visitorFragment_to_navLogin"
+            app:destination="@id/navLogin" />
+    </fragment>
     <action
-    android:id="@+id/action_global_navigation"
-        app:destination="@id/navLogin"/>
+        android:id="@+id/action_global_visitorFragment"
+        app:destination="@id/visitorFragment"/>
 
 </navigation>

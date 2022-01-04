@@ -20,25 +20,21 @@ import androidx.core.content.FileProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.olx.R
-import com.example.olx.api.CEPService
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
+import com.example.olx.ui.filters.CategoriesFragment
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
+import com.example.olx.util.showBottomSheetInfo
 import com.example.olx.util.toast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.squareup.picasso.Picasso
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -53,8 +49,6 @@ class FormPostFragment : BaseFragment() {
     private var _binding: FragmentFormPostBinding? = null
     private val binding get() = _binding!!
 
-    private val REQUESTCATEGORIA = 10
-
     private var newPost = true
     private lateinit var post: Post
     private var categorySelected: String = ""
@@ -64,6 +58,11 @@ class FormPostFragment : BaseFragment() {
     private lateinit var user: User
 
     private var currentPhotoPath: String? = null
+
+    private lateinit var valueEventListener: ValueEventListener
+
+    private var userRef: DatabaseReference? = null
+    private var addressRef: DatabaseReference? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,83 +77,133 @@ class FormPostFragment : BaseFragment() {
 
         initToolbar(binding.toolbar)
 
-        initRetrofit()
+        getData()
 
-        iniciaComponentes()
+        initListeners()
+    }
 
+    // Recupera dados locais e online
+    private fun getData() {
         getExtras()
-
-        initClicks()
-
-        configCep()
 
         getUser()
 
         getAddressUser()
     }
 
-    // Ouvinte Cliques dos componentes
-    private fun initClicks() {
-        binding.btnSalvar.setOnClickListener { validData() }
-        binding.btnCategoria.setOnClickListener {
+    // Ouvinte de evento dos componentes
+    private fun initListeners() {
+        // Recupera a categoria selecionada para o post
+        listenerSelectcCategory()
+
+        // Seta locale para configuração da mascara de valor
+        binding.editPrice.locale = Locale("PT", "br")
+
+        // Inicia o serviço da retrofit
+        initRetrofit()
+
+        // Ouvinte digitação do campo de CEP
+        binding.editZipCode.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val cep = p0.toString()
+                    .replace("-", "")
+                    .replace("_".toRegex(), "")
+
+                if (cep.length == 8) {
+                    hideKeyboard()
+
+                    // Realiza a chamada da busca
+                    // do endereço com base no cep digitado
+                    getAddress(cep)
+                } else {
+
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
+
+        binding.btnSave.setOnClickListener { validData() }
+        binding.btnCategory.setOnClickListener {
             findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
         }
 
-        binding.imagem0.setOnClickListener { bottomSheetSelectImage(0) }
-        binding.imagem1.setOnClickListener { bottomSheetSelectImage(1) }
-        binding.imagem2.setOnClickListener { bottomSheetSelectImage(2) }
+        binding.image0.setOnClickListener { bottomSheetSelectImage(0) }
+        binding.image1.setOnClickListener { bottomSheetSelectImage(1) }
+        binding.image2.setOnClickListener { bottomSheetSelectImage(2) }
     }
 
     // Receber dados via argumentos
     private fun getExtras() {
-         args.post.let {
-             if (it != null) {
-                 post = it
+        args.post.let {
+            if (it != null) {
+                post = it
 
-                 newPost = false
-                 configData()
-             }
-         }
+                newPost = false
+                configData()
+            }
+        }
+    }
+
+    // Recupera a categoria selecionada para o post
+    private fun listenerSelectcCategory() {
+        parentFragmentManager.setFragmentResultListener(
+            CategoriesFragment.SELECT_CATEGORY,
+            this,
+            { key, bundle ->
+                val category =
+                    bundle.getParcelable<Category>(CategoriesFragment.SELECT_CATEGORY)
+
+                categorySelected = category?.name.toString()
+                binding.btnCategory.text = categorySelected
+            })
     }
 
     // Recupera o endereço do usuário que está cadastrando o post
     private fun getAddressUser() {
-        FirebaseHelper.getDatabase()
+        addressRef = FirebaseHelper.getDatabase()
             .child("enderecos")
             .child(FirebaseHelper.getIdUser())
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+        valueEventListener = addressRef!!.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    address = snapshot.getValue(Address::class.java) as Address
+                    if (snapshot.exists()) {
+                        address = snapshot.getValue(Address::class.java) as Address
 
-                    address.cep.let {
-                        binding.editCep.setText(it)
+                        address.cep.let {
+                            binding.editZipCode.setText(it)
+                        }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
-
             })
     }
 
     // Recupera os dados do usuário do firebase
     private fun getUser() {
-        FirebaseHelper.getDatabase()
+        userRef = FirebaseHelper.getDatabase()
             .child("usuarios")
             .child(FirebaseHelper.getIdUser())
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
+        valueEventListener = userRef!!.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
                     user = snapshot.getValue(User::class.java) as User
-
-                    user.phone.let { binding.editTelefone.setText(it) }
+                    user.phone.let { binding.editPhone.setText(it) }
                 }
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
-            })
+            override fun onCancelled(error: DatabaseError) {
+                showBottomSheetInfo(R.string.error_generic)
+            }
+        })
     }
 
     // Abre bottom sheet para seleção das imagens do post ( câmera e galeria )
@@ -282,69 +331,41 @@ class FormPostFragment : BaseFragment() {
 
     // Exibe as informações do post nos componentes
     private fun configData() {
-        Picasso.get().load(post.urlImages[0]).into(binding.imagem0)
-        Picasso.get().load(post.urlImages[1]).into(binding.imagem1)
-        Picasso.get().load(post.urlImages[2]).into(binding.imagem2)
+        Picasso.get().load(post.urlImages[0]).into(binding.image0)
+        Picasso.get().load(post.urlImages[1]).into(binding.image1)
+        Picasso.get().load(post.urlImages[2]).into(binding.image2)
 
         // Titulo
-        binding.editNome.setText(post.title)
+        binding.editTitle.setText(post.title)
 
         // Preço
-        binding.editPreco.setText((post.price * 10).toString())
+        binding.editPrice.setText((post.price * 10).toString())
 
         // Categoria
-        binding.btnCategoria.text = post.category
+        binding.btnCategory.text = post.category
         categorySelected = post.category
 
         //Descrição
-        binding.editDescricao.setText(post.description)
+        binding.editDescription.setText(post.description)
 
         // CEP
-        binding.editCep.setText(post.address?.cep)
+        binding.editZipCode.setText(post.address?.cep)
         post.address.let {
             if (it != null) {
                 address = it
             }
         }
-        binding.textLocal.text =
+        binding.textAddress.text =
             getString(R.string.publicacao_local, address.bairro, address.localidade, address.uf)
     }
 
+    // Inicia o serviço da retrofit
     private fun initRetrofit() {
         retrofit = Retrofit
             .Builder()
             .baseUrl("https://viacep.com.br/ws/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    // Configura o Cep para busca
-    private fun configCep() {
-        binding.editCep.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                val cep = p0.toString()
-                    .replace("-", "")
-                    .replace("_".toRegex(), "")
-
-                if (cep.length == 8) {
-                    hideKeyboard()
-
-                    // Realiza a chamada da busca
-                    // do endereço com base no cep digitado
-                    getAddress(cep)
-                } else {
-
-                }
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        })
     }
 
     // Realiza a busca do endereço
@@ -373,25 +394,25 @@ class FormPostFragment : BaseFragment() {
     // correspondente ao CEP digitado
     private fun configAddress() {
         address.let {
-            val endereco = StringBuffer()
-            endereco
+            val address = StringBuffer()
+            address
                 .append(it.bairro)
                 .append(", ")
                 .append(it.localidade)
                 .append(", ")
                 .append(it.uf)
 
-            binding.textLocal.text = endereco
+            binding.textAddress.text = address
         }
         binding.progressBar.visibility = View.GONE
     }
 
     // Valida se as informacoes foram preenchidas
     private fun validData() {
-        val title = binding.editNome.text.toString().trim()
-        val price = binding.editPreco.rawValue / 100
-        val description = binding.editDescricao.text.toString().trim()
-        val phone = binding.editTelefone.unMasked.trim()
+        val title = binding.editTitle.text.toString().trim()
+        val price = binding.editPrice.rawValue / 100
+        val description = binding.editDescription.text.toString().trim()
+        val phone = binding.editPhone.unMasked.trim()
 
         if (title.isNotEmpty()) {
             if (price > 0) {
@@ -424,7 +445,7 @@ class FormPostFragment : BaseFragment() {
                                         }
                                     } else {
                                         Snackbar.make(
-                                            binding.btnSalvar,
+                                            binding.btnSave,
                                             "Selecione 3 imagens.",
                                             Snackbar.LENGTH_SHORT
                                         ).show()
@@ -439,28 +460,32 @@ class FormPostFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                binding.editTelefone.requestFocus()
-                                binding.editTelefone.error = "Telefone inválido."
+                                binding.editPhone.requestFocus()
+                                binding.editPhone.error = "Telefone inválido."
                             }
                         } else {
-                            binding.editTelefone.error = "Informe o telefone"
-                            binding.editTelefone.requestFocus()
+                            binding.editPhone.error = "Informe o telefone"
+                            binding.editPhone.requestFocus()
                         }
                     } else {
-                        binding.editDescricao.error = "Informe a descrição."
-                        binding.editDescricao.requestFocus()
+                        binding.editDescription.error = "Informe a descrição."
+                        binding.editDescription.requestFocus()
                     }
                 } else {
-                    Snackbar.make(binding.btnCategoria, "Selecione a categoria.", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(
+                        binding.btnCategory,
+                        "Selecione a categoria.",
+                        Snackbar.LENGTH_SHORT
+                    )
                         .show()
                 }
             } else {
-                binding.editPreco.error = "Informe o preço."
-                binding.editPreco.requestFocus()
+                binding.editPrice.error = "Informe o preço."
+                binding.editPrice.requestFocus()
             }
         } else {
-            binding.editNome.error = "Informe o título."
-            binding.editNome.requestFocus()
+            binding.editTitle.error = "Informe o título."
+            binding.editTitle.requestFocus()
         }
 
     }
@@ -492,11 +517,6 @@ class FormPostFragment : BaseFragment() {
         }.addOnFailureListener(requireActivity()) {
             Toast.makeText(requireContext(), "Falha no Upload.", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    // Inicia componentes de tela
-    private fun iniciaComponentes() {
-        binding.editPreco.locale = Locale("PT", "br")
     }
 
     // Configura index das imagens
@@ -534,13 +554,7 @@ class FormPostFragment : BaseFragment() {
             val imagemSelecionada = data?.data
             val caminho: String
 
-            if (requestCode == REQUESTCATEGORIA) {
-                val categoria = data!!.getSerializableExtra("categoriaSelecionada") as Category?
-                if (categoria != null) {
-                    categorySelected = categoria.name
-                    binding.btnCategoria.text = categorySelected
-                }
-            } else if (requestCode <= 2) { // Galeria
+            if (requestCode <= 2) { // Galeria
                 try {
 
                     //Recuperar caminho da imagem
@@ -560,7 +574,7 @@ class FormPostFragment : BaseFragment() {
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            binding.imagem0.setImageBitmap(bitmap0)
+                            binding.image0.setImageBitmap(bitmap0)
                         }
                         1 -> {
                             bitmap1 = if (Build.VERSION.SDK_INT < 28) {
@@ -575,7 +589,7 @@ class FormPostFragment : BaseFragment() {
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            binding.imagem1.setImageBitmap(bitmap1)
+                            binding.image1.setImageBitmap(bitmap1)
                         }
                         2 -> {
                             bitmap2 = if (Build.VERSION.SDK_INT < 28) {
@@ -590,7 +604,7 @@ class FormPostFragment : BaseFragment() {
                                 )
                                 ImageDecoder.decodeBitmap(source)
                             }
-                            binding.imagem2.setImageBitmap(bitmap2)
+                            binding.image2.setImageBitmap(bitmap2)
                         }
                     }
                     // Configura index das imagens
@@ -606,9 +620,9 @@ class FormPostFragment : BaseFragment() {
                     caminho = f.toURI().toString()
 
                     when (requestCode) {
-                        3 -> binding.imagem0.setImageURI(Uri.fromFile(f))
-                        4 -> binding.imagem1.setImageURI(Uri.fromFile(f))
-                        5 -> binding.imagem2.setImageURI(Uri.fromFile(f))
+                        3 -> binding.image0.setImageURI(Uri.fromFile(f))
+                        4 -> binding.image1.setImageURI(Uri.fromFile(f))
+                        5 -> binding.image2.setImageURI(Uri.fromFile(f))
                     }
                     // Configura index das imagens
                     configUpload(requestCode, caminho)
@@ -621,6 +635,7 @@ class FormPostFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (userRef != null) userRef?.removeEventListener(valueEventListener)
         _binding = null
     }
 

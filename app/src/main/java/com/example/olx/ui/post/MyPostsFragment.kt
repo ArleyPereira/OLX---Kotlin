@@ -2,15 +2,12 @@ package com.example.olx.ui.post
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.MainGraphDirections
 import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentMyPostsBinding
 import com.example.olx.helper.FirebaseHelper
@@ -89,10 +86,9 @@ class MyPostsFragment : Fragment() {
 
     // Recupera anúncios do Firebase
     private fun getPosts() {
-        if (FirebaseHelper.isAutenticated()) {
-            val anuncioRef = FirebaseHelper.getDatabase()
-                .child("anunciosPublicos")
-            anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        FirebaseHelper.getDatabase()
+            .child("anunciosPublicos")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     postList.clear()
                     if (snapshot.exists()) {
@@ -115,9 +111,6 @@ class MyPostsFragment : Fragment() {
                     TODO("Not yet implemented")
                 }
             })
-        } else {
-            findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
-        }
     }
 
     override fun onDestroyView() {

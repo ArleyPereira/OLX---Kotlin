@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentHomeBinding
@@ -49,7 +50,15 @@ class HomeFragment : Fragment() {
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
         binding.btnNewPost.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_home_to_formPostFragment)
+            if (FirebaseHelper.isAutenticated()) {
+                val action = HomeFragmentDirections
+                    .actionMenuHomeToFormPostFragment(null)
+                findNavController().navigate(action)
+            } else {
+                findNavController().navigate(
+                    HomeFragmentDirections.actionGlobalVisitorFragment().actionId
+                )
+            }
         }
     }
 
@@ -88,7 +97,6 @@ class HomeFragment : Fragment() {
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
-
             })
     }
 

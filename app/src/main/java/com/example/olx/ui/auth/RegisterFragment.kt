@@ -96,7 +96,6 @@ class RegisterFragment : BaseFragment() {
         ).addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {
                 user.id = FirebaseHelper.getAuth().currentUser!!.uid
-
                 saveProfile(user)
             } else {
                 showBottomSheetInfo(
@@ -112,9 +111,7 @@ class RegisterFragment : BaseFragment() {
             .child("usuarios")
             .child(user.id)
         usuarioRef.setValue(user).addOnCompleteListener {
-            val bundle = Bundle()
-            bundle.putBoolean(REGISTER_SUCESS, true)
-            parentFragmentManager.setFragmentResult(REGISTER_SUCESS, bundle)
+            parentFragmentManager.setFragmentResult(REGISTER_SUCESS, bundleOf())
             findNavController().popBackStack()
         }
     }

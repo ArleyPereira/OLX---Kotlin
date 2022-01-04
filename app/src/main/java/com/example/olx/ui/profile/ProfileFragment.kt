@@ -63,30 +63,26 @@ class ProfileFragment : BaseFragment() {
 
     // Recupera dados do Perfil
     private fun getProfile() {
-        if(FirebaseHelper.isAutenticated()){
-            FirebaseHelper.getDatabase()
-                .child("usuarios")
-                .child(FirebaseHelper.getIdUser())
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        hideKeyboard()
+        FirebaseHelper.getDatabase()
+            .child("usuarios")
+            .child(FirebaseHelper.getIdUser())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    hideKeyboard()
 
-                        binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.VISIBLE
 
-                        user = snapshot.getValue(User::class.java)!!
+                    user = snapshot.getValue(User::class.java)!!
 
-                        // Configura as informações nos elementos
-                        configData()
-                    }
+                    // Configura as informações nos elementos
+                    configData()
+                }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
-                    }
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
 
-                })
-        }else {
-            findNavController().navigate(MainGraphDirections.actionGlobalNavigation())
-        }
+            })
     }
 
     // Configura as informações nos componentes em tela
