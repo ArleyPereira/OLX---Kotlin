@@ -11,7 +11,7 @@ class CategoriaList {
 
             val categoriaList = mutableListOf<Category>()
 
-            if(todas) categoriaList.add(Category(R.drawable.ic_todas_as_categorias, "Todas as Categorias"))
+            if(todas) categoriaList.add(Category(R.drawable.ic_all_categories, "Todas as Categorias"))
             categoriaList.add(Category(R.drawable.ic_autos_e_pecas, "Autos e peças"))
             categoriaList.add(Category(R.drawable.ic_imoveis, "Imóveis"))
             categoriaList.add(Category(R.drawable.ic_eletronico_e_celulares, "Eletrônicos e celulares"))

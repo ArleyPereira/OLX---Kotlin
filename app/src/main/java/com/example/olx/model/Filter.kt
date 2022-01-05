@@ -1,9 +1,13 @@
 package com.example.olx.model
 
-class Filtro(
-    var estado: Estado,
-    var categoria: String = "",
-    var pesquisa: String = "",
-    var valorMin: Int = 0,
-    var valorMax: Int = 0
-)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+class Filter(
+    var province: Province,
+    var category: String = "",
+    var search: String = "",
+    var valueMin: Int = 0,
+    var valueMax: Int = 0
+): Parcelable

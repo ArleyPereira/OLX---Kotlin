@@ -121,12 +121,7 @@ class FormPostFragment : BaseFragment() {
 
                 if (cep.length == 8) {
                     hideKeyboard()
-
-                    // Realiza a chamada da busca
-                    // do endereço com base no cep digitado
                     getAddress(cep)
-                } else {
-
                 }
             }
 

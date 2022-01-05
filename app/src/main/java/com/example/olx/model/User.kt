@@ -12,6 +12,5 @@ class User(
     var address: Address? = null,
     @get:Exclude
     var password: String = "",
-    var phone: String = "",
-    var urlProfile: String = ""
+    var phone: String = ""
 ) : Parcelable

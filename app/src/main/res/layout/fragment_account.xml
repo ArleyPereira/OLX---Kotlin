@@ -18,33 +18,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorRoxoOlx"
                 android:orientation="vertical">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardImagemPerfil"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:background="@android:color/white"
-                    android:layout_marginStart="24dp"
-                    app:cardCornerRadius="100dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/imgProfile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="1dp"
-                        android:layout_gravity="center"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_user_cinza" />
-
-                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/textName"
@@ -55,8 +33,6 @@
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@+id/cardImagemPerfil"
-                    app:layout_constraintTop_toTopOf="parent"
                     android:text="Acesse sua conta agora!" />
 
                 <TextView
@@ -67,12 +43,9 @@
                     android:paddingBottom="24dp"
                     android:text="Clique aqui"
                     android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/cardImagemPerfil"
-                    app:layout_constraintTop_toBottomOf="@+id/textName" />
+                    android:textColor="@android:color/white" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

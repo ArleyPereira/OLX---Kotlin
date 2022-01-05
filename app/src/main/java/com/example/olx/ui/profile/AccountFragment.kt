@@ -14,7 +14,6 @@ import com.example.olx.ui.home.HomeFragmentDirections
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.squareup.picasso.Picasso
 
 class AccountFragment : Fragment() {
 
@@ -92,18 +91,11 @@ class AccountFragment : Fragment() {
     // Configura as informações nos componentes em tela
     private fun configData() {
         if (FirebaseHelper.isAutenticated()) {
-            if (user.urlProfile.isNotBlank()) {
-                Picasso.get()
-                    .load(user.urlProfile)
-                    .placeholder(R.drawable.loading)
-                    .into(binding.imgProfile)
-            }
             binding.textName.text = user.name
             binding.textAccount.text = "Sair"
         } else {
             binding.textName.text = "Acesso sua conta agora!"
             binding.textAccount.text = "Clique aqui"
-            binding.imgProfile.setImageResource(R.drawable.ic_user_cinza)
         }
     }
 

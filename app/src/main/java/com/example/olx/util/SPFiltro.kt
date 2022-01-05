@@ -2,8 +2,8 @@ package com.example.olx.util
 
 import android.app.Activity
 import android.content.SharedPreferences
-import com.example.olx.model.Estado
-import com.example.olx.model.Filtro
+import com.example.olx.model.Province
+import com.example.olx.model.Filter
 
 class SPFiltro {
 
@@ -20,7 +20,7 @@ class SPFiltro {
         }
 
         // Recupera Filtro em SharedPreferences
-        fun getFiltro(activity: Activity): Filtro {
+        fun getFiltro(activity: Activity): Filter {
 
             val preferences = activity.getSharedPreferences(ARQUIVO_PREFERENCIA, 0)
 
@@ -31,28 +31,28 @@ class SPFiltro {
             val regiao = preferences.getString("regiao", "")
             val ddd = preferences.getString("ddd", "")
 
-            val estado = Estado(
+            val province = Province(
                 uf = ufEstado!!,
-                regiao = regiao!!,
-                nome = nomeEstado!!,
+                region = regiao!!,
+                name = nomeEstado!!,
                 ddd = ddd!!
             )
 
-            val filtro = Filtro(
-                estado = estado,
-                categoria = categoria!!,
-                pesquisa = pesquisa!!,
+            val filter = Filter(
+                province = province,
+                category = categoria!!,
+                search = pesquisa!!,
             )
 
             preferences.getString("valorMin", "")?.let {
-                if(it.isNotBlank()) filtro.valorMin = it.toInt()
+                if(it.isNotBlank()) filter.valueMin = it.toInt()
             }
 
             preferences.getString("valorMax", "")?.let {
-                if(it.isNotBlank()) filtro.valorMax = it.toInt()
+                if(it.isNotBlank()) filter.valueMax = it.toInt()
             }
 
-            return filtro
+            return filter
         }
 
         // Limpa todos os Filtros em SharedPreferences
