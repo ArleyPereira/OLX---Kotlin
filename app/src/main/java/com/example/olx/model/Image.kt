@@ -1,6 +1,6 @@
 package com.example.olx.model
 
-class Imagem (
-    var caminhoImagem: String = "",
+class Image (
+    var pathImage: String = "",
     var index: Int
 )

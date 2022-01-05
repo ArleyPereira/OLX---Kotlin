@@ -8,7 +8,6 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,8 +18,10 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.olx.BuildConfig
 import com.example.olx.R
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
@@ -43,8 +44,6 @@ import com.squareup.picasso.Picasso
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 class FormPostFragment : BaseFragment() {
@@ -60,11 +59,11 @@ class FormPostFragment : BaseFragment() {
     private lateinit var post: Post
     private var categorySelected: String = ""
     private lateinit var address: Address
-    private val imageList = mutableListOf<Imagem>()
+    private val imageList = mutableListOf<Image>()
     private lateinit var retrofit: Retrofit
     private lateinit var user: User
 
-    private var currentPhotoPath: String? = null
+    private var latestTmpUri: Uri? = null
 
     private lateinit var valueEventListener: ValueEventListener
 
@@ -276,48 +275,30 @@ class FormPostFragment : BaseFragment() {
     // Abre a galeria do dispositivo do usuário
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        selectGallery.launch(intent)
+        selectGalleryResult.launch(intent)
     }
 
     // Abre a câmera do dispositivo do usuário
     private fun openCamera() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        var photoFile: File? = null
-
-        try {
-            photoFile = createImageFile()
-        } catch (ignored: IOException) {
+        lifecycleScope.launchWhenStarted {
+            getTmpFileUri().let { uri ->
+                latestTmpUri = uri
+                selectCameraResult.launch(uri)
+            }
         }
-
-        if (photoFile != null) {
-            val photoURI = FileProvider.getUriForFile(
-                requireContext(),
-                "com.example.olx.fileprovider",
-                photoFile
-            )
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-            selectCamera.launch(takePictureIntent)
-        }
-
     }
 
-    // Cria um arquivo foto no dispositivo
-    private fun createImageFile(): File {
-        val timeStamp = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale("pt", "BR")).format(Date())
-        val imageFileName = "JPEG_" + timeStamp + "_"
-        val storageDir = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val image = File.createTempFile(
-            imageFileName,  /* prefix */
-            ".jpg",  /* suffix */
-            storageDir /* directory */
-        )
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.absolutePath
-        return image
+    // Criar um arquivo temporário utilizado na captura da imagem pela câmera
+    private fun getTmpFileUri(): Uri {
+        val tmpFile = File.createTempFile("tmp_image_file", ".png", requireContext().cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+        return FileProvider.getUriForFile(requireContext(), "${BuildConfig.APPLICATION_ID}.provider", tmpFile)
     }
 
-    private val selectGallery = registerForActivityResult(
+    // Recebe a imagem selecionada da galeria do dispositivo
+    private val selectGalleryResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -356,36 +337,33 @@ class FormPostFragment : BaseFragment() {
         }
     }
 
-    private val selectCamera = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result: ActivityResult ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val caminho: String
+    // Recebe a imagem selecionada da câmera do dispositivo
+    private val selectCameraResult =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                latestTmpUri?.let { uri ->
+                    try {
+                        val request = when (selectImageRequest) {
+                            0 -> 3
+                            1 -> 4
+                            else -> 5
+                        }
 
-            try {
-                val f = File(currentPhotoPath!!)
+                        when (request) {
+                            3 -> binding.image0.setImageURI(uri)
+                            4 -> binding.image1.setImageURI(uri)
+                            else -> binding.image2.setImageURI(uri)
+                        }
 
-                // Recupera o caminho da imagem
-                caminho = f.toURI().toString()
-
-                val request = when (selectImageRequest) {
-                    0 -> 3
-                    1 -> 4
-                    else -> 5
+                        val pathImage = uri.toString()
+                        configUpload(request, pathImage)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-
-                when (request) {
-                    3 -> binding.image0.setImageURI(Uri.fromFile(f))
-                    4 -> binding.image1.setImageURI(Uri.fromFile(f))
-                    else -> binding.image2.setImageURI(Uri.fromFile(f))
-                }
-
-                configUpload(request, caminho)
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
-    }
+
 
     // Exibe dialog permissões negadas
     private fun showDialogPermission(
@@ -572,7 +550,7 @@ class FormPostFragment : BaseFragment() {
             .child(post.id)
             .child("imagem$index.jpeg")
 
-        val uploadTask = storageReference.putFile(Uri.parse(imageList[index].caminhoImagem))
+        val uploadTask = storageReference.putFile(Uri.parse(imageList[index].pathImage))
         uploadTask.addOnSuccessListener {
             storageReference.downloadUrl.addOnCompleteListener { task ->
 
@@ -594,11 +572,10 @@ class FormPostFragment : BaseFragment() {
     }
 
     // Configura index das imagens
-    private fun configUpload(requestCode: Int, caminho: String) {
-        val imagem = Imagem(caminho, requestCode)
+    private fun configUpload(requestCode: Int, pathImage: String) {
+        val image = Image(pathImage, requestCode)
 
         if (imageList.isNotEmpty()) {
-
             var encontrou = false
             for (i in imageList.indices) {
                 if (imageList[i].index == requestCode) {
@@ -607,12 +584,12 @@ class FormPostFragment : BaseFragment() {
             }
 
             if (encontrou) { // já está na lista ( Atualiza )
-                imageList[requestCode] = imagem
+                imageList[requestCode] = image
             } else { // Não está na lista ( Adiciona )
-                imageList.add(imagem)
+                imageList.add(image)
             }
         } else {
-            imageList.add(imagem)
+            imageList.add(image)
         }
     }
 

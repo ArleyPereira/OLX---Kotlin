@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path
-        name="external"
-        path="." />
-    <external-files-path
-        name="external_files"
-        path="." />
     <cache-path
-        name="external_cache"
+        name="cached_files"
         path="." />
     <files-path
-        name="files"
+        name="images"
         path="." />
 </paths>

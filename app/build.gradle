@@ -49,8 +49,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation "androidx.fragment:fragment-ktx:1.4.0"
-
     // Mascara -> https://github.com/santalu/maskara
     implementation 'com.github.santalu:maskara:1.0.0'
 
@@ -65,6 +63,9 @@ dependencies {
 
     // Mascara valores -> https://github.com/BlacKCaT27/CurrencyEditText
     implementation 'com.github.BlacKCaT27:CurrencyEditText:2.0.2'
+
+    // Result API
+    implementation "androidx.fragment:fragment-ktx:1.4.0"
 
     // Retrofit -> https://github.com/square/retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
