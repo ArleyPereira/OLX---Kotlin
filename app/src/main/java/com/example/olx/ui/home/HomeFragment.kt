@@ -8,8 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.MainGraphDirections
-import com.example.olx.R
 import com.example.olx.adapter.AdapterPost
 import com.example.olx.databinding.FragmentHomeBinding
 import com.example.olx.helper.FirebaseHelper

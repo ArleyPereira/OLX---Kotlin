@@ -1,13 +1,11 @@
 package com.example.olx.ui.auth
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.databinding.FragmentVisitorBinding
 import com.example.olx.util.initToolbar

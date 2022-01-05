@@ -1,6 +1,7 @@
 package com.example.olx.ui.post
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -15,7 +16,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -31,7 +33,10 @@ import com.example.olx.util.showBottomSheetInfo
 import com.example.olx.util.toast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.squareup.picasso.Picasso
@@ -43,6 +48,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class FormPostFragment : BaseFragment() {
+
+    private var selectImageRequest = -1
 
     private val args: FormPostFragmentArgs by navArgs()
 
@@ -171,20 +178,20 @@ class FormPostFragment : BaseFragment() {
             .child("enderecos")
             .child(FirebaseHelper.getIdUser())
         valueEventListener = addressRef!!.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        address = snapshot.getValue(Address::class.java) as Address
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    address = snapshot.getValue(Address::class.java) as Address
 
-                        address.cep.let {
-                            binding.editZipCode.setText(it)
-                        }
+                    address.cep.let {
+                        binding.editZipCode.setText(it)
                     }
                 }
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 
     // Recupera os dados do usuário do firebase
@@ -214,12 +221,16 @@ class FormPostFragment : BaseFragment() {
 
         sheetBinding.btnCamera.setOnClickListener {
             dialog.dismiss()
-            checkPermissionCamera(requestCode)
+
+            selectImageRequest = requestCode
+            checkPermissionCamera()
         }
 
         sheetBinding.btnGallery.setOnClickListener {
             dialog.dismiss()
-            checkPermissionGallery(requestCode)
+
+            selectImageRequest = requestCode
+            checkPermissionGallery()
         }
 
         sheetBinding.btnCancel.setOnClickListener { dialog.dismiss() }
@@ -229,10 +240,10 @@ class FormPostFragment : BaseFragment() {
     }
 
     // Solicita permissções de acesso a galeria
-    private fun checkPermissionGallery(requestCode: Int) {
+    private fun checkPermissionGallery() {
         val permissionlistener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-                openGallery(requestCode)
+                openGallery()
             }
 
             override fun onPermissionDenied(deniedPermissions: List<String>) {
@@ -246,10 +257,10 @@ class FormPostFragment : BaseFragment() {
     }
 
     // Solicita permissções de acesso a câmera
-    private fun checkPermissionCamera(requestCode: Int) {
+    private fun checkPermissionCamera() {
         val permissionlistener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-                openCamera(requestCode)
+                openCamera()
             }
 
             override fun onPermissionDenied(deniedPermissions: List<String>) {
@@ -263,20 +274,13 @@ class FormPostFragment : BaseFragment() {
     }
 
     // Abre a galeria do dispositivo do usuário
-    private fun openGallery(requestCode: Int) {
+    private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, requestCode)
+        selectGallery.launch(intent)
     }
 
     // Abre a câmera do dispositivo do usuário
-    private fun openCamera(requestCode: Int) {
-        val request = when (requestCode) {
-            0 -> 3
-            1 -> 4
-            2 -> 5
-            else -> 6
-        }
-
+    private fun openCamera() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         var photoFile: File? = null
 
@@ -292,7 +296,7 @@ class FormPostFragment : BaseFragment() {
                 photoFile
             )
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-            startActivityForResult(takePictureIntent, request)
+            selectCamera.launch(takePictureIntent)
         }
 
     }
@@ -311,6 +315,76 @@ class FormPostFragment : BaseFragment() {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.absolutePath
         return image
+    }
+
+    private val selectGallery = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val bitmap: Bitmap
+
+            val imagemSelecionada = result.data?.data
+            val caminho: String
+
+            try {
+                caminho = imagemSelecionada.toString()
+
+                bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(
+                        requireContext().contentResolver,
+                        imagemSelecionada
+                    )
+                } else {
+                    val source = ImageDecoder.createSource(
+                        requireContext().contentResolver,
+                        imagemSelecionada!!
+                    )
+                    ImageDecoder.decodeBitmap(source)
+                }
+
+                when(selectImageRequest){
+                    0 -> binding.image0.setImageBitmap(bitmap)
+                    1 -> binding.image1.setImageBitmap(bitmap)
+                    else -> binding.image2.setImageBitmap(bitmap)
+                }
+
+                configUpload(selectImageRequest, caminho)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+        }
+    }
+
+    private val selectCamera = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val caminho: String
+
+            try {
+                val f = File(currentPhotoPath!!)
+
+                // Recupera o caminho da imagem
+                caminho = f.toURI().toString()
+
+                val request = when (selectImageRequest) {
+                    0 -> 3
+                    1 -> 4
+                    else -> 5
+                }
+
+                when (request) {
+                    3 -> binding.image0.setImageURI(Uri.fromFile(f))
+                    4 -> binding.image1.setImageURI(Uri.fromFile(f))
+                    else -> binding.image2.setImageURI(Uri.fromFile(f))
+                }
+
+                configUpload(request, caminho)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     // Exibe dialog permissões negadas
@@ -539,97 +613,6 @@ class FormPostFragment : BaseFragment() {
             }
         } else {
             imageList.add(imagem)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == AppCompatActivity.RESULT_OK) {
-
-            val bitmap0: Bitmap
-            val bitmap1: Bitmap
-            val bitmap2: Bitmap
-
-            val imagemSelecionada = data?.data
-            val caminho: String
-
-            if (requestCode <= 2) { // Galeria
-                try {
-
-                    //Recuperar caminho da imagem
-                    caminho = imagemSelecionada.toString()
-
-                    when (requestCode) {
-                        0 -> {
-                            bitmap0 = if (Build.VERSION.SDK_INT < 28) {
-                                MediaStore.Images.Media.getBitmap(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada
-                                )
-                            } else {
-                                val source = ImageDecoder.createSource(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada!!
-                                )
-                                ImageDecoder.decodeBitmap(source)
-                            }
-                            binding.image0.setImageBitmap(bitmap0)
-                        }
-                        1 -> {
-                            bitmap1 = if (Build.VERSION.SDK_INT < 28) {
-                                MediaStore.Images.Media.getBitmap(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada
-                                )
-                            } else {
-                                val source = ImageDecoder.createSource(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada!!
-                                )
-                                ImageDecoder.decodeBitmap(source)
-                            }
-                            binding.image1.setImageBitmap(bitmap1)
-                        }
-                        2 -> {
-                            bitmap2 = if (Build.VERSION.SDK_INT < 28) {
-                                MediaStore.Images.Media.getBitmap(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada
-                                )
-                            } else {
-                                val source = ImageDecoder.createSource(
-                                    requireContext().contentResolver,
-                                    imagemSelecionada!!
-                                )
-                                ImageDecoder.decodeBitmap(source)
-                            }
-                            binding.image2.setImageBitmap(bitmap2)
-                        }
-                    }
-                    // Configura index das imagens
-                    configUpload(requestCode, caminho)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else { // Camera
-                try {
-                    val f = File(currentPhotoPath!!)
-
-                    // Recupera o caminho da imagem
-                    caminho = f.toURI().toString()
-
-                    when (requestCode) {
-                        3 -> binding.image0.setImageURI(Uri.fromFile(f))
-                        4 -> binding.image1.setImageURI(Uri.fromFile(f))
-                        5 -> binding.image2.setImageURI(Uri.fromFile(f))
-                    }
-                    // Configura index das imagens
-                    configUpload(requestCode, caminho)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
         }
     }
 

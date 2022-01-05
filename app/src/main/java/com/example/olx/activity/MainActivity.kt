@@ -2,7 +2,6 @@ package com.example.olx.activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.navigation.Navigation
@@ -11,7 +10,6 @@ import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.databinding.ActivityMainBinding
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.ui.home.HomeFragmentDirections
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +42,5 @@ class MainActivity : AppCompatActivity() {
                 binding.btnv.visibility = View.GONE
             }
         }
-
     }
 }
