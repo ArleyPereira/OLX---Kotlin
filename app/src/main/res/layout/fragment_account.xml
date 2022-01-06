@@ -44,7 +44,6 @@
                     android:text="Clique aqui"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -59,14 +58,12 @@
                     android:layout_weight="1"
                     android:paddingStart="24dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="24dp"
-                    android:paddingTop="24dp"
+                    android:paddingVertical="16dp"
                     android:textAllCaps="false"
                     android:layout_height="wrap_content"
                     android:text="Perfil"
                     android:textAlignment="textStart"
-                    android:background="@android:color/transparent"
-                    android:textSize="16sp"/>
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:layout_width="12dp"
@@ -90,14 +87,12 @@
                     android:layout_weight="1"
                     android:paddingStart="24dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="24dp"
-                    android:paddingTop="24dp"
+                    android:paddingVertical="16dp"
                     android:textAllCaps="false"
                     android:layout_height="wrap_content"
                     android:text="Endereço"
                     android:textAlignment="textStart"
-                    android:background="@android:color/transparent"
-                    android:textSize="16sp"/>
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:layout_width="12dp"
@@ -120,14 +115,12 @@
                     android:layout_weight="1"
                     android:paddingStart="24dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="24dp"
-                    android:paddingTop="24dp"
+                    android:paddingVertical="16dp"
                     android:textAllCaps="false"
                     android:layout_height="wrap_content"
                     android:text="Regulamentos"
                     android:textAlignment="textStart"
-                    android:background="@android:color/transparent"
-                    android:textSize="16sp"/>
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:layout_width="12dp"
@@ -150,14 +143,12 @@
                     android:layout_weight="1"
                     android:paddingStart="24dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="24dp"
-                    android:paddingTop="24dp"
+                    android:paddingVertical="16dp"
                     android:textAllCaps="false"
                     android:layout_height="wrap_content"
                     android:text="Ajuda"
                     android:textAlignment="textStart"
-                    android:background="@android:color/transparent"
-                    android:textSize="16sp"/>
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:layout_width="12dp"

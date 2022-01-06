@@ -5,9 +5,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Address (
-    var id: String = "",
-    var cep: String = "",
-    var uf: String = "",
-    var localidade: String = "",
-    var bairro: String = ""
+    val id: String? = null,
+    val cep: String,
+    val uf: String,
+    val localidade: String,
+    val bairro: String
 ) : Parcelable

@@ -71,7 +71,7 @@ class MyPostsFragment : Fragment() {
             adapterPost.notifyDataSetChanged()
         }.setPositiveButton("Sim") { dialog: DialogInterface, _: Int ->
             postList.remove(post)
-            post.remover()
+            post.remove()
             dialog.dismiss()
             adapterPost.notifyDataSetChanged()
 

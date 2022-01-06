@@ -6,6 +6,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+import com.techiness.progressdialoglibrary.ProgressDialog
 import kotlinx.parcelize.Parcelize
 import java.io.Serializable
 
@@ -22,7 +23,7 @@ data class Post(var id: String = "") : Parcelable {
     var registrationDate: Long = 0
     var urlImages: MutableList<String> = mutableListOf()
 
-    fun remover() {
+    fun remove() {
         val anuncioPublicosRef = FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
             .child(this.id)
@@ -45,41 +46,41 @@ data class Post(var id: String = "") : Parcelable {
 
     }
 
-    fun salvar() {
-        val anuncioPublicosRef = FirebaseHelper.getDatabase()
-            .child("anunciosPublicos")
+    fun save() {
+        val publicPostsRef = FirebaseHelper.getDatabase()
+            .child("publicPosts")
             .child(id)
-        anuncioPublicosRef.setValue(this)
+        publicPostsRef.setValue(this)
 
-        val dataAnuncioPublico = anuncioPublicosRef
+        val datePublicPosts = publicPostsRef
             .child("dataCadastro")
-        dataAnuncioPublico.setValue(ServerValue.TIMESTAMP).addOnCompleteListener {
+        datePublicPosts.setValue(ServerValue.TIMESTAMP).addOnCompleteListener {
 
-            val anuncioRef = FirebaseHelper.getDatabase()
-                .child("anunciosPublicos")
+            FirebaseHelper.getDatabase()
+                .child("publicPosts")
                 .child(id)
-            anuncioRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val anuncio = snapshot.getValue(Post::class.java) as Post
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val post = snapshot.getValue(Post::class.java) as Post
 
-                    val meusAnunciosRef = FirebaseHelper.getDatabase()
-                        .child("meusAnuncios")
-                        .child(FirebaseHelper.getIdUser())
-                        .child(id)
-                    meusAnunciosRef.setValue(anuncio)
-                }
+                        val myPostsRef = FirebaseHelper.getDatabase()
+                            .child("myPosts")
+                            .child(FirebaseHelper.getIdUser())
+                            .child(id)
+                        myPostsRef.setValue(post)
+                    }
 
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
+                    override fun onCancelled(error: DatabaseError) {
 
-            })
+                    }
+
+                })
 
         }
 
     }
 
-    fun editar() {
+    fun update() {
         val anuncioPublicosRef = FirebaseHelper.getDatabase()
             .child("anunciosPublicos")
             .child(id)

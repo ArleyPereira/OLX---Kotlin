@@ -176,6 +176,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_btn"
                 android:backgroundTint="@color/colorRoxoOlx"
+                app:backgroundTint="@color/colorRoxoOlx"
                 android:text="Criar conta"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"

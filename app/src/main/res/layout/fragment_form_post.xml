@@ -51,7 +51,7 @@
                 android:id="@+id/horizontalScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:paddingVertical="16dp"
                 android:scrollbars="none"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -60,14 +60,14 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:orientation="horizontal">
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardImage1"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_margin="8dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
                         app:cardBackgroundColor="@color/colorRoxoOlx"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="5dp">
@@ -85,8 +85,7 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginHorizontal="8dp"
                         app:cardBackgroundColor="@color/colorRoxoOlx"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="5dp">
@@ -104,8 +103,8 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
                         app:cardBackgroundColor="@color/colorRoxoOlx"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="5dp">
@@ -196,7 +195,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editPrice" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -204,15 +203,14 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
+                app:backgroundTint="@color/colorRoxoOlx"
                 android:drawableEnd="@drawable/ic_seta_direita"
-                android:fontFamily="@font/montserrat_medium"
                 android:hint="Selecione uma categoria"
-                android:padding="16dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
+                android:textColor="@color/black"
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="16dp"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
-                android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -249,7 +247,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
-            <com.santalu.maskara.widget.MaskEditText
+            <EditText
                 android:id="@+id/editPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -257,19 +255,16 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
-                android:hint="Telefone"
-                android:imeOptions="actionNext"
-                android:inputType="number"
                 android:padding="16dp"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                tools:text="(27) 99900-0102"
+                android:enabled="false"
+                android:clickable="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView9"
-                app:mask="(__) _____-____"
-                app:maskCharacter="_"
-                app:maskStyle="completable" />
+                />
 
             <TextView
                 android:id="@+id/textView9"
@@ -353,12 +348,10 @@
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
         android:background="@color/colorLaranjaOlx"
         android:text="Salvar"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

@@ -30,13 +30,14 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="32dp"
+            android:paddingBottom="32dp">
 
             <TextView
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:text="Telefone"
                 android:textColor="@color/colorRoxoOlx"
@@ -47,9 +48,7 @@
                 android:id="@+id/editTelefone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
                 android:drawableStart="@drawable/ic_phone"
                 android:drawableTint="@color/colorRoxoOlx"
@@ -71,7 +70,6 @@
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:text="E-mail"
                 android:textColor="@color/colorRoxoOlx"
@@ -82,9 +80,7 @@
                 android:id="@+id/editEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
                 android:drawableStart="@drawable/ic_email"
                 android:drawablePadding="16dp"
@@ -104,7 +100,6 @@
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:text="Nome"
                 android:textColor="@color/colorRoxoOlx"
@@ -115,9 +110,7 @@
                 android:id="@+id/editNome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
                 android:background="@drawable/bg_edit_mod_2"
                 android:drawableStart="@drawable/ic_person_roxo"
                 android:drawablePadding="16dp"
@@ -136,21 +129,17 @@
                 android:id="@+id/btnSalvar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="80dp"
                 android:background="@drawable/bg_btn"
                 android:backgroundTint="@color/colorRoxoOlx"
                 android:text="Salvar"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:backgroundTint="@color/colorRoxoOlx"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editEmail"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/editEmail" />
 
             <ProgressBar
                 android:id="@+id/progressBar"

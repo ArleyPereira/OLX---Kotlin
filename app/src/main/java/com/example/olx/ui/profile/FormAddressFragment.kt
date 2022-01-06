@@ -93,11 +93,12 @@ class FormAddressFragment : BaseFragment() {
 
                         binding.progressBar.visibility = View.VISIBLE
 
-                        if (newAddress) address = Address()
-                        address.cep = cep
-                        address.uf = uf
-                        address.localidade = cidade
-                        address.bairro = bairro
+                        if (newAddress) address = Address(
+                            cep = cep,
+                            uf = uf,
+                            localidade = cidade,
+                            bairro = bairro
+                        )
                         //address.salvar(FirebaseHelper.getIdUser())
 
                         Snackbar.make(

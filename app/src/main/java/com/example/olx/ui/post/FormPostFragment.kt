@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,22 +19,21 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.olx.BuildConfig
 import com.example.olx.R
+import com.example.olx.api.API
+import com.example.olx.api.Resource
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
 import com.example.olx.ui.filters.CategoriesFragment
-import com.example.olx.util.BaseFragment
-import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
-import com.example.olx.util.toast
+import com.example.olx.util.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -41,12 +41,23 @@ import com.google.firebase.database.ValueEventListener
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.squareup.picasso.Picasso
+import com.techiness.progressdialoglibrary.ProgressDialog
+
+import retrofit2.Call
+
+import retrofit2.Callback
+
+import retrofit2.Response
+
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
+
 import java.io.File
 import java.util.*
 
-class FormPostFragment : BaseFragment() {
+open class FormPostFragment : BaseFragment() {
+
+    private val formPostViewModel: FormPostViewModel by activityViewModels()
 
     private var selectImageRequest = -1
 
@@ -58,7 +69,7 @@ class FormPostFragment : BaseFragment() {
     private var newPost = true
     private lateinit var post: Post
     private var categorySelected: String = ""
-    private lateinit var address: Address
+    private var address: Address? = null
     private val imageList = mutableListOf<Image>()
     private lateinit var retrofit: Retrofit
     private lateinit var user: User
@@ -69,6 +80,8 @@ class FormPostFragment : BaseFragment() {
 
     private var userRef: DatabaseReference? = null
     private var addressRef: DatabaseReference? = null
+
+    private lateinit var progressDialog: ProgressDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,9 +118,6 @@ class FormPostFragment : BaseFragment() {
         // Seta locale para configuração da mascara de valor
         binding.editPrice.locale = Locale("PT", "br")
 
-        // Inicia o serviço da retrofit
-        initRetrofit()
-
         // Ouvinte digitação do campo de CEP
         binding.editZipCode.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -121,7 +131,8 @@ class FormPostFragment : BaseFragment() {
 
                 if (cep.length == 8) {
                     hideKeyboard()
-                    getAddress(cep)
+
+                    searchAddress(cep)
                 }
             }
 
@@ -176,9 +187,9 @@ class FormPostFragment : BaseFragment() {
                 if (snapshot.exists()) {
                     address = snapshot.getValue(Address::class.java) as Address
 
-                    address.cep.let {
-                        binding.editZipCode.setText(it)
-                    }
+//                    address?.cep.let {
+//                        binding.editZipCode.setText(it)
+//                    }
                 }
             }
 
@@ -197,7 +208,7 @@ class FormPostFragment : BaseFragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     user = snapshot.getValue(User::class.java) as User
-                    user.phone.let { binding.editPhone.setText(it) }
+                    binding.editPhone.setText(MaskText().mask("(##) #####-####", user.phone))
                 }
             }
 
@@ -285,11 +296,16 @@ class FormPostFragment : BaseFragment() {
 
     // Criar um arquivo temporário utilizado na captura da imagem pela câmera
     private fun getTmpFileUri(): Uri {
-        val tmpFile = File.createTempFile("tmp_image_file", ".png", requireContext().cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-        return FileProvider.getUriForFile(requireContext(), "${BuildConfig.APPLICATION_ID}.provider", tmpFile)
+        val tmpFile =
+            File.createTempFile("tmp_image_file", ".png", requireContext().cacheDir).apply {
+                createNewFile()
+                deleteOnExit()
+            }
+        return FileProvider.getUriForFile(
+            requireContext(),
+            "${BuildConfig.APPLICATION_ID}.provider",
+            tmpFile
+        )
     }
 
     // Recebe a imagem selecionada da galeria do dispositivo
@@ -318,7 +334,7 @@ class FormPostFragment : BaseFragment() {
                     ImageDecoder.decodeBitmap(source)
                 }
 
-                when(selectImageRequest){
+                when (selectImageRequest) {
                     0 -> binding.image0.setImageBitmap(bitmap)
                     1 -> binding.image1.setImageBitmap(bitmap)
                     else -> binding.image2.setImageBitmap(bitmap)
@@ -396,45 +412,38 @@ class FormPostFragment : BaseFragment() {
         binding.editDescription.setText(post.description)
 
         // CEP
-        binding.editZipCode.setText(post.address?.cep)
+        //binding.editZipCode.setText(post.address?.cep)
         post.address.let {
             if (it != null) {
                 address = it
             }
         }
         binding.textAddress.text =
-            getString(R.string.publicacao_local, address.bairro, address.localidade, address.uf)
+            getString(R.string.publicacao_local, address?.bairro, address?.localidade, address?.uf)
     }
 
-    // Inicia o serviço da retrofit
-    private fun initRetrofit() {
-        retrofit = Retrofit
-            .Builder()
-            .baseUrl("https://viacep.com.br/ws/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
+    // Retorna o endereço do CEP informado
+    private fun searchAddress(zipCode: String) {
+        binding.progressBar.visibility = View.VISIBLE
 
-    // Realiza a busca do endereço
-    // com base no CEP digitado
-    private fun getAddress(cep: String) {
-//        binding.progressBar.visibility = View.VISIBLE
-//
-//        val cepService = retrofit.create(CEPService::class.java)
-//        val call = cepService.recuperarCEP(cep)
-//
-//        call.enqueue(object : Callback<Address?> {
-//            override fun onResponse(call: Call<Address?>?, response: Response<Address?>?) {
-//                response?.body()?.let {
-//                    address = it
-//                    configAddress()
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<Address?>?, t: Throwable?) {
-//
-//            }
-//        })
+        formPostViewModel.getAddress(zipCode).observe(viewLifecycleOwner, { resource ->
+            when (resource) {
+                is Resource.onSuccess -> {
+                    address = resource.data
+
+                    if (address?.localidade != null) {
+                        configAddress()
+                    } else {
+                        binding.progressBar.visibility = View.GONE
+                        showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                    }
+                }
+                is Resource.onFailure -> {
+                    binding.progressBar.visibility = View.GONE
+                    showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                }
+            }
+        })
     }
 
     // Exibe um TextView com o endereço
@@ -443,11 +452,11 @@ class FormPostFragment : BaseFragment() {
         address.let {
             val address = StringBuffer()
             address
-                .append(it.bairro)
+                .append(it?.bairro)
                 .append(", ")
-                .append(it.localidade)
+                .append(it?.localidade)
                 .append(", ")
-                .append(it.uf)
+                .append(it?.uf)
 
             binding.textAddress.text = address
         }
@@ -459,18 +468,17 @@ class FormPostFragment : BaseFragment() {
         val title = binding.editTitle.text.toString().trim()
         val price = binding.editPrice.rawValue / 100
         val description = binding.editDescription.text.toString().trim()
-        val phone = binding.editPhone.unMasked.trim()
+        val zipCode = binding.editZipCode.text.toString().trim()
 
         if (title.isNotEmpty()) {
             if (price > 0) {
                 if (categorySelected.isNotBlank()) {
                     if (description.isNotEmpty()) {
-                        if (phone.isNotEmpty()) {
-                            if (phone.length == 11) {
-
+                        if (zipCode.isNotEmpty()) {
+                            if (address != null) {
                                 hideKeyboard()
 
-                                binding.progressBar.visibility = View.VISIBLE
+                                showDialogLoading(R.string.loading_save_post_form_post_fragment)
 
                                 if (newPost) post = Post()
 
@@ -479,7 +487,7 @@ class FormPostFragment : BaseFragment() {
                                 post.price = price.toDouble()
                                 post.category = categorySelected
                                 post.description = description
-                                post.phone = phone
+                                post.phone = user.phone
                                 post.address = address
 
                                 if (newPost) { // Novo Anúncio
@@ -491,11 +499,7 @@ class FormPostFragment : BaseFragment() {
                                             saveImagePost(i)
                                         }
                                     } else {
-                                        Snackbar.make(
-                                            binding.btnSave,
-                                            "Selecione 3 imagens.",
-                                            Snackbar.LENGTH_SHORT
-                                        ).show()
+                                        showBottomSheetInfo(R.string.image_empty_post_form_post_fragment)
                                     }
                                 } else { // Edita Anúncio
                                     if (imageList.isNotEmpty()) {
@@ -503,47 +507,44 @@ class FormPostFragment : BaseFragment() {
                                             saveImagePost(i)
                                         }
                                     } else { // Não teve edições de imagens
-                                        post.editar()
+                                        post.update()
+                                        progressDialog.dismiss()
                                     }
                                 }
                             } else {
-                                binding.editPhone.requestFocus()
-                                binding.editPhone.error = "Telefone inválido."
+                                showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
                             }
                         } else {
-                            binding.editPhone.error = "Informe o telefone"
-                            binding.editPhone.requestFocus()
+                            showBottomSheetInfo(R.string.zip_code_empty_save_post_form_post_fragment)
                         }
                     } else {
-                        binding.editDescription.error = "Informe a descrição."
-                        binding.editDescription.requestFocus()
+                        showBottomSheetInfo(R.string.description_empty_save_post_form_post_fragment)
                     }
                 } else {
-                    Snackbar.make(
-                        binding.btnCategory,
-                        "Selecione a categoria.",
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .show()
+                    showBottomSheetInfo(R.string.category_empty_save_post_form_post_fragment)
                 }
             } else {
-                binding.editPrice.error = "Informe o preço."
-                binding.editPrice.requestFocus()
+                showBottomSheetInfo(R.string.price_empty_save_post_form_post_fragment)
             }
         } else {
-            binding.editTitle.error = "Informe o título."
-            binding.editTitle.requestFocus()
+            showBottomSheetInfo(R.string.title_empty_save_post_form_post_fragment)
         }
+    }
 
+    // Exibe dialog de loading
+    private fun showDialogLoading(message: Int) {
+        progressDialog = ProgressDialog(requireContext())
+        progressDialog.setMessage(message)
+        progressDialog.show()
     }
 
     // Salva a Imagem no Firebase Storage e recupera a URL
     private fun saveImagePost(index: Int) {
         val storageReference = FirebaseHelper.getStorage()
-            .child("imagens")
-            .child("anuncios")
+            .child("images")
+            .child("posts")
             .child(post.id)
-            .child("imagem$index.jpeg")
+            .child("image$index.jpeg")
 
         val uploadTask = storageReference.putFile(Uri.parse(imageList[index].pathImage))
         uploadTask.addOnSuccessListener {
@@ -556,7 +557,7 @@ class FormPostFragment : BaseFragment() {
                 }
 
                 if (imageList.size == index + 1) { // Hora de Salvar
-                    post.salvar()
+                    post.save()
                     findNavController().popBackStack()
                 }
 

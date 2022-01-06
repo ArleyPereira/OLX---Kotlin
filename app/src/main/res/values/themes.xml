@@ -1,10 +1,14 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorRoxoOlx</item>
-        <item name="colorAccent">@android:color/black</item>
+        <item name="colorPrimary">@color/colorLaranjaOlx</item>
+        <item name="colorPrimaryVariant">@color/colorRoxoOlx</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <item name="colorSecondary">?attr/colorPrimaryVariant</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
