@@ -6,9 +6,9 @@ data class Favorite(
     var favoritos: MutableList<String> = mutableListOf()
 ) {
 
-    public fun salvar() {
+    fun salvar() {
         val favoritosRef = FirebaseHelper.getDatabase()
-            .child("favoritos")
+            .child("favorites")
             .child(FirebaseHelper.getIdUser())
         favoritosRef.setValue(this.favoritos)
     }

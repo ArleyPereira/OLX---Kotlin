@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.adapter.AdapterPost
+import com.example.olx.adapter.PostAdapter
 import com.example.olx.databinding.FragmentMyPostsBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Post
@@ -23,7 +24,7 @@ class MyPostsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var postList = mutableListOf<Post>()
-    private lateinit var adapterPost: AdapterPost
+    private lateinit var postAdapter: PostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,7 +36,6 @@ class MyPostsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // Configurações inicias do RecyclerView
         initRecyclerView()
 
@@ -47,8 +47,8 @@ class MyPostsFragment : Fragment() {
     private fun initRecyclerView() {
         binding.recyclerPosts.layoutManager = LinearLayoutManager(activity)
         binding.recyclerPosts.setHasFixedSize(true)
-        adapterPost = AdapterPost(postList, requireContext()) {}
-        binding.recyclerPosts.adapter = adapterPost
+        postAdapter = PostAdapter(postList, requireContext()) {}
+        binding.recyclerPosts.adapter = postAdapter
 
         binding.recyclerPosts.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
@@ -56,7 +56,10 @@ class MyPostsFragment : Fragment() {
             }
 
             override fun onSwipedRight(position: Int) {
-                removePost(postList[position])
+                val action = MyPostsFragmentDirections
+                    .actionMenuMeusAnunciosToFormPostFragment(postList[position])
+
+                findNavController().navigate(action)
             }
         })
     }
@@ -68,12 +71,12 @@ class MyPostsFragment : Fragment() {
         builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
         builder.setNegativeButton("Não") { dialog: DialogInterface, _: Int ->
             dialog.dismiss()
-            adapterPost.notifyDataSetChanged()
+            postAdapter.notifyDataSetChanged()
         }.setPositiveButton("Sim") { dialog: DialogInterface, _: Int ->
             postList.remove(post)
             post.remove()
             dialog.dismiss()
-            adapterPost.notifyDataSetChanged()
+            postAdapter.notifyDataSetChanged()
 
             if (postList.isEmpty()) {
                 binding.textInfo.text = "Você ainda não possui nenhum anúncio cadastrado."
@@ -87,7 +90,8 @@ class MyPostsFragment : Fragment() {
     // Recupera anúncios do Firebase
     private fun getPosts() {
         FirebaseHelper.getDatabase()
-            .child("anunciosPublicos")
+            .child("myPosts")
+            .child(FirebaseHelper.getIdUser())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     postList.clear()
@@ -104,7 +108,7 @@ class MyPostsFragment : Fragment() {
                     }
                     postList.reverse()
                     binding.progressBar.visibility = View.GONE
-                    adapterPost.notifyDataSetChanged()
+                    postAdapter.notifyDataSetChanged()
                 }
 
                 override fun onCancelled(error: DatabaseError) {

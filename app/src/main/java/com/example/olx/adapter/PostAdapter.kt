@@ -12,15 +12,15 @@ import com.example.olx.util.GetMask
 import com.example.olx.model.Post
 import com.squareup.picasso.Picasso
 
-class AdapterPost(
+class PostAdapter(
     private var postList: List<Post>,
     private var context: Context,
     val postSelected: (Post) -> Unit?
-) : RecyclerView.Adapter<AdapterPost.MyViewHolder>() {
+) : RecyclerView.Adapter<PostAdapter.MyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).inflate(R.layout.adapter_anuncio, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.post_adapter, parent, false)
         return MyViewHolder(itemView)
     }
 
@@ -33,8 +33,10 @@ class AdapterPost(
         holder.textPrice.text =
             context.getString(R.string.valor_anuncio, GetMask.getValor(post.price))
         holder.textPublication.text = context.getString(
-            R.string.publicacao_anuncio,
-            post.address?.bairro, GetMask.getDate(post.registrationDate, GetMask.DIA_MES)
+            R.string.place_of_publication,
+            post.state?.bairro,
+            if(post.state?.uf != null) post.state?.uf else "",
+            GetMask.getDate(post.registrationDate, GetMask.DIA_MES)
         )
 
         holder.itemView.setOnClickListener { postSelected(post) }

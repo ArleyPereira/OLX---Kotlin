@@ -7,7 +7,7 @@
     <string name="menu_my_posts">Meus Anúncios</string>
 
     <string name="valor_anuncio">R$ %1$s</string>
-    <string name="publicacao_anuncio">%1$s, %2$s</string>
+    <string name="place_of_publication">%1$s-%2$s, %3$s</string>
     <string name="publicacao_local">%1$s, %2$s, %3$s</string>
     <string name="publicacao_detalhe">Publicado em %1$s</string>
 
@@ -43,7 +43,7 @@
     <string name="text_message_info">Informe seu email cadastrado e você receberá um link para alterar a senha senha.</string>
 
     <!--    Form Post Fragment-->
-    <string name="loading_save_post_form_post_fragment">Aguarde, estamos salvando o seu post...</string>
+    <string name="loading_save_post_form_post_fragment">Salvando anúncio...</string>
     <string name="title_empty_save_post_form_post_fragment">Informe um título para o anúncio.</string>
     <string name="price_empty_save_post_form_post_fragment">Informe um valor maior que R$ 0,00 para o anúncio.</string>
     <string name="category_empty_save_post_form_post_fragment">Escolha uma categoria para o anúncio.</string>
@@ -53,5 +53,6 @@
     <string name="zip_code_invalid_save_post_form_post_fragment">Informe um CEP válido para o anúncio.</string>
     <string name="image_empty_post_form_post_fragment">Escolha pelo menos 3 imagens para seu anúncio.</string>
     <string name="address_invalid_form_post_fragment">Não foi possível encontrar o endereço do CEP informado.</string>
+    <string name="save_form_post_fragment">Aúncio salvo com sucesso.</string>
 
 </resources>

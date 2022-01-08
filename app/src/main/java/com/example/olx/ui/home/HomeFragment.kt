@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.adapter.AdapterPost
+import com.example.olx.adapter.PostAdapter
 import com.example.olx.databinding.FragmentHomeBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Post
@@ -22,7 +21,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var anuncioList = mutableListOf<Post>()
-    private lateinit var adapterPost: AdapterPost
+    private lateinit var postAdapter: PostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,22 +57,29 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            getPosts()
+        }
     }
 
     // Configurações iniciais do RecyclerView
     private fun initRecyclerView() {
         binding.rvAnuncios.layoutManager = LinearLayoutManager(activity)
         binding.rvAnuncios.setHasFixedSize(true)
-        adapterPost = AdapterPost(anuncioList, requireContext()) { post ->
-            Toast.makeText(requireContext(), post.title, Toast.LENGTH_SHORT).show()
+        postAdapter = PostAdapter(anuncioList, requireContext()) { post ->
+            val action = HomeFragmentDirections
+                .actionMenuHomeToDetailPostFragment(post)
+
+            findNavController().navigate(action)
         }
-        binding.rvAnuncios.adapter = adapterPost
+        binding.rvAnuncios.adapter = postAdapter
     }
 
     // Recupera anúncios do Firebase
     private fun getPosts() {
         FirebaseHelper.getDatabase()
-            .child("anunciosPublicos")
+            .child("publicPosts")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     anuncioList.clear()
@@ -87,9 +93,13 @@ class HomeFragment : Fragment() {
                         binding.textInfo.text = ""
                     } else binding.textInfo.text = "Nenhum anúncio cadastrado."
 
+                    if (binding.swipeRefreshLayout.isRefreshing) {
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }
+
                     anuncioList.reverse()
                     binding.progressBar.visibility = View.GONE
-                    adapterPost.notifyDataSetChanged()
+                    postAdapter.notifyDataSetChanged()
                 }
 
                 override fun onCancelled(error: DatabaseError) {

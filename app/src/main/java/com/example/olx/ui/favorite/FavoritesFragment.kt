@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.olx.adapter.AdapterPost
+import com.example.olx.adapter.PostAdapter
 import com.example.olx.databinding.FragmentFavoritesBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Favorite
@@ -24,7 +24,7 @@ class FavoritesFragment : Fragment() {
 
     private val idsFavoritesList: MutableList<String> = mutableListOf()
     private val postList: MutableList<Post> = mutableListOf()
-    private lateinit var adapterPost: AdapterPost
+    private lateinit var postAdapter: PostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,7 +91,7 @@ class FavoritesFragment : Fragment() {
                         if (postList.size == idsFavoritesList.size) {
                             binding.textInfo.text = ""
                             binding.progressBar.visibility = View.GONE
-                            adapterPost.notifyDataSetChanged()
+                            postAdapter.notifyDataSetChanged()
                         }
                     }
 
@@ -106,8 +106,8 @@ class FavoritesFragment : Fragment() {
     private fun initRecycler() {
         binding.recyclerFavorites.layoutManager = LinearLayoutManager(activity)
         binding.recyclerFavorites.setHasFixedSize(true)
-        adapterPost = AdapterPost(postList, requireContext()){}
-        binding.recyclerFavorites.adapter = adapterPost
+        postAdapter = PostAdapter(postList, requireContext()){}
+        binding.recyclerFavorites.adapter = postAdapter
 
         binding.recyclerFavorites.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
@@ -126,7 +126,7 @@ class FavoritesFragment : Fragment() {
         builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
         builder.setNegativeButton("Não") { dialogInterface, _ ->
             dialogInterface.dismiss()
-            adapterPost.notifyDataSetChanged()
+            postAdapter.notifyDataSetChanged()
         }
         builder.setPositiveButton("Sim") { dialogInterface, _ ->
             idsFavoritesList.remove(post.id)
@@ -138,7 +138,7 @@ class FavoritesFragment : Fragment() {
             favorito.salvar()
 
             dialogInterface.dismiss()
-            adapterPost.notifyDataSetChanged()
+            postAdapter.notifyDataSetChanged()
         }
         val dialog = builder.create()
         dialog.show()

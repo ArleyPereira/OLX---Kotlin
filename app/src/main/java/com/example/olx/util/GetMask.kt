@@ -27,13 +27,13 @@ class GetMask {
             val netDate = Date(time)
             dateFormat.format(netDate)
 
-            val dia = SimpleDateFormat("dd").format(netDate)
-            var mes = SimpleDateFormat("MM").format(netDate)
+            val dia = SimpleDateFormat("dd", Locale.ROOT).format(netDate)
+            var mes = SimpleDateFormat("MM", Locale.ROOT).format(netDate)
 
-            val hora = SimpleDateFormat("HH").format(netDate)
-            val minuto = SimpleDateFormat("mm").format(netDate)
+            val hora = SimpleDateFormat("HH", Locale.ROOT).format(netDate)
+            val minuto = SimpleDateFormat("mm", Locale.ROOT).format(netDate)
 
-            if(tipo == DIA_MES){
+            if (tipo == DIA_MES) {
                 mes = when (mes) {
                     "01" -> "janeiro"
                     "02" -> "fevereiro"
@@ -65,14 +65,13 @@ class GetMask {
                 .append(":")
                 .append(minuto)
 
-            return when(tipo){
+            return when (tipo) {
                 DIA_MES -> diaMes.toString()
                 DIA_MES_HORA -> diaMesHora.toString()
                 else -> {
                     ""
                 }
             }
-
         }
 
     }

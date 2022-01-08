@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet">
 
-    <Button
+    <TextView
         android:id="@+id/btnCamera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:drawableStart="@drawable/ic_camera_bottom_sheet"
+        android:paddingVertical="16dp"
         android:text="Tirar foto"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:textAlignment="textStart"
         android:drawablePadding="16dp"
         android:paddingStart="24dp"
-        android:paddingEnd="0dp"/>
+        android:paddingEnd="0dp"
+        app:drawableStartCompat="@drawable/ic_camera" />
 
-    <Button
+    <TextView
         android:id="@+id/btnGallery"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:drawableStart="@drawable/ic_galeria_bottom_sheet"
+        app:drawableStartCompat="@drawable/ic_galeria_bottom_sheet"
+        android:paddingVertical="16dp"
         android:drawablePadding="16dp"
         android:paddingStart="24dp"
         android:paddingEnd="0dp"
@@ -33,13 +36,14 @@
         android:textAllCaps="false"
         android:textColor="@color/white" />
 
-    <Button
+    <TextView
         android:id="@+id/btnCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:drawableStart="@drawable/ic_cancel"
+        app:drawableStartCompat="@drawable/ic_cancel"
         android:text="Cancelar"
+        android:paddingVertical="16dp"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:textAlignment="textStart"

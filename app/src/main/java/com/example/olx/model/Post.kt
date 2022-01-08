@@ -2,26 +2,22 @@ package com.example.olx.model
 
 import android.os.Parcelable
 import com.example.olx.helper.FirebaseHelper
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ServerValue
-import com.google.firebase.database.ValueEventListener
-import com.techiness.progressdialoglibrary.ProgressDialog
 import kotlinx.parcelize.Parcelize
-import java.io.Serializable
 
 @Parcelize
-data class Post(var id: String = "") : Parcelable {
-
-    var idUsuario: String = ""
-    var title: String = ""
-    var phone: String = ""
-    var price: Double = 0.0
-    var category: String = ""
-    var description: String = ""
-    var address: Address? = null
-    var registrationDate: Long = 0
+data class Post(
+    var id: String = "",
+    var idUser: String = "",
+    var title: String = "",
+    var phone: String = "",
+    var price: Double = 0.0,
+    var category: String = "",
+    var description: String = "",
+    var state: State? = null,
+    var registrationDate: Long = 0,
     var urlImages: MutableList<String> = mutableListOf()
+) : Parcelable {
 
     fun remove() {
         val anuncioPublicosRef = FirebaseHelper.getDatabase()
@@ -50,47 +46,33 @@ data class Post(var id: String = "") : Parcelable {
         val publicPostsRef = FirebaseHelper.getDatabase()
             .child("publicPosts")
             .child(id)
-        publicPostsRef.setValue(this)
-
-        val datePublicPosts = publicPostsRef
-            .child("dataCadastro")
-        datePublicPosts.setValue(ServerValue.TIMESTAMP).addOnCompleteListener {
-
-            FirebaseHelper.getDatabase()
-                .child("publicPosts")
-                .child(id)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        val post = snapshot.getValue(Post::class.java) as Post
-
-                        val myPostsRef = FirebaseHelper.getDatabase()
-                            .child("myPosts")
-                            .child(FirebaseHelper.getIdUser())
-                            .child(id)
-                        myPostsRef.setValue(post)
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-
-                    }
-
-                })
-
+        publicPostsRef.setValue(this).addOnCompleteListener {
+            val datePublicPosts = publicPostsRef
+                .child("registrationDate")
+            datePublicPosts.setValue(ServerValue.TIMESTAMP)
         }
 
+        val myPostsRef = FirebaseHelper.getDatabase()
+            .child("myPosts")
+            .child(FirebaseHelper.getIdUser())
+            .child(id)
+        myPostsRef.setValue(this).addOnCompleteListener {
+            val dateMyPosts = myPostsRef
+                .child("registrationDate")
+            dateMyPosts.setValue(ServerValue.TIMESTAMP)
+        }
     }
 
     fun update() {
-        val anuncioPublicosRef = FirebaseHelper.getDatabase()
-            .child("anunciosPublicos")
+        val publicPostsRef = FirebaseHelper.getDatabase()
+            .child("publicPosts")
             .child(id)
-        anuncioPublicosRef.setValue(this)
+        publicPostsRef.setValue(this)
 
-        val meusAnunciosRef = FirebaseHelper.getDatabase()
-            .child("meusAnuncios")
+        val myPostsRef = FirebaseHelper.getDatabase()
+            .child("myPosts")
             .child(FirebaseHelper.getIdUser())
             .child(id)
-        meusAnunciosRef.setValue(this)
+        myPostsRef.setValue(this)
     }
-
 }

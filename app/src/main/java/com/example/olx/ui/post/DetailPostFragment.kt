@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.adapter.SliderAdapter
 import com.example.olx.databinding.FragmentDetailPostBinding
@@ -16,6 +18,7 @@ import com.example.olx.model.Favorite
 import com.example.olx.model.Post
 import com.example.olx.util.GetMask
 import com.example.olx.util.initToolbar
+import com.example.olx.util.showBottomSheetInfo
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -64,6 +67,8 @@ class DetailPostFragment : Fragment() {
     private fun getExtra() {
         post = args.post
 
+        binding.titleToolbar.text = post.title
+
         initData()
     }
 
@@ -71,7 +76,7 @@ class DetailPostFragment : Fragment() {
     private fun getFavorites() {
         if (FirebaseHelper.isAutenticated()) {
             val favoritoRef = FirebaseHelper.getDatabase()
-                .child("favoritos")
+                .child("favorites")
                 .child(FirebaseHelper.getIdUser())
             favoritoRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -90,7 +95,7 @@ class DetailPostFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    showBottomSheetInfo(R.string.error_generic)
                 }
 
             })
@@ -107,8 +112,10 @@ class DetailPostFragment : Fragment() {
                         "Anúncio salvo",
                         R.drawable.ic_like, true
                     )
-
                 } else {
+                    val action = MainGraphDirections
+                        .actionGlobalVisitorFragment()
+                    findNavController().navigate(action.actionId)
                     likeButton?.isLiked = false
                 }
             }
@@ -185,9 +192,9 @@ class DetailPostFragment : Fragment() {
             GetMask.getDate(post.registrationDate, GetMask.DIA_MES_HORA)
         )
         binding.textCagegory.text = post.category
-        binding.textCep.text = post.address?.cep
-        binding.textMunicipio.text = post.address?.localidade
-        binding.textBairro.text = post.address?.bairro
+        binding.textCep.text = post.state?.cep
+        binding.textMunicipio.text = post.state?.localidade
+        binding.textBairro.text = post.state?.bairro
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.olx.databinding.FragmentFormAddressBinding
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.model.Address
+import com.example.olx.model.State
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
 import com.google.android.material.snackbar.Snackbar
@@ -19,7 +19,7 @@ class FormAddressFragment : BaseFragment() {
     private var _binding: FragmentFormAddressBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var address: Address
+    private lateinit var state: State
     private var newAddress: Boolean = true
 
     override fun onCreateView(
@@ -53,7 +53,7 @@ class FormAddressFragment : BaseFragment() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        address = snapshot.getValue(Address::class.java) as Address
+                        state = snapshot.getValue(State::class.java) as State
                         configData()
                         newAddress = false
                     } else {
@@ -69,10 +69,10 @@ class FormAddressFragment : BaseFragment() {
 
     // Exibe as informações do post nos componentes
     private fun configData() {
-        binding.editCep.setText(address.cep)
-        binding.editEstado.setText(address.uf)
-        binding.editCidade.setText(address.localidade)
-        binding.editBairro.setText(address.bairro)
+        binding.editCep.setText(state.cep)
+        binding.editEstado.setText(state.uf)
+        binding.editCidade.setText(state.localidade)
+        binding.editBairro.setText(state.bairro)
 
         binding.progressBar.visibility = View.GONE
     }
@@ -93,7 +93,7 @@ class FormAddressFragment : BaseFragment() {
 
                         binding.progressBar.visibility = View.VISIBLE
 
-                        if (newAddress) address = Address(
+                        if (newAddress) state = State(
                             cep = cep,
                             uf = uf,
                             localidade = cidade,

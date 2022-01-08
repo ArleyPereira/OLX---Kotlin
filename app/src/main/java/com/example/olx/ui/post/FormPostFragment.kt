@@ -47,8 +47,6 @@ import java.util.*
 
 open class FormPostFragment : BaseFragment() {
 
-    private val TAG = "INFOTESTE"
-
     private val formPostViewModel: FormPostViewModel by activityViewModels()
 
     private var selectImageRequest = -1
@@ -61,7 +59,7 @@ open class FormPostFragment : BaseFragment() {
     private var newPost = true
     private lateinit var post: Post
     private var categorySelected: String = ""
-    private var address: Address? = null
+    private var state: State? = null
     private val imageList = mutableListOf<Image>()
     private lateinit var user: User
 
@@ -109,6 +107,11 @@ open class FormPostFragment : BaseFragment() {
         // Seta locale para configuração da mascara de valor
         binding.editPrice.locale = Locale("PT", "br")
 
+        binding.btnSave.setOnClickListener { validData() }
+        binding.btnCategory.setOnClickListener {
+            findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
+        }
+
         binding.editZipCode.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val zipCode = v.text.toString()
@@ -135,19 +138,14 @@ open class FormPostFragment : BaseFragment() {
                     .replace("-", "")
                     .replace("_".toRegex(), "")
 
-                if (cep.length < 8 && address != null) {
-                    address = null
+                if (cep.length < 8 && state != null) {
+                    state = null
                     configAddress()
                 }
             }
             override fun afterTextChanged(p0: Editable?) {
             }
         })
-
-        binding.btnSave.setOnClickListener { validData() }
-        binding.btnCategory.setOnClickListener {
-            findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
-        }
 
         binding.image0.setOnClickListener { bottomSheetSelectImage(0) }
         binding.image1.setOnClickListener { bottomSheetSelectImage(1) }
@@ -188,7 +186,7 @@ open class FormPostFragment : BaseFragment() {
         valueEventListener = addressRef!!.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    address = snapshot.getValue(Address::class.java) as Address
+                    state = snapshot.getValue(State::class.java) as State
 
 //                    address?.cep.let {
 //                        binding.editZipCode.setText(it)
@@ -378,7 +376,6 @@ open class FormPostFragment : BaseFragment() {
             }
         }
 
-
     // Exibe dialog permissões negadas
     private fun showDialogPermission(
         permissionlistener: PermissionListener,
@@ -415,14 +412,11 @@ open class FormPostFragment : BaseFragment() {
         binding.editDescription.setText(post.description)
 
         // CEP
-        //binding.editZipCode.setText(post.address?.cep)
-        post.address.let {
-            if (it != null) {
-                address = it
-            }
-        }
+        binding.editZipCode.setText(post.state?.cep)
+        state = post.state
+
         binding.textAddress.text =
-            getString(R.string.publicacao_local, address?.bairro, address?.localidade, address?.uf)
+            getString(R.string.publicacao_local, state?.bairro, state?.localidade, state?.uf)
     }
 
     // Retorna o endereço do CEP informado
@@ -432,11 +426,13 @@ open class FormPostFragment : BaseFragment() {
         formPostViewModel.getAddress(zipCode).observe(viewLifecycleOwner, { resource ->
             when (resource) {
                 is Resource.onSuccess -> {
-                    address = resource.data
-                    if (address?.localidade == null) {
-                        address = null
+                    state = resource.data
+                    if (state?.localidade == null) {
+                        state = null
                         binding.progressBar.visibility = View.GONE
                         showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                    }else {
+                        validData()
                     }
                     configAddress()
                 }
@@ -452,13 +448,13 @@ open class FormPostFragment : BaseFragment() {
     // correspondente ao CEP digitado
     private fun configAddress() {
         val addresStr = StringBuffer()
-        if (address != null) {
+        if (state != null) {
             addresStr
-                .append(address?.bairro)
+                .append(state?.bairro)
                 .append(", ")
-                .append(address?.localidade)
+                .append(state?.localidade)
                 .append(", ")
-                .append(address?.uf)
+                .append(state?.uf)
             binding.textAddress.text = addresStr
         } else {
             binding.textAddress.text = ""
@@ -471,51 +467,62 @@ open class FormPostFragment : BaseFragment() {
         val title = binding.editTitle.text.toString().trim()
         val price = binding.editPrice.rawValue / 100
         val description = binding.editDescription.text.toString().trim()
-        val zipCode = binding.editZipCode.text.toString().trim()
+        val zipCode = binding.editZipCode.text.toString()
+            .trim()
+            .replace("_", "")
+            .replace("-", "")
+
 
         if (title.isNotEmpty()) {
             if (price > 0) {
                 if (categorySelected.isNotBlank()) {
                     if (description.isNotEmpty()) {
                         if (zipCode.isNotEmpty()) {
-                            if (address != null) {
-                                hideKeyboard()
+                            if(zipCode.length == 8){
+                                if (state != null) {
+                                    hideKeyboard()
 
-                                showDialogLoading(R.string.loading_save_post_form_post_fragment)
+                                    if (newPost) post = Post()
 
-                                if (newPost) post = Post()
+                                    post.idUser = FirebaseHelper.getIdUser()
+                                    post.title = title
+                                    post.price = price.toDouble()
+                                    post.category = categorySelected
+                                    post.description = description
+                                    post.phone = user.phone
+                                    post.state = state
 
-                                post.idUsuario = FirebaseHelper.getIdUser()
-                                post.title = title
-                                post.price = price.toDouble()
-                                post.category = categorySelected
-                                post.description = description
-                                post.phone = user.phone
-                                post.address = address
+                                    if (newPost) { // Novo Anúncio
 
-                                if (newPost) { // Novo Anúncio
+                                        post.id = FirebaseHelper.getDatabase().push().key.toString()
 
-                                    post.id = FirebaseHelper.getDatabase().push().key.toString()
+                                        if (imageList.size == 3) {
+                                            showDialogLoading(R.string.loading_save_post_form_post_fragment)
 
-                                    if (imageList.size == 3) {
-                                        for (i in imageList.indices) {
-                                            saveImagePost(i)
+                                            for (i in imageList.indices) {
+                                                saveImagePost(i)
+                                            }
+                                        } else {
+                                            showBottomSheetInfo(R.string.image_empty_post_form_post_fragment)
                                         }
-                                    } else {
-                                        showBottomSheetInfo(R.string.image_empty_post_form_post_fragment)
-                                    }
-                                } else { // Edita Anúncio
-                                    if (imageList.isNotEmpty()) {
-                                        for (i in imageList.indices) {
-                                            saveImagePost(i)
+                                    } else { // Edita Anúncio
+                                        if (imageList.isNotEmpty()) {
+                                            showDialogLoading(R.string.loading_save_post_form_post_fragment)
+
+                                            for (i in imageList.indices) {
+                                                saveImagePost(i)
+                                            }
+                                        } else { // Não teve edições de imagens
+                                            requireContext().toast(R.string.save_form_post_fragment)
+                                            post.update()
                                         }
-                                    } else { // Não teve edições de imagens
-                                        post.update()
-                                        progressDialog.dismiss()
                                     }
+                                } else {
+                                    hideKeyboard()
+                                    searchAddress(zipCode)
                                 }
-                            } else {
-                                showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                            }else {
+                                showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
                             }
                         } else {
                             showBottomSheetInfo(R.string.zip_code_empty_save_post_form_post_fragment)
@@ -560,6 +567,7 @@ open class FormPostFragment : BaseFragment() {
                 }
 
                 if (imageList.size == index + 1) { // Hora de Salvar
+                    progressDialog.dismiss()
                     post.save()
                     findNavController().popBackStack()
                 }
