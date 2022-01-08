@@ -2,6 +2,7 @@ package com.example.olx.util
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -81,12 +82,12 @@ fun Context.toast(resource: Int): Toast = Toast
     .makeText(this, resource, Toast.LENGTH_SHORT)
     .apply { show() }
 
-fun Fragment.showBottomSheetInfo(resource: Int) {
+fun Fragment.showBottomSheetInfo(resource: Int? = null) {
     val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialog)
     val bottomSheetBinding: LayoutInfoBottomSheetBinding =
         LayoutInfoBottomSheetBinding.inflate(layoutInflater, null, false)
 
-    bottomSheetBinding.textMsgInfo.text = getString(resource)
+    bottomSheetBinding.textMsgInfo.text = getString(resource ?: R.string.error_generic)
     bottomSheetBinding.btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
 
     bottomSheetDialog.setContentView(bottomSheetBinding.root)

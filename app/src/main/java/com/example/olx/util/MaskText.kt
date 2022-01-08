@@ -65,22 +65,24 @@ class MaskText : TextWatcher {
         return s
     }
 
-    fun mask(format: String?, text: String): String {
-        var maskedText = ""
-        var i = 0
-        for (m in format!!.toCharArray()) {
-            if (m != '#') {
-                maskedText += m
-                continue
+    companion object {
+        fun mask(format: String?, text: String): String {
+            var maskedText = ""
+            var i = 0
+            for (m in format!!.toCharArray()) {
+                if (m != '#') {
+                    maskedText += m
+                    continue
+                }
+                maskedText += try {
+                    text[i]
+                } catch (e: Exception) {
+                    break
+                }
+                i++
             }
-            maskedText += try {
-                text[i]
-            } catch (e: Exception) {
-                break
-            }
-            i++
+            return maskedText
         }
-        return maskedText
     }
 
     fun mask(text: String): String? {

@@ -257,7 +257,7 @@
                 android:background="@drawable/bg_edit_mod_2"
                 android:padding="16dp"
                 android:textSize="14sp"
-                tools:text="(27) 99900-0102"
+                android:hint="Buscando dados, aguarde..."
                 android:enabled="false"
                 android:clickable="false"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -308,12 +308,14 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_edit_mod_2"
                     android:hint="CEP"
+                    android:imeOptions="actionSearch"
+                    android:digits="0123456789"
                     android:inputType="number"
                     android:padding="14dp"
                     android:textSize="14sp"
                     app:mask="_____-___"
                     app:maskCharacter="_"
-                    app:maskStyle="completable" />
+                    app:maskStyle="completable"/>
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -333,7 +335,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp"
-                android:layout_marginBottom="24dp"
+                android:paddingBottom="24dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

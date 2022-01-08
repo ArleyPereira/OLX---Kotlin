@@ -11,10 +11,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,7 +25,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.olx.BuildConfig
 import com.example.olx.R
-import com.example.olx.api.API
 import com.example.olx.api.Resource
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
@@ -42,20 +41,13 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.squareup.picasso.Picasso
 import com.techiness.progressdialoglibrary.ProgressDialog
-
-import retrofit2.Call
-
-import retrofit2.Callback
-
-import retrofit2.Response
-
-import retrofit2.Retrofit
-
-
 import java.io.File
 import java.util.*
 
+
 open class FormPostFragment : BaseFragment() {
+
+    private val TAG = "INFOTESTE"
 
     private val formPostViewModel: FormPostViewModel by activityViewModels()
 
@@ -71,7 +63,6 @@ open class FormPostFragment : BaseFragment() {
     private var categorySelected: String = ""
     private var address: Address? = null
     private val imageList = mutableListOf<Image>()
-    private lateinit var retrofit: Retrofit
     private lateinit var user: User
 
     private var latestTmpUri: Uri? = null
@@ -118,26 +109,38 @@ open class FormPostFragment : BaseFragment() {
         // Seta locale para configuração da mascara de valor
         binding.editPrice.locale = Locale("PT", "br")
 
+        binding.editZipCode.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val zipCode = v.text.toString()
+                    .replace("_", "")
+                    .replace("-", "")
+
+                if (zipCode.length == 8) {
+                    hideKeyboard()
+                    searchAddress(zipCode)
+                    true
+                } else {
+                    showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
+                    false
+                }
+            } else false
+        }
+
         // Ouvinte digitação do campo de CEP
         binding.editZipCode.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
             }
-
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 val cep = p0.toString()
                     .replace("-", "")
                     .replace("_".toRegex(), "")
 
-                if (cep.length == 8) {
-                    hideKeyboard()
-
-                    searchAddress(cep)
+                if (cep.length < 8 && address != null) {
+                    address = null
+                    configAddress()
                 }
             }
-
             override fun afterTextChanged(p0: Editable?) {
-
             }
         })
 
@@ -208,7 +211,7 @@ open class FormPostFragment : BaseFragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     user = snapshot.getValue(User::class.java) as User
-                    binding.editPhone.setText(MaskText().mask("(##) #####-####", user.phone))
+                    binding.editPhone.setText(MaskText.mask("(##) #####-####", user.phone))
                 }
             }
 
@@ -430,13 +433,12 @@ open class FormPostFragment : BaseFragment() {
             when (resource) {
                 is Resource.onSuccess -> {
                     address = resource.data
-
-                    if (address?.localidade != null) {
-                        configAddress()
-                    } else {
+                    if (address?.localidade == null) {
+                        address = null
                         binding.progressBar.visibility = View.GONE
                         showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
                     }
+                    configAddress()
                 }
                 is Resource.onFailure -> {
                     binding.progressBar.visibility = View.GONE
@@ -449,16 +451,17 @@ open class FormPostFragment : BaseFragment() {
     // Exibe um TextView com o endereço
     // correspondente ao CEP digitado
     private fun configAddress() {
-        address.let {
-            val address = StringBuffer()
-            address
-                .append(it?.bairro)
+        val addresStr = StringBuffer()
+        if (address != null) {
+            addresStr
+                .append(address?.bairro)
                 .append(", ")
-                .append(it?.localidade)
+                .append(address?.localidade)
                 .append(", ")
-                .append(it?.uf)
-
-            binding.textAddress.text = address
+                .append(address?.uf)
+            binding.textAddress.text = addresStr
+        } else {
+            binding.textAddress.text = ""
         }
         binding.progressBar.visibility = View.GONE
     }

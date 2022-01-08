@@ -50,6 +50,7 @@
     <string name="description_empty_save_post_form_post_fragment">Informe uma descrição para o anúncio.</string>
     <string name="phone_empty_save_post_form_post_fragment">Informe um telefone para o anúncio.</string>
     <string name="zip_code_empty_save_post_form_post_fragment">Informe o CEP para o anúncio.</string>
+    <string name="zip_code_invalid_save_post_form_post_fragment">Informe um CEP válido para o anúncio.</string>
     <string name="image_empty_post_form_post_fragment">Escolha pelo menos 3 imagens para seu anúncio.</string>
     <string name="address_invalid_form_post_fragment">Não foi possível encontrar o endereço do CEP informado.</string>
 
