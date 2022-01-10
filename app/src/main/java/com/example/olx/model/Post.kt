@@ -14,30 +14,30 @@ data class Post(
     var price: Double = 0.0,
     var category: String = "",
     var description: String = "",
-    var state: State? = null,
+    var address: Address? = null,
     var registrationDate: Long = 0,
     var urlImages: MutableList<String> = mutableListOf()
 ) : Parcelable {
 
     fun remove() {
-        val anuncioPublicosRef = FirebaseHelper.getDatabase()
-            .child("anunciosPublicos")
+        val publicPostsRef = FirebaseHelper.getDatabase()
+            .child("publicPosts")
             .child(this.id)
-        anuncioPublicosRef.removeValue()
+        publicPostsRef.removeValue()
 
-        val meusAnunciosRef = FirebaseHelper.getDatabase()
-            .child("meusAnuncios")
+        val myPostsRef = FirebaseHelper.getDatabase()
+            .child("myPosts")
             .child(FirebaseHelper.getIdUser())
             .child(this.id)
-        meusAnunciosRef.removeValue()
+        myPostsRef.removeValue()
 
-        for (imagem in this.urlImages.indices) {
-            val imagemAnuncio = FirebaseHelper.getStorage()
-                .child("imagens")
-                .child("anuncios")
+        for (image in this.urlImages.indices) {
+            FirebaseHelper.getStorage()
+                .child("images")
+                .child("posts")
                 .child(this.id)
-                .child("imagem$imagem.jpeg")
-            imagemAnuncio.delete()
+                .child("image$image.jpeg")
+                .delete()
         }
 
     }

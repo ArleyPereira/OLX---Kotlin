@@ -59,7 +59,7 @@ open class FormPostFragment : BaseFragment() {
     private var newPost = true
     private lateinit var post: Post
     private var categorySelected: String = ""
-    private var state: State? = null
+    private var address: Address? = null
     private val imageList = mutableListOf<Image>()
     private lateinit var user: User
 
@@ -82,7 +82,6 @@ open class FormPostFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         initToolbar(binding.toolbar)
 
         getData()
@@ -120,7 +119,7 @@ open class FormPostFragment : BaseFragment() {
 
                 if (zipCode.length == 8) {
                     hideKeyboard()
-                    searchAddress(zipCode)
+                    searchAddress(zipCode, false)
                     true
                 } else {
                     showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
@@ -138,8 +137,8 @@ open class FormPostFragment : BaseFragment() {
                     .replace("-", "")
                     .replace("_".toRegex(), "")
 
-                if (cep.length < 8 && state != null) {
-                    state = null
+                if (cep.length < 8 && address != null) {
+                    address = null
                     configAddress()
                 }
             }
@@ -181,21 +180,18 @@ open class FormPostFragment : BaseFragment() {
     // Recupera o endereço do usuário que está cadastrando o post
     private fun getAddressUser() {
         addressRef = FirebaseHelper.getDatabase()
-            .child("enderecos")
+            .child("address")
             .child(FirebaseHelper.getIdUser())
         valueEventListener = addressRef!!.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    state = snapshot.getValue(State::class.java) as State
-
-//                    address?.cep.let {
-//                        binding.editZipCode.setText(it)
-//                    }
+                    address = snapshot.getValue(Address::class.java) as Address
+                    configAddress()
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                showBottomSheetInfo(R.string.error_generic)
             }
         })
     }
@@ -203,7 +199,7 @@ open class FormPostFragment : BaseFragment() {
     // Recupera os dados do usuário do firebase
     private fun getUser() {
         userRef = FirebaseHelper.getDatabase()
-            .child("usuarios")
+            .child("users")
             .child(FirebaseHelper.getIdUser())
         valueEventListener = userRef!!.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -412,27 +408,27 @@ open class FormPostFragment : BaseFragment() {
         binding.editDescription.setText(post.description)
 
         // CEP
-        binding.editZipCode.setText(post.state?.cep)
-        state = post.state
+        binding.editZipCode.setText(post.address?.zipCode)
+        address = post.address
 
         binding.textAddress.text =
-            getString(R.string.publicacao_local, state?.bairro, state?.localidade, state?.uf)
+            getString(R.string.publicacao_local, address?.district, address?.city, address?.state)
     }
 
     // Retorna o endereço do CEP informado
-    private fun searchAddress(zipCode: String) {
+    private fun searchAddress(zipCode: String, savePost: Boolean = true) {
         binding.progressBar.visibility = View.VISIBLE
 
         formPostViewModel.getAddress(zipCode).observe(viewLifecycleOwner, { resource ->
             when (resource) {
                 is Resource.onSuccess -> {
-                    state = resource.data
-                    if (state?.localidade == null) {
-                        state = null
+                    address = resource.data
+                    if (address?.city == null) {
+                        address = null
                         binding.progressBar.visibility = View.GONE
                         showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
                     }else {
-                        validData()
+                        if(savePost) validData()
                     }
                     configAddress()
                 }
@@ -448,13 +444,13 @@ open class FormPostFragment : BaseFragment() {
     // correspondente ao CEP digitado
     private fun configAddress() {
         val addresStr = StringBuffer()
-        if (state != null) {
+        if (address != null) {
             addresStr
-                .append(state?.bairro)
+                .append(address?.district)
                 .append(", ")
-                .append(state?.localidade)
+                .append(address?.city)
                 .append(", ")
-                .append(state?.uf)
+                .append(address?.state)
             binding.textAddress.text = addresStr
         } else {
             binding.textAddress.text = ""
@@ -479,7 +475,7 @@ open class FormPostFragment : BaseFragment() {
                     if (description.isNotEmpty()) {
                         if (zipCode.isNotEmpty()) {
                             if(zipCode.length == 8){
-                                if (state != null) {
+                                if (address != null) {
                                     hideKeyboard()
 
                                     if (newPost) post = Post()
@@ -490,7 +486,7 @@ open class FormPostFragment : BaseFragment() {
                                     post.category = categorySelected
                                     post.description = description
                                     post.phone = user.phone
-                                    post.state = state
+                                    post.address = address
 
                                     if (newPost) { // Novo Anúncio
 

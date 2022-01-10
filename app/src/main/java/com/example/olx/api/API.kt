@@ -1,6 +1,6 @@
 package com.example.olx.api
 
-import com.example.olx.model.State
+import com.example.olx.model.Address
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -11,7 +11,7 @@ interface API {
     @GET("{zipCode}/json/")
     suspend fun getAddress(
         @Path("zipCode") zipCode: String
-    ): State
+    ): Address
 
     companion object {
         fun initRetrofit(): API {

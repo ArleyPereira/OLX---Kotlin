@@ -34,8 +34,8 @@ class PostAdapter(
             context.getString(R.string.valor_anuncio, GetMask.getValor(post.price))
         holder.textPublication.text = context.getString(
             R.string.place_of_publication,
-            post.state?.bairro,
-            if(post.state?.uf != null) post.state?.uf else "",
+            post.address?.district,
+            if(post.address?.state != null) post.address?.state else "",
             GetMask.getDate(post.registrationDate, GetMask.DIA_MES)
         )
 

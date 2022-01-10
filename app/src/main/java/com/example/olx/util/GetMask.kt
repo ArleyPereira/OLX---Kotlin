@@ -35,18 +35,18 @@ class GetMask {
 
             if (tipo == DIA_MES) {
                 mes = when (mes) {
-                    "01" -> "janeiro"
-                    "02" -> "fevereiro"
-                    "03" -> "março"
-                    "04" -> "abril"
-                    "05" -> "maio"
-                    "06" -> "junho"
-                    "07" -> "julho"
-                    "08" -> "agosto"
-                    "09" -> "setembro"
-                    "10" -> "outubro"
-                    "11" -> "novembro"
-                    "12" -> "novembro"
+                    "01" -> "de janeiro"
+                    "02" -> "de fevereiro"
+                    "03" -> "de março"
+                    "04" -> "de abril"
+                    "05" -> "de maio"
+                    "06" -> "de junho"
+                    "07" -> "de julho"
+                    "08" -> "de agosto"
+                    "09" -> "de setembro"
+                    "10" -> "de outubro"
+                    "11" -> "de novembro"
+                    "12" -> "de dezembro"
                     else -> ""
                 }
             }

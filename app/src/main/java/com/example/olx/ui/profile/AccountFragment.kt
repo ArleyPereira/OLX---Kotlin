@@ -10,7 +10,7 @@ import com.example.olx.R
 import com.example.olx.databinding.FragmentAccountBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
-import com.example.olx.ui.home.HomeFragmentDirections
+import com.example.olx.ui.post.PostsFragmentDirections
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -64,7 +64,7 @@ class AccountFragment : Fragment() {
             findNavController().navigate(destination)
         }else {
             findNavController().navigate(
-                HomeFragmentDirections.actionGlobalVisitorFragment().actionId
+                PostsFragmentDirections.actionGlobalVisitorFragment().actionId
             )
         }
     }
@@ -73,7 +73,7 @@ class AccountFragment : Fragment() {
     private fun getUserProfile() {
         if (FirebaseHelper.isAutenticated()) {
             FirebaseHelper.getDatabase()
-                .child("usuarios")
+                .child("users")
                 .child(FirebaseHelper.getIdUser())
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {

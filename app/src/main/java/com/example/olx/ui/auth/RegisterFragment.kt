@@ -108,10 +108,13 @@ class RegisterFragment : BaseFragment() {
     // Salva dados do usuário no Firebase
     private fun saveProfile(user: User) {
         val usuarioRef = FirebaseHelper.getDatabase()
-            .child("usuarios")
+            .child("users")
             .child(user.id)
         usuarioRef.setValue(user).addOnCompleteListener {
-            parentFragmentManager.setFragmentResult(REGISTER_SUCESS, bundleOf())
+            parentFragmentManager.setFragmentResult(
+                REGISTER_SUCESS,
+                bundleOf(Pair(REGISTER_SUCESS, true))
+            )
             findNavController().popBackStack()
         }
     }

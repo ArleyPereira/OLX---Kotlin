@@ -192,9 +192,9 @@ class DetailPostFragment : Fragment() {
             GetMask.getDate(post.registrationDate, GetMask.DIA_MES_HORA)
         )
         binding.textCagegory.text = post.category
-        binding.textCep.text = post.state?.cep
-        binding.textMunicipio.text = post.state?.localidade
-        binding.textBairro.text = post.state?.bairro
+        binding.textCep.text = post.address?.zipCode
+        binding.textMunicipio.text = post.address?.city
+        binding.textBairro.text = post.address?.district
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -32,7 +32,6 @@ class LoginFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         initToolbar(binding.toolbar)
 
         // Ouvinte Cliques dos componentes

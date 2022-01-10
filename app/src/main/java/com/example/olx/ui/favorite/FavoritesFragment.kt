@@ -7,11 +7,14 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
+import com.example.olx.databinding.CustomDialogDeleteBinding
 import com.example.olx.databinding.FragmentFavoritesBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Favorite
 import com.example.olx.model.Post
+import com.example.olx.util.showBottomSheetInfo
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -25,6 +28,8 @@ class FavoritesFragment : Fragment() {
     private val idsFavoritesList: MutableList<String> = mutableListOf()
     private val postList: MutableList<Post> = mutableListOf()
     private lateinit var postAdapter: PostAdapter
+
+    private lateinit var dialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +52,7 @@ class FavoritesFragment : Fragment() {
     // Configura os favoritos do firebase
     private fun getIdsFavorites() {
         FirebaseHelper.getDatabase()
-            .child("favoritos")
+            .child("favorites")
             .child(FirebaseHelper.getIdUser())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -68,7 +73,7 @@ class FavoritesFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    showBottomSheetInfo(R.string.error_generic)
                 }
             })
     }
@@ -76,17 +81,14 @@ class FavoritesFragment : Fragment() {
     // Recupera posts do firebase
     private fun getPosts() {
         postList.clear()
-        for (idAnuncio in idsFavoritesList) {
+        for (idPost in idsFavoritesList) {
             FirebaseHelper.getDatabase()
-                .child("anunciosPublicos")
-                .child(idAnuncio)
+                .child("publicPosts")
+                .child(idPost)
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val anuncio = snapshot.getValue(Post::class.java)
-
-                        if (anuncio != null) {
-                            postList.add(anuncio)
-                        }
+                        val post = snapshot.getValue(Post::class.java) as Post
+                        postList.add(post)
 
                         if (postList.size == idsFavoritesList.size) {
                             binding.textInfo.text = ""
@@ -96,7 +98,7 @@ class FavoritesFragment : Fragment() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+                        showBottomSheetInfo(R.string.error_generic)
                     }
                 })
         }
@@ -111,7 +113,7 @@ class FavoritesFragment : Fragment() {
 
         binding.recyclerFavorites.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
-                removePost(postList[position])
+                showDialogDelete(position)
             }
 
             override fun onSwipedRight(position: Int) {
@@ -119,16 +121,20 @@ class FavoritesFragment : Fragment() {
         })
     }
 
-    // Exibe dialog para confirmar deleção do post
-    private fun removePost(post: Post) {
-        val builder = AlertDialog.Builder(requireActivity())
-        builder.setTitle("Deseja remover este anúncio dos favoritos ?")
-        builder.setMessage("Aperte em sim para confirmar ou aperte em não para sair.")
-        builder.setNegativeButton("Não") { dialogInterface, _ ->
-            dialogInterface.dismiss()
-            postAdapter.notifyDataSetChanged()
-        }
-        builder.setPositiveButton("Sim") { dialogInterface, _ ->
+    // Exibe dialog para confirmar exclusão
+    private fun showDialogDelete(postion: Int) {
+        val dialogBinding: CustomDialogDeleteBinding = CustomDialogDeleteBinding
+            .inflate(LayoutInflater.from(context))
+
+        val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
+        builder.setView(dialogBinding.root)
+
+        val post = postList[postion]
+
+        dialogBinding.textTitle.text = "Remover favoritos"
+        dialogBinding.textMsg.text = "Tem certeza que quer remover este anúncio de sua lista de favoritos?"
+
+        dialogBinding.btnConfirm.setOnClickListener {
             idsFavoritesList.remove(post.id)
             postList.remove(post)
 
@@ -137,10 +143,16 @@ class FavoritesFragment : Fragment() {
             val favorito = Favorite(idsFavoritesList)
             favorito.salvar()
 
-            dialogInterface.dismiss()
+            dialog.dismiss()
+            postAdapter.notifyItemRemoved(postion)
+        }
+
+        dialogBinding.btnCancel.setOnClickListener {
+            dialog.dismiss()
             postAdapter.notifyDataSetChanged()
         }
-        val dialog = builder.create()
+
+        dialog = builder.create()
         dialog.show()
     }
 

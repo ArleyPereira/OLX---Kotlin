@@ -1,14 +1,22 @@
 package com.example.olx.ui.profile
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import androidx.fragment.app.activityViewModels
+import com.example.olx.R
+import com.example.olx.api.Resource
 import com.example.olx.databinding.FragmentFormAddressBinding
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.model.State
+import com.example.olx.model.Address
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
+import com.example.olx.util.showBottomSheetInfo
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,11 +24,12 @@ import com.google.firebase.database.ValueEventListener
 
 class FormAddressFragment : BaseFragment() {
 
+    private val addressViewModel: AddressViewModel by activityViewModels()
+
     private var _binding: FragmentFormAddressBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var state: State
-    private var newAddress: Boolean = true
+    private var address: Address? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,97 +41,134 @@ class FormAddressFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         initToolbar(binding.toolbar)
 
-        initClicks()
+        initListeners()
 
         getAddress()
     }
 
-    // Ouvinte Cliques dos componentes
-    private fun initClicks() {
-        binding.btnSalvar.setOnClickListener { validData() }
+    // Ouvinte de evento dos componentes
+    private fun initListeners() {
+        binding.btnSave.setOnClickListener { validData() }
+
+        binding.editZipCode.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val zipCode = v.text.toString()
+                    .replace("_", "")
+                    .replace("-", "")
+
+                if (zipCode.length == 8) {
+                    hideKeyboard()
+                    searchAddress(zipCode)
+                    true
+                } else {
+                    showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
+                    false
+                }
+            } else false
+        }
     }
 
     // Recupera endereço do firebase
     private fun getAddress() {
         FirebaseHelper.getDatabase()
-            .child("enderecos")
+            .child("address")
             .child(FirebaseHelper.getIdUser())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        state = snapshot.getValue(State::class.java) as State
-                        configData()
-                        newAddress = false
+                        address = snapshot.getValue(Address::class.java) as Address
+                        searchAddress(address!!.zipCode)
                     } else {
                         binding.progressBar.visibility = View.GONE
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    showBottomSheetInfo(R.string.error_generic)
                 }
             })
     }
 
+    // Retorna o endereço do CEP informado
+    private fun searchAddress(zipCode: String) {
+        binding.progressBar.visibility = View.VISIBLE
+
+        addressViewModel.getAddress(zipCode).observe(viewLifecycleOwner, { resource ->
+            when (resource) {
+                is Resource.onSuccess -> {
+                    address = resource.data
+                    if (address?.city == null) {
+                        address = null
+                        binding.progressBar.visibility = View.GONE
+                        showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                    }
+                    configAddress()
+                }
+                is Resource.onFailure -> {
+                    binding.progressBar.visibility = View.GONE
+                    showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                }
+            }
+        })
+    }
+
     // Exibe as informações do post nos componentes
-    private fun configData() {
-        binding.editCep.setText(state.cep)
-        binding.editEstado.setText(state.uf)
-        binding.editCidade.setText(state.localidade)
-        binding.editBairro.setText(state.bairro)
+    private fun configAddress() {
+        binding.editState.setText(address?.state)
+        binding.editCity.setText(address?.city)
+        binding.editDistrict.setText(address?.district)
 
         binding.progressBar.visibility = View.GONE
     }
 
     // Valida se as informacoes foram preenchidas
     private fun validData() {
-        val cep = binding.editCep.text.toString().trim()
-        val uf = binding.editEstado.text.toString().trim()
-        val cidade = binding.editCidade.text.toString().trim()
-        val bairro = binding.editBairro.text.toString().trim()
+        val zipCode = binding.editZipCode.text.toString().trim()
+        val state = binding.editState.text.toString().trim()
+        val cicy = binding.editCity.text.toString().trim()
+        val district = binding.editDistrict.text.toString().trim()
 
-        if (cep.isNotEmpty()) {
-            if (uf.isNotEmpty()) {
-                if (cidade.isNotEmpty()) {
-                    if (bairro.isNotEmpty()) {
+        if (zipCode.isNotEmpty()) {
+            if(zipCode.length < 8){
+                if (state.isNotEmpty()) {
+                    if (cicy.isNotEmpty()) {
+                        if (district.isNotEmpty()) {
 
-                        hideKeyboard()
+                            hideKeyboard()
 
-                        binding.progressBar.visibility = View.VISIBLE
+                            binding.progressBar.visibility = View.VISIBLE
 
-                        if (newAddress) state = State(
-                            cep = cep,
-                            uf = uf,
-                            localidade = cidade,
-                            bairro = bairro
-                        )
-                        //address.salvar(FirebaseHelper.getIdUser())
+                            address = Address(
+                                zipCode = zipCode,
+                                state = state,
+                                city = cicy,
+                                district = district
+                            )
+                            address?.save()
 
-                        Snackbar.make(
-                            binding.btnSalvar,
-                            "Endereço salvo com sucesso.",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                            Snackbar.make(
+                                binding.btnSave,
+                                "Endereço salvo com sucesso.",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
 
-                        binding.progressBar.visibility = View.GONE
+                            binding.progressBar.visibility = View.GONE
+                        } else {
+                            showBottomSheetInfo(R.string.district_empty_form_address_fragment)
+                        }
                     } else {
-                        binding.editBairro.requestFocus()
-                        binding.editBairro.error = "Informe o bairro."
+                        showBottomSheetInfo(R.string.city_empty_form_address_fragment)
                     }
                 } else {
-                    binding.editCidade.requestFocus()
-                    binding.editCidade.error = "Informe a cidade."
+                    showBottomSheetInfo(R.string.state_empty_form_address_fragment)
                 }
-            } else {
-                binding.editEstado.requestFocus()
-                binding.editEstado.error = "Informe o Estado."
+            }else {
+                showBottomSheetInfo(R.string.zip_code_invalid_form_address_fragment)
             }
         } else {
-            binding.editCep.requestFocus()
-            binding.editCep.error = "Informe o CEP."
+            showBottomSheetInfo(R.string.zip_code_empty_form_address_fragment)
         }
     }
 

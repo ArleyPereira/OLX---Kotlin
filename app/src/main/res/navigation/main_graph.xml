@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/menu_home"
-        android:name="com.example.olx.ui.home.HomeFragment"
+        android:name="com.example.olx.ui.post.PostsFragment"
         android:label="@string/menu_inicio"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_posts" >
         <action
             android:id="@+id/action_menu_home_to_categoriesFragment"
             app:destination="@id/categoriesFragment" />
@@ -19,6 +19,12 @@
         <action
             android:id="@+id/action_menu_home_to_formPostFragment"
             app:destination="@id/formPostFragment" />
+        <action
+            android:id="@+id/action_menu_home_to_filtersFragment"
+            app:destination="@id/filtersFragment" />
+        <action
+            android:id="@+id/action_menu_home_to_regionsFragment"
+            app:destination="@id/regionsFragment" />
     </fragment>
 
     <fragment
@@ -129,5 +135,15 @@
     <action
         android:id="@+id/action_global_visitorFragment"
         app:destination="@id/visitorFragment"/>
+    <fragment
+        android:id="@+id/filtersFragment"
+        android:name="com.example.olx.ui.filters.FiltersFragment"
+        android:label="fragment_filters"
+        tools:layout="@layout/fragment_filters" />
+    <fragment
+        android:id="@+id/regionsFragment"
+        android:name="com.example.olx.ui.filters.RegionsFragment"
+        android:label="fragment_regions"
+        tools:layout="@layout/fragment_regions" />
 
 </navigation>

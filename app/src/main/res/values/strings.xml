@@ -16,9 +16,16 @@
     <string name="text_send">Enviar</string>
     <string name="text_email">E-mail</string>
     <string name="text_hint_email">Email</string>
+    <string name="text_save">Salvar</string>
     <string name="permission_denied">Permissão negada.</string>
     <string name="gallery_permission_denied">Se você não aceitar a permissão não poderá acessar a Galeria do dispositivo, deseja ativar a permissão agora ?</string>
     <string name="camera_permission_denied">Se você não aceitar a permissão não poderá acessar a Câmera do dispositivo, deseja ativar a permissão agora ?</string>
+
+    <!--    Posts Fragment-->
+    <string name="title_regions">Região</string>
+    <string name="title_categories">Categoria</string>
+    <string name="title_filters">Filtros</string>
+    <string name="post_not_exists">Nenhum anúncio\n encontrado para "%1$s"</string>
 
     <!--    Register Fragment-->
     <string name="account_not_registered_register_fragment">Nenhuma conta encontrada com este e-mail.</string>
@@ -52,7 +59,14 @@
     <string name="zip_code_empty_save_post_form_post_fragment">Informe o CEP para o anúncio.</string>
     <string name="zip_code_invalid_save_post_form_post_fragment">Informe um CEP válido para o anúncio.</string>
     <string name="image_empty_post_form_post_fragment">Escolha pelo menos 3 imagens para seu anúncio.</string>
-    <string name="address_invalid_form_post_fragment">Não foi possível encontrar o endereço do CEP informado.</string>
+    <string name="address_invalid_form_post_fragment">Não foi possível encontrar o endereço do CEP informado. Verifique o CEP digitado ou tente novamente mais tarde.</string>
     <string name="save_form_post_fragment">Aúncio salvo com sucesso.</string>
+
+    <!--    Form Address Fragment-->
+    <string name="zip_code_empty_form_address_fragment">Informe o CEP do endereço.</string>
+    <string name="zip_code_invalid_form_address_fragment">Informe um CEP válido para o endereço.</string>
+    <string name="state_empty_form_address_fragment">Informe o estado do endereço.</string>
+    <string name="city_empty_form_address_fragment">Informe o município do endereço.</string>
+    <string name="district_empty_form_address_fragment">Informe o bairro do endereço.</string>
 
 </resources>

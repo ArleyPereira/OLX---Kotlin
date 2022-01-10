@@ -9,7 +9,7 @@ class User(
     var id: String = "",
     var name: String = "",
     var email: String = "",
-    var state: State? = null,
+    var address: Address? = null,
     @get:Exclude
     var password: String = "",
     var phone: String = ""

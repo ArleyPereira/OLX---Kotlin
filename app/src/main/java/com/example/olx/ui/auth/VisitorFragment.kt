@@ -49,7 +49,7 @@ class VisitorFragment : Fragment() {
     private fun listenerAuthenticatedApp() {
         parentFragmentManager.setFragmentResultListener(LoginFragment.LOGIN_SUCESS,
             this,
-            { key, bundle ->
+            { _, _ ->
                 findNavController().popBackStack()
             })
     }

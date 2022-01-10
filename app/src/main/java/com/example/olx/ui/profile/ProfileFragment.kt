@@ -45,7 +45,7 @@ class ProfileFragment : BaseFragment() {
     // Recupera dados do Perfil
     private fun getProfile() {
         FirebaseHelper.getDatabase()
-            .child("usuarios")
+            .child("users")
             .child(FirebaseHelper.getIdUser())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -109,7 +109,7 @@ class ProfileFragment : BaseFragment() {
     // Salva os dados do Usuário no Firebase Data Base
     private fun saveProfile() {
         val usuarioRef = FirebaseHelper.getDatabase()
-            .child("usuarios")
+            .child("users")
             .child(user.id)
         usuarioRef.setValue(user).addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {

@@ -4,69 +4,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white"
-    tools:context=".ui.profile.FormAddressFragment">
+    tools:context=".ui.filters.FiltersFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorRoxoOlx"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_back_purple"/>
+        app:navigationIcon="@drawable/ic_back">
+
+        <TextView
+            android:id="@+id/titleToolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:text="Filtros" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:scrollbarThumbVertical="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="32dp"
-            android:paddingBottom="32dp">
+            android:padding="24dp">
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/textView7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Bairro"
+                android:text="Selecione uma categoria"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editCity" />
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/editDistrict"
+            <TextView
+                android:id="@+id/btnCategory"
+                style="@style/AppTheme.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                style="@style/AppTheme.EditText"
-                android:hint="Centro"
-                android:imeOptions="actionNext"
-                android:inputType="text|textCapWords"
-                android:maxLines="1"
+                android:background="@drawable/bg_edit_mod_2"
+                android:drawableEnd="@drawable/ic_seta_direita"
+                android:text="Todas as categorias"
+                app:backgroundTint="@color/colorRoxoOlx"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
             <LinearLayout
-                android:id="@+id/linearLayout3"
+                android:id="@+id/linearLayout5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/btnCategory">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -78,25 +85,22 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CEP"
+                        android:text="Valor mínimo"
                         android:textColor="@color/colorRoxoOlx" />
 
-                    <com.santalu.maskara.widget.MaskEditText
-                        android:id="@+id/editZipCode"
+                    <com.blackcat.currencyedittext.CurrencyEditText
+                        android:id="@+id/editMinValue"
+                        style="@style/AppTheme.EditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        style="@style/AppTheme.EditText"
                         android:layout_marginTop="8dp"
-                        android:hint="00000-000"
-                        android:inputType="number"
-                        android:imeOptions="actionSearch"
-                        android:textColor="@android:color/black"
-                        app:mask="_____-___"
-                        app:maskCharacter="_"
-                        app:maskStyle="completable" />
+                        android:background="@drawable/bg_edit_mod_2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
                 </LinearLayout>
-
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -108,82 +112,79 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="UF"
+                        android:text="Valor máximo"
                         android:textColor="@color/colorRoxoOlx" />
 
-                    <EditText
-                        android:id="@+id/editState"
+                    <com.blackcat.currencyedittext.CurrencyEditText
+                        android:id="@+id/editMaxValue"
+                        style="@style/AppTheme.EditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        style="@style/AppTheme.EditText"
-                        android:hint="SP"
-                        android:imeOptions="actionNext"
-                        android:inputType="text"
-                        android:maxLength="2"
-                        android:maxLines="1"
+                        android:background="@drawable/bg_edit_mod_2"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        tools:layout_editor_absoluteY="320dp" />
+                        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Município"
+                android:text="Localização"
                 android:textColor="@color/colorRoxoOlx"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
 
-            <EditText
-                android:id="@+id/editCity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <TextView
+                android:id="@+id/btnStates"
                 style="@style/AppTheme.EditText"
-                android:layout_marginTop="8dp"
-                android:hint="São Paulo"
-                android:imeOptions="actionNext"
-                android:inputType="text|textCapWords"
-                android:maxLines="1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-            <Button
-                android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_btn"
-                android:backgroundTint="@color/colorRoxoOlx"
-                android:text="@string/text_save"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_edit_mod_2"
+                android:text="Todos os estados"
+                app:drawableEndCompat="@drawable/ic_seta_direita"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editDistrict" />
+                app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/btn_regioes"
+                style="@style/AppTheme.EditText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:indeterminateTint="@color/colorRoxoOlx"
+                android:background="@drawable/bg_edit_mod_2"
+                android:text="Todas as regiões"
+                android:visibility="gone"
+                app:drawableEndCompat="@drawable/ic_seta_direita"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+                app:layout_constraintTop_toBottomOf="@+id/btnStates"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_btn"
+        android:backgroundTint="@color/colorLaranjaOlx"
+        android:text="Filtrar"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

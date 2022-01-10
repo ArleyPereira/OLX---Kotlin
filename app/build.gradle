@@ -61,6 +61,9 @@ dependencies {
     // Picasso -> https://github.com/square/picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
 
+    // https://github.com/Ferfalk/SimpleSearchView
+    implementation 'com.github.Ferfalk:SimpleSearchView:0.2.0'
+
     // Mascara valores -> https://github.com/BlacKCaT27/CurrencyEditText
     implementation 'com.github.BlacKCaT27:CurrencyEditText:2.0.2'
 
