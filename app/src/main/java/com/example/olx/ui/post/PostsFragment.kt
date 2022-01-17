@@ -35,6 +35,10 @@ class PostsFragment : BaseFragment() {
 
     private var clearSearch: Boolean = true
 
+    companion object {
+        val LISTENER_FILTERS = "LISTENER_FILTERS"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -52,12 +56,11 @@ class PostsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         initToolbar(binding.toolbar, false)
 
-        // Recupera anúncios do Firebase
         getPosts()
 
         initListeners()
 
-        showFilters()
+        listenerFilters()
     }
 
     private fun initListeners() {
@@ -85,7 +88,7 @@ class PostsFragment : BaseFragment() {
         }
 
         binding.btnRegions.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_home_to_regionsFragment)
+            findNavController().navigate(R.id.action_menu_home_to_statesFragment)
         }
 
         binding.btnFilters.setOnClickListener {
@@ -155,27 +158,24 @@ class PostsFragment : BaseFragment() {
                 binding.btnCategory.text = filters.category
             }
 
+            if (filters.state.region.isNotEmpty()) {
+                binding.btnRegions.text = filters.state.region
+            }
         }
+    }
+
+    private fun listenerFilters() {
+        parentFragmentManager.setFragmentResultListener(
+            LISTENER_FILTERS, this,
+            { _, _ ->
+                checkFilterPoster()
+            })
     }
 
     override fun onPause() {
         super.onPause()
         clearSearch = false
         binding.searchView.closeSearch()
-    }
-
-    // Recupera a categoria selecionada para o post
-    private fun listenerSelectcCategory() {
-        parentFragmentManager.setFragmentResultListener(
-            CategoriesFragment.SELECT_CATEGORY,
-            this,
-            { _, bundle ->
-                val category =
-                    bundle.getParcelable<Category>(CategoriesFragment.SELECT_CATEGORY)
-
-                categorySelected = category?.name.toString()
-                binding.btnCategory.text = categorySelected
-            })
     }
 
     private fun initRecyclerView(postList: List<Post>) {
@@ -223,6 +223,9 @@ class PostsFragment : BaseFragment() {
 
     private fun checkFilterPoster() {
         if (SPFilters.isFilter(requireActivity())) {
+
+            showFilters()
+
             val filterPosts = mutableListOf<Post>()
             filterPosts.addAll(postList)
 
@@ -244,6 +247,19 @@ class PostsFragment : BaseFragment() {
                 for (post in ArrayList(filterPosts)) {
                     if (!post.category.contains(
                             SPFilters.getFilters(requireActivity()).category,
+                            true
+                        )
+                    ) {
+                        filterPosts.remove(post)
+                    }
+                }
+            }
+
+            // Filtra pelo ddd
+            if (SPFilters.getFilters(requireActivity()).state.ddd.isNotEmpty()) {
+                for (post in ArrayList(filterPosts)) {
+                    if (!post.address?.ddd.equals(
+                            SPFilters.getFilters(requireActivity()).state.ddd,
                             true
                         )
                     ) {

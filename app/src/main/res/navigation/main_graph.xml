@@ -23,8 +23,8 @@
             android:id="@+id/action_menu_home_to_filtersFragment"
             app:destination="@id/filtersFragment" />
         <action
-            android:id="@+id/action_menu_home_to_regionsFragment"
-            app:destination="@id/regionsFragment" />
+            android:id="@+id/action_menu_home_to_statesFragment"
+            app:destination="@id/statesFragment" />
     </fragment>
 
     <fragment
@@ -144,5 +144,14 @@
         android:name="com.example.olx.ui.filters.RegionsFragment"
         android:label="fragment_regions"
         tools:layout="@layout/fragment_regions" />
+    <fragment
+        android:id="@+id/statesFragment"
+        android:name="com.example.olx.ui.filters.StatesFragment"
+        android:label="fragment_states"
+        tools:layout="@layout/fragment_states" >
+        <action
+            android:id="@+id/action_statesFragment_to_regionsFragment"
+            app:destination="@id/regionsFragment" />
+    </fragment>
 
 </navigation>

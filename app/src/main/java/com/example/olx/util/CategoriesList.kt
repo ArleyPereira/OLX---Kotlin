@@ -3,7 +3,7 @@ package com.example.olx.util
 import com.example.olx.R
 import com.example.olx.model.Category
 
-class CategoriaList {
+class CategoriesList {
 
     companion object {
 

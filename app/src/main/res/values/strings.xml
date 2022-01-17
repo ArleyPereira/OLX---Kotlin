@@ -68,5 +68,7 @@
     <string name="state_empty_form_address_fragment">Informe o estado do endereço.</string>
     <string name="city_empty_form_address_fragment">Informe o município do endereço.</string>
     <string name="district_empty_form_address_fragment">Informe o bairro do endereço.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

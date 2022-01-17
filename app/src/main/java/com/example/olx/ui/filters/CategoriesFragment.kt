@@ -12,7 +12,7 @@ import com.example.olx.adapter.CategoriesAdapter
 import com.example.olx.databinding.FragmentCategoriesBinding
 import com.example.olx.helper.SPFilters
 import com.example.olx.model.Category
-import com.example.olx.util.CategoriaList
+import com.example.olx.util.CategoriesList
 import com.example.olx.util.initToolbar
 
 class CategoriesFragment : Fragment() {
@@ -53,7 +53,7 @@ class CategoriesFragment : Fragment() {
     private fun initRecyclerView(allCategories: Boolean) {
         binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCategorias.adapter =
-            CategoriesAdapter(CategoriaList.getList(allCategories)) { category ->
+            CategoriesAdapter(CategoriesList.getList(allCategories)) { category ->
                 setResultCategory(category, allCategories)
             }
     }

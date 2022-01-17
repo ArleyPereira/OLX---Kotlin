@@ -16,7 +16,10 @@ data class Address(
     var city: String = "",
 
     @SerializedName("bairro")
-    var district: String = ""
+    var district: String = "",
+
+    @SerializedName("ddd")
+    var ddd: String = ""
 ) : Parcelable {
     fun save() {
 
