@@ -2,29 +2,38 @@ package com.example.olx.ui.post
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
 import com.example.olx.databinding.FragmentPostsBinding
 import com.example.olx.helper.FirebaseHelper
+import com.example.olx.helper.SPFilters
+import com.example.olx.model.Category
 import com.example.olx.model.Post
+import com.example.olx.ui.filters.CategoriesFragment
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
+import com.example.olx.util.showBottomSheetInfo
 import com.ferfalk.simplesearchview.SimpleSearchView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import java.util.ArrayList
 
 class PostsFragment : BaseFragment() {
+
+    private val TAG = "INFOTESTE"
 
     private var _binding: FragmentPostsBinding? = null
     private val binding get() = _binding!!
 
-    private var postList = mutableListOf<Post>()
+    private val postList = mutableListOf<Post>()
+    private var categorySelected: String = ""
+
     private lateinit var postAdapter: PostAdapter
+
+    private var clearSearch: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +55,14 @@ class PostsFragment : BaseFragment() {
         // Recupera anúncios do Firebase
         getPosts()
 
-        // Ouvinte Cliques dos componentes
-        initClicks()
+        initListeners()
+
+        showFilters()
     }
 
-    // Ouvinte Cliques dos componentes
-    private fun initClicks() {
+    private fun initListeners() {
+        clearSearch = true
+
         binding.btnNewPost.setOnClickListener {
             if (FirebaseHelper.isAutenticated()) {
                 val action =
@@ -66,8 +77,11 @@ class PostsFragment : BaseFragment() {
             }
         }
 
-        binding.btnCategories.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_home_to_categoriesFragment)
+        binding.btnCategory.setOnClickListener {
+            val action = PostsFragmentDirections
+                .actionMenuHomeToCategoriesFragment(true)
+
+            findNavController().navigate(action)
         }
 
         binding.btnRegions.setOnClickListener {
@@ -84,9 +98,10 @@ class PostsFragment : BaseFragment() {
 
         binding.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                hideKeyboard()
                 if (query.isNotEmpty()) {
-                    searchPosts(query)
+                    hideKeyboard()
+                    SPFilters.setFilters(requireActivity(), "search", query)
+                    checkFilterPoster()
                 }
                 return true
             }
@@ -102,13 +117,29 @@ class PostsFragment : BaseFragment() {
 
         binding.searchView.setOnSearchViewListener(object : SimpleSearchView.SearchViewListener {
             override fun onSearchViewClosed() {
-                initRecyclerView(postList)
+                if (clearSearch) {
+                    SPFilters.setFilters(requireActivity(), "search", "")
+                    checkFilterPoster()
+                } else {
+                    SPFilters.setFilters(
+                        requireActivity(),
+                        "search",
+                        SPFilters.getFilters(requireActivity()).search
+                    )
+                }
             }
 
             override fun onSearchViewClosedAnimation() {
             }
 
             override fun onSearchViewShown() {
+                if (clearSearch) {
+                    binding.searchView.showSearch()
+                    binding.searchView.setQuery(
+                        SPFilters.getFilters(requireActivity()).search,
+                        false
+                    )
+                }
             }
 
             override fun onSearchViewShownAnimation() {
@@ -116,7 +147,37 @@ class PostsFragment : BaseFragment() {
         })
     }
 
-    // Configurações iniciais do RecyclerView
+    private fun showFilters() {
+        if (SPFilters.isFilter(requireActivity())) {
+            val filters = SPFilters.getFilters(requireActivity())
+
+            if (filters.category.isNotEmpty()) {
+                binding.btnCategory.text = filters.category
+            }
+
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        clearSearch = false
+        binding.searchView.closeSearch()
+    }
+
+    // Recupera a categoria selecionada para o post
+    private fun listenerSelectcCategory() {
+        parentFragmentManager.setFragmentResultListener(
+            CategoriesFragment.SELECT_CATEGORY,
+            this,
+            { _, bundle ->
+                val category =
+                    bundle.getParcelable<Category>(CategoriesFragment.SELECT_CATEGORY)
+
+                categorySelected = category?.name.toString()
+                binding.btnCategory.text = categorySelected
+            })
+    }
+
     private fun initRecyclerView(postList: List<Post>) {
         postListEmpty(postList)
 
@@ -143,42 +204,67 @@ class PostsFragment : BaseFragment() {
                     if (snapshot.exists()) {
                         for (ds in snapshot.children) {
                             val post = ds.getValue(Post::class.java) as Post
-                            post.let {
-                                postList.add(it)
-                            }
+                            postList.add(post)
                         }
+                    }
 
-                        // Configurações iniciais do RecyclerView
-                        initRecyclerView(postList)
-
-                        binding.textInfo.text = ""
-                    } else binding.textInfo.text = "Nenhum anúncio cadastrado."
+                    checkFilterPoster()
 
                     if (binding.swipeRefreshLayout.isRefreshing) {
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
-                    binding.progressBar.visibility = View.GONE
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    showBottomSheetInfo(R.string.error_generic)
                 }
             })
     }
 
-    private fun searchPosts(query: String) {
-        val postList = postList.filter { it.title.contains(query, ignoreCase = true) }
-        initRecyclerView(postList)
+    private fun checkFilterPoster() {
+        if (SPFilters.isFilter(requireActivity())) {
+            val filterPosts = mutableListOf<Post>()
+            filterPosts.addAll(postList)
 
-        postListEmpty(postList, query)
+            // Filtra pelo nome
+            if (SPFilters.getFilters(requireActivity()).search.isNotEmpty()) {
+                for (post in ArrayList(filterPosts)) {
+                    if (!post.title.contains(
+                            SPFilters.getFilters(requireActivity()).search,
+                            true
+                        )
+                    ) {
+                        filterPosts.remove(post)
+                    }
+                }
+            }
+
+            // Filtra pela categoria
+            if (SPFilters.getFilters(requireActivity()).category.isNotEmpty()) {
+                for (post in ArrayList(filterPosts)) {
+                    if (!post.category.contains(
+                            SPFilters.getFilters(requireActivity()).category,
+                            true
+                        )
+                    ) {
+                        filterPosts.remove(post)
+                    }
+                }
+            }
+
+            initRecyclerView(filterPosts)
+        } else {
+            initRecyclerView(postList)
+        }
     }
 
-    private fun postListEmpty(postList: List<Post>, query: String? = "") {
+    private fun postListEmpty(postList: List<Post>) {
         binding.textInfo.text = if (postList.isEmpty()) {
-            getString(R.string.post_not_exists, query)
+            getString(R.string.post_not_exists)
         } else {
             ""
         }
+        binding.progressBar.visibility = View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

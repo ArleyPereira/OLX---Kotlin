@@ -108,7 +108,9 @@ open class FormPostFragment : BaseFragment() {
 
         binding.btnSave.setOnClickListener { validData() }
         binding.btnCategory.setOnClickListener {
-            findNavController().navigate(R.id.action_formPostFragment_to_categoriesFragment)
+            val action = FormPostFragmentDirections
+                .actionFormPostFragmentToCategoriesFragment(false)
+            findNavController().navigate(action)
         }
 
         binding.editZipCode.setOnEditorActionListener { v, actionId, event ->

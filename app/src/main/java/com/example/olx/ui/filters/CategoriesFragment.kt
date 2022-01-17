@@ -10,6 +10,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.adapter.CategoriesAdapter
 import com.example.olx.databinding.FragmentCategoriesBinding
+import com.example.olx.helper.SPFilters
 import com.example.olx.model.Category
 import com.example.olx.util.CategoriaList
 import com.example.olx.util.initToolbar
@@ -23,6 +24,7 @@ class CategoriesFragment : Fragment() {
 
     companion object {
         val SELECT_CATEGORY = "SELECT_CATEGORY"
+        val CATEGORIES_ALL = "Todas as Categorias"
     }
 
     override fun onCreateView(
@@ -52,15 +54,22 @@ class CategoriesFragment : Fragment() {
         binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCategorias.adapter =
             CategoriesAdapter(CategoriaList.getList(allCategories)) { category ->
-                setResultCategory(category)
+                setResultCategory(category, allCategories)
             }
     }
 
     // Retorna para tela anterior com a categoria selecionada
-    private fun setResultCategory(category: Category) {
+    private fun setResultCategory(category: Category, allCategories: Boolean) {
         val bundle = Bundle()
         bundle.putParcelable(SELECT_CATEGORY, category)
         parentFragmentManager.setFragmentResult(SELECT_CATEGORY, bundle)
+
+        if (category.name != CATEGORIES_ALL && allCategories) {
+            SPFilters.setFilters(requireActivity(), "category", category.name)
+        } else {
+            SPFilters.setFilters(requireActivity(), "category", "")
+        }
+
         findNavController().popBackStack()
     }
 

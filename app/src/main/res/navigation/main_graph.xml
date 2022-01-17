@@ -87,8 +87,7 @@
         tools:layout="@layout/fragment_categories" >
         <argument
             android:name="allCategorys"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/detailPostFragment"

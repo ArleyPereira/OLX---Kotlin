@@ -4,10 +4,10 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class Filter(
-    var province: Province,
-    var category: String = "",
-    var search: String = "",
-    var valueMin: Int = 0,
-    var valueMax: Int = 0
+data class Filter(
+    val state: State,
+    val category: String = "",
+    val search: String = "",
+    val valueMin: Float = 0f,
+    val valueMax: Float = 0f
 ): Parcelable
