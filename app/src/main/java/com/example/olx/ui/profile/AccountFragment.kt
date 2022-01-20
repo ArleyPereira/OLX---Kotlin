@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.databinding.FragmentAccountBinding
 import com.example.olx.helper.FirebaseHelper
@@ -64,7 +65,8 @@ class AccountFragment : Fragment() {
             findNavController().navigate(destination)
         }else {
             findNavController().navigate(
-                PostsFragmentDirections.actionGlobalVisitorFragment().actionId
+                MainGraphDirections
+                    .actionGlobalNavLogin().actionId
             )
         }
     }

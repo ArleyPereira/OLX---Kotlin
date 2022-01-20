@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.olx.MainGraphDirections
 import com.example.olx.R
 import com.example.olx.databinding.FragmentVisitorBinding
 import com.example.olx.util.initToolbar
@@ -41,7 +42,10 @@ class VisitorFragment : Fragment() {
     // Ouvinte Cliques dos componentes
     private fun initClicks() {
         binding.btnLogin.setOnClickListener {
-            findNavController().navigate(R.id.action_visitorFragment_to_navLogin)
+            findNavController().navigate(
+                MainGraphDirections
+                    .actionGlobalNavLogin().actionId
+            )
         }
     }
 

@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,15 +24,18 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.BuildConfig
 import com.example.olx.R
+import com.example.olx.adapter.CategoriesAdapter
 import com.example.olx.api.Resource
 import com.example.olx.databinding.BottomSheetSelectImageBinding
 import com.example.olx.databinding.FragmentFormPostBinding
+import com.example.olx.databinding.LayoutSelectCategoryBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
-import com.example.olx.ui.filters.CategoriesFragment
 import com.example.olx.util.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -100,18 +104,10 @@ open class FormPostFragment : BaseFragment() {
 
     // Ouvinte de evento dos componentes
     private fun initListeners() {
-        // Recupera a categoria selecionada para o post
-        listenerSelectcCategory()
-
-        // Seta locale para configuração da mascara de valor
         binding.editPrice.locale = Locale("PT", "br")
 
         binding.btnSave.setOnClickListener { validData() }
-        binding.btnCategory.setOnClickListener {
-            val action = FormPostFragmentDirections
-                .actionFormPostFragmentToCategoriesFragment(false)
-            findNavController().navigate(action)
-        }
+        binding.btnCategory.setOnClickListener { bottomSheetSelectCategory() }
 
         binding.editZipCode.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -134,6 +130,7 @@ open class FormPostFragment : BaseFragment() {
         binding.editZipCode.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
+
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 val cep = p0.toString()
                     .replace("-", "")
@@ -144,6 +141,7 @@ open class FormPostFragment : BaseFragment() {
                     configAddress()
                 }
             }
+
             override fun afterTextChanged(p0: Editable?) {
             }
         })
@@ -163,20 +161,6 @@ open class FormPostFragment : BaseFragment() {
                 configData()
             }
         }
-    }
-
-    // Recupera a categoria selecionada para o post
-    private fun listenerSelectcCategory() {
-        parentFragmentManager.setFragmentResultListener(
-            CategoriesFragment.SELECT_CATEGORY,
-            this,
-            { key, bundle ->
-                val category =
-                    bundle.getParcelable<Category>(CategoriesFragment.SELECT_CATEGORY)
-
-                categorySelected = category?.name.toString()
-                binding.btnCategory.text = categorySelected
-            })
     }
 
     // Recupera o endereço do usuário que está cadastrando o post
@@ -207,7 +191,7 @@ open class FormPostFragment : BaseFragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     user = snapshot.getValue(User::class.java) as User
-                    binding.editPhone.setText(MaskText.mask("(##) #####-####", user.phone))
+                    configDataUser()
                 }
             }
 
@@ -215,6 +199,10 @@ open class FormPostFragment : BaseFragment() {
                 showBottomSheetInfo(R.string.error_generic)
             }
         })
+    }
+
+    private fun configDataUser() {
+        binding.editPhone.setText(MaskText.mask("(##) #####-####", user.phone))
     }
 
     // Abre bottom sheet para seleção das imagens do post ( câmera e galeria )
@@ -241,6 +229,29 @@ open class FormPostFragment : BaseFragment() {
 
         dialog.setContentView(sheetBinding.root)
         dialog.show()
+    }
+
+    private fun bottomSheetSelectCategory() {
+        val dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialog)
+        //dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        val sheetBinding: LayoutSelectCategoryBinding =
+            LayoutSelectCategoryBinding.inflate(layoutInflater, null, false)
+
+        sheetBinding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
+        sheetBinding.rvCategorias.adapter =
+            CategoriesAdapter(CategoriesList.getList()) { category ->
+                dialog.dismiss()
+                setCategorySelected(category)
+            }
+
+        dialog.setContentView(sheetBinding.root)
+        dialog.show()
+    }
+
+    private fun setCategorySelected(category: Category) {
+        categorySelected = category.name
+        binding.btnCategory.text = categorySelected
     }
 
     // Solicita permissções de acesso a galeria
@@ -429,8 +440,8 @@ open class FormPostFragment : BaseFragment() {
                         address = null
                         binding.progressBar.visibility = View.GONE
                         showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
-                    }else {
-                        if(savePost) validData()
+                    } else {
+                        if (savePost) validData()
                     }
                     configAddress()
                 }
@@ -476,7 +487,7 @@ open class FormPostFragment : BaseFragment() {
                 if (categorySelected.isNotBlank()) {
                     if (description.isNotEmpty()) {
                         if (zipCode.isNotEmpty()) {
-                            if(zipCode.length == 8){
+                            if (zipCode.length == 8) {
                                 if (address != null) {
                                     hideKeyboard()
 
@@ -519,7 +530,7 @@ open class FormPostFragment : BaseFragment() {
                                     hideKeyboard()
                                     searchAddress(zipCode)
                                 }
-                            }else {
+                            } else {
                                 showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
                             }
                         } else {

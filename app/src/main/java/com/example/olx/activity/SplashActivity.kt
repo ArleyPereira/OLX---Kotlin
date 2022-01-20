@@ -9,7 +9,6 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.example.olx.databinding.ActivitySplashBinding
-import com.example.olx.helper.SPFilters
 
 class SplashActivity : AppCompatActivity() {
 
@@ -25,9 +24,6 @@ class SplashActivity : AppCompatActivity() {
 
         // Leva o Usuário para tela principal
         Handler(Looper.getMainLooper()).postDelayed({ run { homeApp() } }, 1000)
-
-        // Limpa todos os filtros
-        SPFilters.clearFilters(this)
     }
 
     // Leva o Usuário para tela principal

@@ -32,10 +32,6 @@ class CategoriesAdapter(
 
     override fun getItemCount() = categoryList.size
 
-    interface OnClickListener {
-        fun onItemClick(category: Category)
-    }
-
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgCategory: ImageView = itemView.findViewById(R.id.imgCategory)
         val textCategory: TextView = itemView.findViewById(R.id.textCategory)

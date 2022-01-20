@@ -8,10 +8,7 @@ import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
 import com.example.olx.databinding.FragmentPostsBinding
 import com.example.olx.helper.FirebaseHelper
-import com.example.olx.helper.SPFilters
-import com.example.olx.model.Category
 import com.example.olx.model.Post
-import com.example.olx.ui.filters.CategoriesFragment
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
 import com.example.olx.util.showBottomSheetInfo
@@ -19,25 +16,16 @@ import com.ferfalk.simplesearchview.SimpleSearchView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.ArrayList
 
 class PostsFragment : BaseFragment() {
-
-    private val TAG = "INFOTESTE"
 
     private var _binding: FragmentPostsBinding? = null
     private val binding get() = _binding!!
 
     private val postList = mutableListOf<Post>()
-    private var categorySelected: String = ""
+    private var postListFilter = mutableListOf<Post>()
 
     private lateinit var postAdapter: PostAdapter
-
-    private var clearSearch: Boolean = true
-
-    companion object {
-        val LISTENER_FILTERS = "LISTENER_FILTERS"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +47,9 @@ class PostsFragment : BaseFragment() {
         getPosts()
 
         initListeners()
-
-        listenerFilters()
     }
 
     private fun initListeners() {
-        clearSearch = true
-
         binding.btnNewPost.setOnClickListener {
             if (FirebaseHelper.isAutenticated()) {
                 val action =
@@ -80,21 +64,6 @@ class PostsFragment : BaseFragment() {
             }
         }
 
-        binding.btnCategory.setOnClickListener {
-            val action = PostsFragmentDirections
-                .actionMenuHomeToCategoriesFragment(true)
-
-            findNavController().navigate(action)
-        }
-
-        binding.btnRegions.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_home_to_statesFragment)
-        }
-
-        binding.btnFilters.setOnClickListener {
-            findNavController().navigate(R.id.action_menu_home_to_filtersFragment)
-        }
-
         binding.swipeRefreshLayout.setOnRefreshListener {
             getPosts()
         }
@@ -102,9 +71,7 @@ class PostsFragment : BaseFragment() {
         binding.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 if (query.isNotEmpty()) {
-                    hideKeyboard()
-                    SPFilters.setFilters(requireActivity(), "search", query)
-                    checkFilterPoster()
+                    filterNamePosts(query)
                 }
                 return true
             }
@@ -120,29 +87,13 @@ class PostsFragment : BaseFragment() {
 
         binding.searchView.setOnSearchViewListener(object : SimpleSearchView.SearchViewListener {
             override fun onSearchViewClosed() {
-                if (clearSearch) {
-                    SPFilters.setFilters(requireActivity(), "search", "")
-                    checkFilterPoster()
-                } else {
-                    SPFilters.setFilters(
-                        requireActivity(),
-                        "search",
-                        SPFilters.getFilters(requireActivity()).search
-                    )
-                }
+                initRecyclerView(postList)
             }
 
             override fun onSearchViewClosedAnimation() {
             }
 
             override fun onSearchViewShown() {
-                if (clearSearch) {
-                    binding.searchView.showSearch()
-                    binding.searchView.setQuery(
-                        SPFilters.getFilters(requireActivity()).search,
-                        false
-                    )
-                }
             }
 
             override fun onSearchViewShownAnimation() {
@@ -150,32 +101,12 @@ class PostsFragment : BaseFragment() {
         })
     }
 
-    private fun showFilters() {
-        if (SPFilters.isFilter(requireActivity())) {
-            val filters = SPFilters.getFilters(requireActivity())
+    private fun filterNamePosts(query: String) {
+        hideKeyboard()
 
-            if (filters.category.isNotEmpty()) {
-                binding.btnCategory.text = filters.category
-            }
-
-            if (filters.state.region.isNotEmpty()) {
-                binding.btnRegions.text = filters.state.region
-            }
-        }
-    }
-
-    private fun listenerFilters() {
-        parentFragmentManager.setFragmentResultListener(
-            LISTENER_FILTERS, this,
-            { _, _ ->
-                checkFilterPoster()
-            })
-    }
-
-    override fun onPause() {
-        super.onPause()
-        clearSearch = false
-        binding.searchView.closeSearch()
+        postListFilter =
+            postList.filter { it.title.contains(query, true) }.toMutableList()
+        initRecyclerView(postListFilter)
     }
 
     private fun initRecyclerView(postList: List<Post>) {
@@ -208,7 +139,7 @@ class PostsFragment : BaseFragment() {
                         }
                     }
 
-                    checkFilterPoster()
+                    initRecyclerView(postList)
 
                     if (binding.swipeRefreshLayout.isRefreshing) {
                         binding.swipeRefreshLayout.isRefreshing = false
@@ -219,59 +150,6 @@ class PostsFragment : BaseFragment() {
                     showBottomSheetInfo(R.string.error_generic)
                 }
             })
-    }
-
-    private fun checkFilterPoster() {
-        if (SPFilters.isFilter(requireActivity())) {
-
-            showFilters()
-
-            val filterPosts = mutableListOf<Post>()
-            filterPosts.addAll(postList)
-
-            // Filtra pelo nome
-            if (SPFilters.getFilters(requireActivity()).search.isNotEmpty()) {
-                for (post in ArrayList(filterPosts)) {
-                    if (!post.title.contains(
-                            SPFilters.getFilters(requireActivity()).search,
-                            true
-                        )
-                    ) {
-                        filterPosts.remove(post)
-                    }
-                }
-            }
-
-            // Filtra pela categoria
-            if (SPFilters.getFilters(requireActivity()).category.isNotEmpty()) {
-                for (post in ArrayList(filterPosts)) {
-                    if (!post.category.contains(
-                            SPFilters.getFilters(requireActivity()).category,
-                            true
-                        )
-                    ) {
-                        filterPosts.remove(post)
-                    }
-                }
-            }
-
-            // Filtra pelo ddd
-            if (SPFilters.getFilters(requireActivity()).state.ddd.isNotEmpty()) {
-                for (post in ArrayList(filterPosts)) {
-                    if (!post.address?.ddd.equals(
-                            SPFilters.getFilters(requireActivity()).state.ddd,
-                            true
-                        )
-                    ) {
-                        filterPosts.remove(post)
-                    }
-                }
-            }
-
-            initRecyclerView(filterPosts)
-        } else {
-            initRecyclerView(postList)
-        }
     }
 
     private fun postListEmpty(postList: List<Post>) {

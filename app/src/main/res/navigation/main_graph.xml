@@ -11,20 +11,11 @@
         android:label="@string/menu_inicio"
         tools:layout="@layout/fragment_posts" >
         <action
-            android:id="@+id/action_menu_home_to_categoriesFragment"
-            app:destination="@id/categoriesFragment" />
-        <action
             android:id="@+id/action_menu_home_to_detailPostFragment"
             app:destination="@id/detailPostFragment" />
         <action
             android:id="@+id/action_menu_home_to_formPostFragment"
             app:destination="@id/formPostFragment" />
-        <action
-            android:id="@+id/action_menu_home_to_filtersFragment"
-            app:destination="@id/filtersFragment" />
-        <action
-            android:id="@+id/action_menu_home_to_statesFragment"
-            app:destination="@id/statesFragment" />
     </fragment>
 
     <fragment
@@ -81,15 +72,6 @@
             tools:layout="@layout/fragment_register" />
     </navigation>
     <fragment
-        android:id="@+id/categoriesFragment"
-        android:name="com.example.olx.ui.filters.CategoriesFragment"
-        android:label="fragment_categories"
-        tools:layout="@layout/fragment_categories" >
-        <argument
-            android:name="allCategorys"
-            app:argType="boolean" />
-    </fragment>
-    <fragment
         android:id="@+id/detailPostFragment"
         android:name="com.example.olx.ui.post.DetailPostFragment"
         android:label="fragment_detail_post"
@@ -103,9 +85,6 @@
         android:name="com.example.olx.ui.post.FormPostFragment"
         android:label="fragment_form_post"
         tools:layout="@layout/fragment_form_post" >
-        <action
-            android:id="@+id/action_formPostFragment_to_categoriesFragment"
-            app:destination="@id/categoriesFragment" />
         <argument
             android:name="post"
             app:argType="com.example.olx.model.Post"
@@ -126,32 +105,9 @@
         android:id="@+id/visitorFragment"
         android:name="com.example.olx.ui.auth.VisitorFragment"
         android:label="fragment_visitor"
-        tools:layout="@layout/fragment_visitor" >
-        <action
-            android:id="@+id/action_visitorFragment_to_navLogin"
-            app:destination="@id/navLogin" />
-    </fragment>
+        tools:layout="@layout/fragment_visitor" />
     <action
         android:id="@+id/action_global_visitorFragment"
-        app:destination="@id/visitorFragment"/>
-    <fragment
-        android:id="@+id/filtersFragment"
-        android:name="com.example.olx.ui.filters.FiltersFragment"
-        android:label="fragment_filters"
-        tools:layout="@layout/fragment_filters" />
-    <fragment
-        android:id="@+id/regionsFragment"
-        android:name="com.example.olx.ui.filters.RegionsFragment"
-        android:label="fragment_regions"
-        tools:layout="@layout/fragment_regions" />
-    <fragment
-        android:id="@+id/statesFragment"
-        android:name="com.example.olx.ui.filters.StatesFragment"
-        android:label="fragment_states"
-        tools:layout="@layout/fragment_states" >
-        <action
-            android:id="@+id/action_statesFragment_to_regionsFragment"
-            app:destination="@id/regionsFragment" />
-    </fragment>
+        app:destination="@id/visitorFragment"/><action android:id="@+id/action_global_navLogin" app:destination="@id/navLogin"/>
 
 </navigation>
