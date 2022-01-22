@@ -11,7 +11,7 @@ import com.example.olx.R
 import com.example.olx.databinding.FragmentAccountBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
-import com.example.olx.ui.post.PostsFragmentDirections
+import com.example.olx.util.showBottomSheetInfo
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -43,10 +43,6 @@ class AccountFragment : Fragment() {
     private fun initClicks() {
         binding.btnProfile.setOnClickListener {
             loginApp(R.id.action_menu_account_to_profileFragment)
-        }
-
-        binding.btnAddress.setOnClickListener {
-            loginApp(R.id.action_menu_account_to_formAddressFragment)
         }
 
         binding.textAccount.setOnClickListener {
@@ -84,7 +80,7 @@ class AccountFragment : Fragment() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+                        showBottomSheetInfo(R.string.error_generic)
                     }
                 })
         }

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
@@ -41,9 +42,6 @@ class FavoritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Configurações iniciais do RecyclerView
-        initRecycler()
 
         // Configura os favoritos do firebase
         getIdsFavorites()
@@ -93,8 +91,10 @@ class FavoritesFragment : Fragment() {
                         if (postList.size == idsFavoritesList.size) {
                             binding.textInfo.text = ""
                             binding.progressBar.visibility = View.GONE
-                            postAdapter.notifyDataSetChanged()
+
+                            initRecycler()
                         }
+
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -108,7 +108,13 @@ class FavoritesFragment : Fragment() {
     private fun initRecycler() {
         binding.recyclerFavorites.layoutManager = LinearLayoutManager(activity)
         binding.recyclerFavorites.setHasFixedSize(true)
-        postAdapter = PostAdapter(postList, requireContext()){}
+        postAdapter = PostAdapter(postList, requireContext()) { post ->
+            val action =
+                FavoritesFragmentDirections
+                    .actionMenuFavoritesToDetailPostFragment(post)
+
+            findNavController().navigate(action)
+        }
         binding.recyclerFavorites.adapter = postAdapter
 
         binding.recyclerFavorites.setListener(object : SwipeLeftRightCallback.Listener {
@@ -132,7 +138,8 @@ class FavoritesFragment : Fragment() {
         val post = postList[postion]
 
         dialogBinding.textTitle.text = "Remover favoritos"
-        dialogBinding.textMsg.text = "Tem certeza que quer remover este anúncio de sua lista de favoritos?"
+        dialogBinding.textMsg.text =
+            "Tem certeza que quer remover este anúncio de sua lista de favoritos?"
 
         dialogBinding.btnConfirm.setOnClickListener {
             idsFavoritesList.remove(post.id)

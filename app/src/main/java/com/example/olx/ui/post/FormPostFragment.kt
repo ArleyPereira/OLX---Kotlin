@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +34,6 @@ import com.example.olx.databinding.LayoutSelectCategoryBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
 import com.example.olx.util.*
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -47,7 +45,6 @@ import com.squareup.picasso.Picasso
 import com.techiness.progressdialoglibrary.ProgressDialog
 import java.io.File
 import java.util.*
-
 
 open class FormPostFragment : BaseFragment() {
 

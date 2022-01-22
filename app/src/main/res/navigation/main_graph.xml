@@ -32,7 +32,11 @@
         android:id="@+id/menu_favorites"
         android:name="com.example.olx.ui.favorite.FavoritesFragment"
         android:label="@string/menu_favoritos"
-        tools:layout="@layout/fragment_favorites" />
+        tools:layout="@layout/fragment_favorites" >
+        <action
+            android:id="@+id/action_menu_favorites_to_detailPostFragment"
+            app:destination="@id/detailPostFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/menu_account"
@@ -42,9 +46,6 @@
         <action
             android:id="@+id/action_menu_account_to_profileFragment"
             app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_menu_account_to_formAddressFragment"
-            app:destination="@id/formAddressFragment" />
     </fragment>
     <navigation android:id="@+id/navLogin"
         app:startDestination="@id/loginFragment">
@@ -95,11 +96,6 @@
         android:name="com.example.olx.ui.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
-    <fragment
-        android:id="@+id/formAddressFragment"
-        android:name="com.example.olx.ui.profile.FormAddressFragment"
-        android:label="fragment_form_address"
-        tools:layout="@layout/fragment_form_address" />
 
     <fragment
         android:id="@+id/visitorFragment"
