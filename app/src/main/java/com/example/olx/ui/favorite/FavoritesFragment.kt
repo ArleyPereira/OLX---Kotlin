@@ -1,21 +1,21 @@
 package com.example.olx.ui.favorite
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
-import com.example.olx.databinding.CustomDialogDeleteBinding
 import com.example.olx.databinding.FragmentFavoritesBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Favorite
 import com.example.olx.model.Post
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.Contants.Companion.TAG
+import com.example.olx.util.showBottomSheet
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -29,8 +29,6 @@ class FavoritesFragment : Fragment() {
     private val idsFavoritesList: MutableList<String> = mutableListOf()
     private val postList: MutableList<Post> = mutableListOf()
     private lateinit var postAdapter: PostAdapter
-
-    private lateinit var dialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,7 +69,7 @@ class FavoritesFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    showBottomSheetInfo(R.string.error_generic)
+                    Log.i(TAG, "onCancelled")
                 }
             })
     }
@@ -98,7 +96,7 @@ class FavoritesFragment : Fragment() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        showBottomSheetInfo(R.string.error_generic)
+                        Log.i(TAG, "onCancelled")
                     }
                 })
         }
@@ -119,48 +117,28 @@ class FavoritesFragment : Fragment() {
 
         binding.recyclerFavorites.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
-                showDialogDelete(position)
+                showBottomSheet(
+                    message = getString(R.string.text_delete_post_my_posts_fragment),
+                    titleButton = R.string.text_button_delete_post_my_posts_fragment,
+                    onClick = {
+                        val post = postList[position]
+
+                        idsFavoritesList.remove(post.id)
+                        postList.remove(post)
+
+                        if (postList.size == 0) binding.textInfo.text = "Nenhum anúncio favoritado"
+
+                        val favorito = Favorite(idsFavoritesList)
+                        favorito.salvar()
+
+                        postAdapter.notifyItemRemoved(position)
+                    }
+                )
             }
 
             override fun onSwipedRight(position: Int) {
             }
         })
-    }
-
-    // Exibe dialog para confirmar exclusão
-    private fun showDialogDelete(postion: Int) {
-        val dialogBinding: CustomDialogDeleteBinding = CustomDialogDeleteBinding
-            .inflate(LayoutInflater.from(context))
-
-        val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-        builder.setView(dialogBinding.root)
-
-        val post = postList[postion]
-
-        dialogBinding.textTitle.text = "Remover favoritos"
-        dialogBinding.textMsg.text =
-            "Tem certeza que quer remover este anúncio de sua lista de favoritos?"
-
-        dialogBinding.btnConfirm.setOnClickListener {
-            idsFavoritesList.remove(post.id)
-            postList.remove(post)
-
-            if (postList.size == 0) binding.textInfo.text = "Nenhum anúncio favoritado"
-
-            val favorito = Favorite(idsFavoritesList)
-            favorito.salvar()
-
-            dialog.dismiss()
-            postAdapter.notifyItemRemoved(postion)
-        }
-
-        dialogBinding.btnCancel.setOnClickListener {
-            dialog.dismiss()
-            postAdapter.notifyDataSetChanged()
-        }
-
-        dialog = builder.create()
-        dialog.show()
     }
 
     override fun onDestroyView() {

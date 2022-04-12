@@ -1,20 +1,20 @@
 package com.example.olx.ui.post
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.olx.R
 import com.example.olx.adapter.PostAdapter
-import com.example.olx.databinding.CustomDialogDeleteBinding
 import com.example.olx.databinding.FragmentMyPostsBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Post
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.Contants.Companion.TAG
+import com.example.olx.util.showBottomSheet
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -27,8 +27,6 @@ class MyPostsFragment : Fragment() {
 
     private var postList = mutableListOf<Post>()
     private lateinit var postAdapter: PostAdapter
-
-    private lateinit var dialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,51 +54,32 @@ class MyPostsFragment : Fragment() {
 
         binding.recyclerPosts.setListener(object : SwipeLeftRightCallback.Listener {
             override fun onSwipedLeft(position: Int) {
-                removePost(position)
+                showBottomSheet(
+                    message = getString(R.string.text_delete_post_my_posts_fragment),
+                    titleButton = R.string.text_button_delete_post_my_posts_fragment,
+                    onClick = {
+                        val post = postList[position]
+                        postList.remove(post)
+                        post.remove()
+                    }
+                )
+                postAdapter.notifyItemRemoved(position)
             }
 
             override fun onSwipedRight(position: Int) {
-                val action = MyPostsFragmentDirections
-                    .actionMenuMeusAnunciosToFormPostFragment(postList[position])
+                showBottomSheet(
+                    message = getString(R.string.text_edit_post_my_posts_fragment),
+                    titleButton = R.string.text_button_edit_post_my_posts_fragment,
+                    onClick = {
+                        val action = MyPostsFragmentDirections
+                            .actionMenuMeusAnunciosToFormPostFragment(postList[position])
 
-                findNavController().navigate(action)
+                        findNavController().navigate(action)
+                    }
+                )
+                postAdapter.notifyItemRemoved(position)
             }
         })
-    }
-
-    // Exibe dialog para confirmar exclusão
-    private fun removePost(postion: Int) {
-        val dialogBinding: CustomDialogDeleteBinding = CustomDialogDeleteBinding
-            .inflate(LayoutInflater.from(context))
-
-        val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-        builder.setView(dialogBinding.root)
-
-        val post = postList[postion]
-
-        dialogBinding.textTitle.text = "Remover anúncio"
-        dialogBinding.textMsg.text = "Tem certeza que quer remover este anúncio de sua conta?"
-
-        dialogBinding.btnConfirm.setOnClickListener {
-            postList.remove(post)
-            post.remove()
-            dialog.dismiss()
-            postAdapter.notifyItemRemoved(postion)
-
-            if (postList.isEmpty()) {
-                binding.textInfo.text = "Você ainda não possui nenhum anúncio cadastrado."
-            } else {
-                binding.textInfo.text = ""
-            }
-        }
-
-        dialogBinding.btnCancel.setOnClickListener {
-            dialog.dismiss()
-            postAdapter.notifyDataSetChanged()
-        }
-
-        dialog = builder.create()
-        dialog.show()
     }
 
     // Recupera anúncios do Firebase
@@ -128,7 +107,7 @@ class MyPostsFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    showBottomSheetInfo(R.string.error_generic)
+                    Log.i(TAG, "onCancelled")
                 }
             })
     }

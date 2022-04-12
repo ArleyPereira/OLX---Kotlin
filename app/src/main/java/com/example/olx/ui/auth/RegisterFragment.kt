@@ -12,7 +12,7 @@ import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.showBottomSheet
 
 class RegisterFragment : BaseFragment() {
 
@@ -73,19 +73,19 @@ class RegisterFragment : BaseFragment() {
                             )
 
                         } else {
-                            showBottomSheetInfo(R.string.password_empty_register_fragment)
+                            showBottomSheet(message = getString(R.string.password_empty_register_fragment))
                         }
                     } else {
-                        showBottomSheetInfo(R.string.phone_not_valid_register_fragment)
+                        showBottomSheet(message = getString(R.string.phone_not_valid_register_fragment))
                     }
                 } else {
-                    showBottomSheetInfo(R.string.phone_empty_register_fragment)
+                    showBottomSheet(message = getString(R.string.phone_empty_register_fragment))
                 }
             } else {
-                showBottomSheetInfo(R.string.email_empty_register_fragment)
+                showBottomSheet(message = getString(R.string.email_empty_register_fragment))
             }
         } else {
-            showBottomSheetInfo(R.string.name_empty_register_fragment)
+            showBottomSheet(message = getString(R.string.name_empty_register_fragment))
         }
     }
 
@@ -98,8 +98,8 @@ class RegisterFragment : BaseFragment() {
                 user.id = FirebaseHelper.getAuth().currentUser!!.uid
                 saveProfile(user)
             } else {
-                showBottomSheetInfo(
-                    FirebaseHelper.validError(task.exception?.message.toString())
+                showBottomSheet(
+                    message = getString(FirebaseHelper.validError(task.exception?.message.toString()))
                 )
             }
         }

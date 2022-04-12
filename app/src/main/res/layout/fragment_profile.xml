@@ -28,11 +28,49 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_bias="0.0">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="32dp"
-            android:paddingBottom="32dp">
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="24dp">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/materialCardView"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    app:cardCornerRadius="60dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/image_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user_on" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabChangeImgProfile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginTop="80dp"
+                    android:layout_marginStart="80dp"
+                    android:layout_gravity="end|bottom"
+                    app:backgroundTint="@color/colorRoxoOlx"
+                    app:fabSize="mini"
+                    app:srcCompat="@drawable/ic_photo"
+                    app:tint="@android:color/white" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/textView5"
@@ -40,9 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Telefone"
-                android:textColor="@color/colorRoxoOlx"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editNome" />
+                android:textColor="@color/colorRoxoOlx" />
 
             <com.santalu.maskara.widget.MaskEditText
                 android:id="@+id/editTelefone"
@@ -56,10 +92,6 @@
                 android:hint="Telefone"
                 android:imeOptions="actionNext"
                 android:inputType="number"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5"
                 app:mask="(__) _____-____"
                 app:maskCharacter="_"
                 app:maskStyle="completable" />
@@ -70,9 +102,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="E-mail"
-                android:textColor="@color/colorRoxoOlx"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTelefone" />
+                android:textColor="@color/colorRoxoOlx" />
 
             <EditText
                 android:id="@+id/editEmail"
@@ -86,21 +116,14 @@
                 android:hint="Email"
                 android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
-                android:maxLines="1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView6" />
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="Nome"
-                android:textColor="@color/colorRoxoOlx"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textColor="@color/colorRoxoOlx" />
 
             <EditText
                 android:id="@+id/editNome"
@@ -113,11 +136,7 @@
                 android:hint="Nome"
                 android:imeOptions="actionNext"
                 android:inputType="text|textNoSuggestions"
-                android:maxLines="1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                android:maxLines="1"/>
 
             <Button
                 android:id="@+id/btnSalvar"
@@ -129,11 +148,7 @@
                 android:text="Salvar"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                app:backgroundTint="@color/colorRoxoOlx"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editEmail" />
+                app:backgroundTint="@color/colorRoxoOlx" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -142,12 +157,10 @@
                 android:layout_marginTop="8dp"
                 android:indeterminateTint="@color/colorRoxoOlx"
                 android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnSalvar"
+                android:layout_gravity="center_horizontal"
                 tools:visibility="visible" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </ScrollView>
 

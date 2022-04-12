@@ -1,15 +1,18 @@
 package com.example.olx.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.example.olx.R
 import com.example.olx.databinding.FragmentProfileBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
 import com.example.olx.util.BaseFragment
+import com.example.olx.util.Contants.Companion.TAG
 import com.example.olx.util.initToolbar
+import com.example.olx.util.showBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -42,6 +45,11 @@ class ProfileFragment : BaseFragment() {
         initClicks()
     }
 
+    // Ouvinte Cliques dos componentes
+    private fun initClicks() {
+        binding.btnSalvar.setOnClickListener { validData() }
+    }
+
     // Recupera dados do Perfil
     private fun getProfile() {
         FirebaseHelper.getDatabase()
@@ -60,7 +68,7 @@ class ProfileFragment : BaseFragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.i(TAG, "onCancelled")
                 }
 
             })
@@ -93,16 +101,13 @@ class ProfileFragment : BaseFragment() {
 
                     saveProfile()
                 } else {
-                    binding.editTelefone.requestFocus()
-                    binding.editTelefone.error = "Telefone inválido."
+                    showBottomSheet(message = getString(R.string.text_phone_is_invalid_profile_fragment))
                 }
             } else {
-                binding.editTelefone.requestFocus()
-                binding.editTelefone.error = "Informe seu telefone."
+                showBottomSheet(message = getString(R.string.text_phone_is_empty_profile_fragment))
             }
         } else {
-            binding.editNome.requestFocus()
-            binding.editNome.error = "Informe seu nome."
+            showBottomSheet(message = getString(R.string.text_name_is_empty_profile_fragment))
         }
     }
 
@@ -120,19 +125,10 @@ class ProfileFragment : BaseFragment() {
                 )
                     .show()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Não foi possível salvar os dados.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showBottomSheet(message = getString(R.string.error_generic))
             }
         }
         binding.progressBar.visibility = View.GONE
-    }
-
-    // Ouvinte Cliques dos componentes
-    private fun initClicks() {
-        binding.btnSalvar.setOnClickListener { validData() }
     }
 
     override fun onDestroyView() {

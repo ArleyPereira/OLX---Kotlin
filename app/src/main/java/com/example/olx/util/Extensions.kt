@@ -2,13 +2,12 @@ package com.example.olx.util
 
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.example.olx.R
-import com.example.olx.databinding.LayoutInfoBottomSheetBinding
+import com.example.olx.databinding.BottomSheetDialogBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.util.*
 
@@ -82,13 +81,27 @@ fun Context.toast(resource: Int): Toast = Toast
     .makeText(this, resource, Toast.LENGTH_SHORT)
     .apply { show() }
 
-fun Fragment.showBottomSheetInfo(resource: Int? = null) {
+fun Fragment.showBottomSheet(
+    titleDialog: Int? = null,
+    titleButton: Int? = null,
+    message: String,
+    onClick: () -> Unit = {}
+) {
     val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialog)
-    val bottomSheetBinding: LayoutInfoBottomSheetBinding =
-        LayoutInfoBottomSheetBinding.inflate(layoutInflater, null, false)
+    val bottomSheetBinding: BottomSheetDialogBinding =
+        BottomSheetDialogBinding.inflate(layoutInflater, null, false)
 
-    bottomSheetBinding.textMsgInfo.text = getString(resource ?: R.string.error_generic)
-    bottomSheetBinding.btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
+    bottomSheetBinding.textTitle.text =
+        getString(titleDialog ?: R.string.text_title_bottom_sheet_dialog)
+
+    bottomSheetBinding.textMessage.text = message
+
+    bottomSheetBinding.btnClick.text =
+        getString(titleButton ?: R.string.text_button_bottom_sheet_dialog)
+    bottomSheetBinding.btnClick.setOnClickListener {
+        onClick()
+        bottomSheetDialog.dismiss()
+    }
 
     bottomSheetDialog.setContentView(bottomSheetBinding.root)
     bottomSheetDialog.show()

@@ -9,7 +9,7 @@ import com.example.olx.databinding.FragmentRecoverPasswordBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.showBottomSheet
 import com.example.olx.util.toast
 
 class RecoverPasswordFragment : BaseFragment() {
@@ -49,7 +49,7 @@ class RecoverPasswordFragment : BaseFragment() {
 
             sendEmail(email)
         } else {
-            showBottomSheetInfo(R.string.text_email_empty)
+            showBottomSheet(message = getString(R.string.text_email_empty))
         }
     }
 
@@ -62,7 +62,11 @@ class RecoverPasswordFragment : BaseFragment() {
                 if (task.isSuccessful) {
                     requireContext().toast(R.string.text_recover_password_fragment)
                 } else {
-                    showBottomSheetInfo(FirebaseHelper.validError(task.exception?.message!!))
+                    showBottomSheet(
+                        message = getString(
+                            FirebaseHelper.validError(task.exception?.message ?: "")
+                        )
+                    )
                 }
                 binding.progressBar.visibility = View.GONE
             }

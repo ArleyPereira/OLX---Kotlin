@@ -11,11 +11,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -34,6 +34,7 @@ import com.example.olx.databinding.LayoutSelectCategoryBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.*
 import com.example.olx.util.*
+import com.example.olx.util.Contants.Companion.TAG
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -106,7 +107,7 @@ open class FormPostFragment : BaseFragment() {
         binding.btnSave.setOnClickListener { validData() }
         binding.btnCategory.setOnClickListener { bottomSheetSelectCategory() }
 
-        binding.editZipCode.setOnEditorActionListener { v, actionId, event ->
+        binding.editZipCode.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val zipCode = v.text.toString()
                     .replace("_", "")
@@ -117,7 +118,7 @@ open class FormPostFragment : BaseFragment() {
                     searchAddress(zipCode, false)
                     true
                 } else {
-                    showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
+                    showBottomSheet(message = getString(R.string.zip_code_invalid_save_post_form_post_fragment))
                     false
                 }
             } else false
@@ -155,6 +156,7 @@ open class FormPostFragment : BaseFragment() {
                 post = it
 
                 newPost = false
+                binding.titleToolbar.text = post.title
                 configData()
             }
         }
@@ -174,7 +176,7 @@ open class FormPostFragment : BaseFragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                showBottomSheetInfo(R.string.error_generic)
+                Log.i(TAG, "onCancelled")
             }
         })
     }
@@ -193,7 +195,7 @@ open class FormPostFragment : BaseFragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                showBottomSheetInfo(R.string.error_generic)
+                Log.i(TAG, "onCancelled")
             }
         })
     }
@@ -429,14 +431,14 @@ open class FormPostFragment : BaseFragment() {
     private fun searchAddress(zipCode: String, savePost: Boolean = true) {
         binding.progressBar.visibility = View.VISIBLE
 
-        formPostViewModel.getAddress(zipCode).observe(viewLifecycleOwner, { resource ->
+        formPostViewModel.getAddress(zipCode).observe(viewLifecycleOwner) { resource ->
             when (resource) {
                 is Resource.onSuccess -> {
                     address = resource.data
                     if (address?.city == null) {
                         address = null
                         binding.progressBar.visibility = View.GONE
-                        showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                        showBottomSheet(message = getString(R.string.address_invalid_form_post_fragment))
                     } else {
                         if (savePost) validData()
                     }
@@ -444,10 +446,10 @@ open class FormPostFragment : BaseFragment() {
                 }
                 is Resource.onFailure -> {
                     binding.progressBar.visibility = View.GONE
-                    showBottomSheetInfo(R.string.address_invalid_form_post_fragment)
+                    showBottomSheet(message = getString(R.string.address_invalid_form_post_fragment))
                 }
             }
-        })
+        }
     }
 
     // Exibe um TextView com o endereço
@@ -509,7 +511,7 @@ open class FormPostFragment : BaseFragment() {
                                                 saveImagePost(i)
                                             }
                                         } else {
-                                            showBottomSheetInfo(R.string.image_empty_post_form_post_fragment)
+                                            showBottomSheet(message = getString(R.string.image_empty_post_form_post_fragment))
                                         }
                                     } else { // Edita Anúncio
                                         if (imageList.isNotEmpty()) {
@@ -528,22 +530,22 @@ open class FormPostFragment : BaseFragment() {
                                     searchAddress(zipCode)
                                 }
                             } else {
-                                showBottomSheetInfo(R.string.zip_code_invalid_save_post_form_post_fragment)
+                                showBottomSheet(message = getString(R.string.zip_code_invalid_save_post_form_post_fragment))
                             }
                         } else {
-                            showBottomSheetInfo(R.string.zip_code_empty_save_post_form_post_fragment)
+                            showBottomSheet(message = getString(R.string.zip_code_empty_save_post_form_post_fragment))
                         }
                     } else {
-                        showBottomSheetInfo(R.string.description_empty_save_post_form_post_fragment)
+                        showBottomSheet(message = getString(R.string.description_empty_save_post_form_post_fragment))
                     }
                 } else {
-                    showBottomSheetInfo(R.string.category_empty_save_post_form_post_fragment)
+                    showBottomSheet(message = getString(R.string.category_empty_save_post_form_post_fragment))
                 }
             } else {
-                showBottomSheetInfo(R.string.price_empty_save_post_form_post_fragment)
+                showBottomSheet(message = getString(R.string.price_empty_save_post_form_post_fragment))
             }
         } else {
-            showBottomSheetInfo(R.string.title_empty_save_post_form_post_fragment)
+            showBottomSheet(message = getString(R.string.title_empty_save_post_form_post_fragment))
         }
     }
 
@@ -580,7 +582,7 @@ open class FormPostFragment : BaseFragment() {
 
             }
         }.addOnFailureListener(requireActivity()) {
-            Toast.makeText(requireContext(), "Falha no Upload.", Toast.LENGTH_SHORT).show()
+            showBottomSheet(message = getString(R.string.error_generic))
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.olx.ui.post
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,8 +11,8 @@ import com.example.olx.databinding.FragmentPostsBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Post
 import com.example.olx.util.BaseFragment
+import com.example.olx.util.Contants.Companion.TAG
 import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
 import com.ferfalk.simplesearchview.SimpleSearchView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -110,7 +111,7 @@ class PostsFragment : BaseFragment() {
     }
 
     private fun initRecyclerView(postList: List<Post>) {
-        postListEmpty(postList)
+        listEmpty(postList)
 
         binding.rvAnuncios.layoutManager = LinearLayoutManager(activity)
         binding.rvAnuncios.setHasFixedSize(true)
@@ -147,12 +148,12 @@ class PostsFragment : BaseFragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    showBottomSheetInfo(R.string.error_generic)
+                    Log.i(TAG, "onCancelled")
                 }
             })
     }
 
-    private fun postListEmpty(postList: List<Post>) {
+    private fun listEmpty(postList: List<Post>) {
         binding.textInfo.text = if (postList.isEmpty()) {
             getString(R.string.post_not_exists)
         } else {

@@ -11,6 +11,10 @@
     <string name="publicacao_local">%1$s, %2$s, %3$s</string>
     <string name="publicacao_detalhe">Publicado em %1$s</string>
 
+    <!--    Bottom Sheet Dialog-->
+    <string name="text_title_bottom_sheet_dialog">Atenção</string>
+    <string name="text_button_bottom_sheet_dialog">Entendi</string>
+
     <!--    Generics-->
     <string name="error_generic">Ocorreu um erro, por favor tente novamente mais tarde.</string>
     <string name="text_send">Enviar</string>
@@ -25,7 +29,7 @@
     <string name="title_regions">Região</string>
     <string name="title_categories">Categoria</string>
     <string name="title_filters">Filtros</string>
-    <string name="post_not_exists">Nenhum anúncio\n encontrado.</string>
+    <string name="post_not_exists">Nenhum anúncio encontrado.</string>
 
     <!--    Register Fragment-->
     <string name="account_not_registered_register_fragment">Nenhuma conta encontrada com este e-mail.</string>
@@ -68,7 +72,17 @@
     <string name="state_empty_form_address_fragment">Informe o estado do endereço.</string>
     <string name="city_empty_form_address_fragment">Informe o município do endereço.</string>
     <string name="district_empty_form_address_fragment">Informe o bairro do endereço.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--    Profile Fragment-->
+    <string name="text_name_is_empty_profile_fragment">Informe seu nome.</string>
+    <string name="text_phone_is_invalid_profile_fragment">Infrome um número válido.</string>
+    <string name="text_phone_is_empty_profile_fragment">Informe seu telefone.</string>
+
+    <!--    My Posts Fragment-->
+    <string name="text_edit_post_my_posts_fragment">Deseja continuar com a edição do anúncio ?</string>
+    <string name="text_button_edit_post_my_posts_fragment">Editar anúncio</string>
+
+    <string name="text_delete_post_my_posts_fragment">Tem certeza que quer remover este anúncio de sua conta ?</string>
+    <string name="text_button_delete_post_my_posts_fragment">Remover anúncio</string>
 
 </resources>

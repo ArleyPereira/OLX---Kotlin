@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../.gradle/caches/transforms-3/6cda631c14dd5e5c027bee92e6aa35ae/transformed/jetified-progress-dialog-1.3.1/res/drawable/bg_dialog.xml" value="0.293" />
         <entry key="app/src/main/res/drawable/bg_bottom_sheet.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/bg_bottom_sheet_info.xml" value="0.2601851851851852" />
         <entry key="app/src/main/res/drawable/bg_btn.xml" value="0.3546875" />
@@ -23,7 +24,9 @@
         <entry key="app/src/main/res/drawable/ic_galeria_bottom_sheet.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_like.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/ic_like_white.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/ic_photo.xml" value="0.1595" />
         <entry key="app/src/main/res/drawable/ic_search.xml" value="0.19027777777777777" />
+        <entry key="app/src/main/res/drawable/ic_seta_direita.xml" value="0.1165" />
         <entry key="app/src/main/res/drawable/ic_telefone_roxo.xml" value="0.3546875" />
         <entry key="app/src/main/res/drawable/ic_todas_as_categorias.xml" value="0.3388888888888889" />
         <entry key="app/src/main/res/drawable/ic_unlike.xml" value="0.3546875" />
@@ -41,11 +44,12 @@
         <entry key="app/src/main/res/layout/activity_form_anuncio.xml" value="0.33871808233454925" />
         <entry key="app/src/main/res/layout/activity_form_endereco.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.2740740740740741" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.35551811288963775" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.21172638436482086" />
         <entry key="app/src/main/res/layout/activity_perfil.xml" value="0.33871808233454925" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/adapter_anuncio.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/adapter_categoria.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/bottom_sheet_dialog.xml" value="0.21348684210526317" />
         <entry key="app/src/main/res/layout/bottom_sheet_form_anuncio.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/bottom_sheet_select_image.xml" value="0.2138157894736842" />
         <entry key="app/src/main/res/layout/custom_dialog_delete.xml" value="0.25" />
@@ -61,7 +65,7 @@
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.2138157894736842" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.21172638436482086" />
         <entry key="app/src/main/res/layout/fragment_meus_anuncios.xml" value="0.3385416666666667" />
-        <entry key="app/src/main/res/layout/fragment_my_posts.xml" value="0.3385416666666667" />
+        <entry key="app/src/main/res/layout/fragment_my_posts.xml" value="0.21172638436482086" />
         <entry key="app/src/main/res/layout/fragment_posts.xml" value="0.2138157894736842" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.3385416666666667" />
         <entry key="app/src/main/res/layout/fragment_recover_password.xml" value="0.3385416666666667" />

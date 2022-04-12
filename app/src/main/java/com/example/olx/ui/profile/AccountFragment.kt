@@ -1,6 +1,7 @@
 package com.example.olx.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import com.example.olx.R
 import com.example.olx.databinding.FragmentAccountBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.User
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.Contants.Companion.TAG
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -80,7 +81,7 @@ class AccountFragment : Fragment() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        showBottomSheetInfo(R.string.error_generic)
+                        Log.i(TAG, "onCancelled")
                     }
                 })
         }

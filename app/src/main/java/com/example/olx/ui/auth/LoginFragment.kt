@@ -11,7 +11,7 @@ import com.example.olx.databinding.FragmentLoginBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.util.BaseFragment
 import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
+import com.example.olx.util.showBottomSheet
 
 class LoginFragment : BaseFragment() {
 
@@ -67,24 +67,25 @@ class LoginFragment : BaseFragment() {
 
                 loginApp(email, password)
             } else {
-                showBottomSheetInfo(R.string.password_empty_login_fragment)
+                showBottomSheet(message = getString(R.string.password_empty_login_fragment))
             }
         } else {
-            showBottomSheetInfo(R.string.email_empty_login_fragment)
+            showBottomSheet(message = getString(R.string.email_empty_login_fragment))
         }
     }
 
     // Recupera o retorno e verifica se o usuário se cadastrou no app
     private fun listenerRegisterAccount() {
-        parentFragmentManager.setFragmentResultListener(RegisterFragment.REGISTER_SUCESS,
-            this,
-            { key, bundle ->
-                val sucess = bundle.getBoolean(RegisterFragment.REGISTER_SUCESS, false)
-                if (sucess) {
-                    parentFragmentManager.setFragmentResult(LOGIN_SUCESS, bundleOf())
-                    findNavController().popBackStack()
-                }
-            })
+        parentFragmentManager.setFragmentResultListener(
+            RegisterFragment.REGISTER_SUCESS,
+            this
+        ) { key, bundle ->
+            val sucess = bundle.getBoolean(RegisterFragment.REGISTER_SUCESS, false)
+            if (sucess) {
+                parentFragmentManager.setFragmentResult(LOGIN_SUCESS, bundleOf())
+                findNavController().popBackStack()
+            }
+        }
     }
 
     // Efetua login no app pelo firebase autentication
@@ -97,8 +98,8 @@ class LoginFragment : BaseFragment() {
                 findNavController().popBackStack()
             } else {
                 binding.progressBar.visibility = View.GONE
-                showBottomSheetInfo(
-                    FirebaseHelper.validError(task.exception?.message.toString())
+                showBottomSheet(
+                    message = getString(FirebaseHelper.validError(task.exception?.message.toString()))
                 )
             }
         }

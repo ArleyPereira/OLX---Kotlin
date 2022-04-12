@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -16,9 +17,9 @@ import com.example.olx.databinding.FragmentDetailPostBinding
 import com.example.olx.helper.FirebaseHelper
 import com.example.olx.model.Favorite
 import com.example.olx.model.Post
+import com.example.olx.util.Contants.Companion.TAG
 import com.example.olx.util.GetMask
 import com.example.olx.util.initToolbar
-import com.example.olx.util.showBottomSheetInfo
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -95,7 +96,7 @@ class DetailPostFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    showBottomSheetInfo(R.string.error_generic)
+                    Log.i(TAG, "onCancelled")
                 }
 
             })
